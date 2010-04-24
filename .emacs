@@ -781,7 +781,7 @@
 ;; twitterling-mode
 (require 'twittering-mode nil t)
 (setq twittering-username "tsucchi")
-(setq twittering-status-format "%i %s/%S,  (%C):%L\n%FILL{  %T //[%f%r%R]}\n ")
+(setq twittering-status-format "%i %s/%S,  (%C{%Y/%m/%d %H:%M:%S}):%L\n%FILL{  %T //[%f%r%R]}\n ")
 (setq twittering-convert-fix-size 24)
 (add-hook 'twittering-mode-hook 
 		  (lambda ()
@@ -793,6 +793,7 @@
 			(setq twittering-reverse-mode t); #逆順
 			(define-key  twittering-mode-map "\C-m" 'twittering-scroll-up)
 			(define-key   twittering-mode-map "A" 'twittering-enter)
+			(setq twittering-update-status-function 'twittering-update-status-from-pop-up-buffer)
 			))
 
 
