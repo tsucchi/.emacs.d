@@ -113,6 +113,7 @@
 						 )
 						default-frame-alist))
 
+		  (setq initial-frame-alist default-frame-alist)
 		  (w32-ime-initialize)
 		  (set-input-method "W32-IME")
 		  (setq-default w32-ime-mode-line-state-indicator "[--]")
@@ -408,6 +409,7 @@
 		  '(lambda ()
 			 (define-key fundamental-mode-map "\C-cu" 'changecase-word)
 			 (jaspace-mode t)
+			 (modify-frame-parameters nil default-frame-alist)			 ;; emacs23.1 では color-theme 呼ぶとフレームサイズが勝手に変更されるのでここで実施
 			 (font-lock-mode t)))
 
 
@@ -796,4 +798,7 @@
 			(setq twittering-update-status-function 'twittering-update-status-from-pop-up-buffer)
 			))
 
-
+;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
+(add-hook 'window-setup-hook
+          (lambda ()
+            (modify-frame-parameters (selected-frame) initial-frame-alist)))
