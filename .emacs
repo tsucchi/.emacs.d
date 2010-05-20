@@ -139,10 +139,12 @@
 	  ;; サーバプロセスを起動する
 	  (server-start)
       ;;cannaをロードする
-      (load "canna")
-      (canna)
+      ;;(load "canna")
+      ;;(canna)
+      (load "anthy")
+      (setq default-input-method "japanese-anthy")
       ;;C-?(DEL)で文字がちゃんと消えるようにする
-      (define-key canna-mode-map "\C-?" "\C-h")
+      ;;(define-key canna-mode-map "\C-?" "\C-h")
       ;;
       ;;フレームの設定
       ;;
