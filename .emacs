@@ -138,13 +138,12 @@
       (set-keyboard-coding-system 'euc-jp-unix)
 	  ;; サーバプロセスを起動する
 	  (server-start)
-      ;;cannaをロードする
-      ;;(load "canna")
-      ;;(canna)
+	  ;; anthy をロードする
       (load "anthy")
       (setq default-input-method "japanese-anthy")
-      ;;C-?(DEL)で文字がちゃんと消えるようにする
-      ;;(define-key canna-mode-map "\C-?" "\C-h")
+	  (global-unset-key "\C-o")
+      (global-set-key "\C-o" 'toggle-input-method)
+	  (setq anthy-accept-timeout 1)
       ;;
       ;;フレームの設定
       ;;
