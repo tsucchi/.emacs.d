@@ -143,7 +143,7 @@
       (setq default-input-method "japanese-anthy")
 	  (global-unset-key "\C-o")
       (global-set-key "\C-o" 'toggle-input-method)
-	  (setq anthy-accept-timeout 1)
+	  (setq anthy-accept-timeout nil)
       ;;
       ;;フレームの設定
       ;;
