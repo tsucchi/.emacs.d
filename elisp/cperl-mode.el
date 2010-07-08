@@ -1,22 +1,34 @@
 ;;; cperl-mode.el --- Perl code editing commands for Emacs
 
-;; Copyright (C) 1985, 1986, 1987, 1991, 1992, 1993, 1994, 1995, 1996, 1997,
-;; 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+;; Copyright (C) 1985, 86, 87, 91, 92, 93, 94, 95, 96, 97, 98, 99,
+;;               2000, 2003, 2005, 2006
 ;;     Free Software Foundation, Inc.
 
-;; Author: Ilya Zakharevich
-;;      Bob Olson
-;; Maintainer: Jonathan Rockway <jon@jrock.us>
+;; Author: Ilya Zakharevich and Bob Olson
+;; Maintainer: Ilya Zakharevich <ilyaz@cpan.org>
 ;; Keywords: languages, Perl
 
-;; This particular file is not actually part of GNU Emacs.
+;; This file is part of GNU Emacs.
 
-;; It is from http://github.com/jrockway/cperl-mode
+;;; This code started from the following message of long time ago
+;;; (IZ), but Bob does not maintain this mode any more:
 
-;; GNU Emacs is free software: you can redistribute it and/or modify
+;;; From: olson@mcs.anl.gov (Bob Olson)
+;;; Newsgroups: comp.lang.perl
+;;; Subject: cperl-mode: Another perl mode for Gnuemacs
+;;; Date: 14 Aug 91 15:20:01 GMT
+
+;; Copyright (C) Ilya Zakharevich and Bob Olson
+
+;; This file may be distributed
+;; either under the same terms as GNU Emacs, or under the same terms
+;; as Perl. You should have received a copy of Perl Artistic license
+;; along with the Perl distribution.
+
+;; GNU Emacs is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation, either version 3 of the License, or
-;; (at your option) any later version.
+;; the Free Software Foundation; either version 2, or (at your option)
+;; any later version.
 
 ;; GNU Emacs is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -24,20 +36,25 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
+;; along with GNU Emacs; see the file COPYING.  If not, write to the
+;; Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+;; Boston, MA 02111-1307, USA.
 
 ;;; Corrections made by Ilya Zakharevich ilyaz@cpan.org
+;;; XEmacs changes by Peter Arius arius@informatik.uni-erlangen.de
+;;; XEmacs 'delete key behavior handling added for XEmacs 20.x by
+;;; Gary D. Foster <Gary.Foster@corp.sun.com>
+;;; Karl M. Hegbloom <karlheg@inetarena.com>
 
 ;;; Commentary:
 
-;; This version of the file contains support for the syntax added by
-;; the MooseX::Declare CPAN module, as well as Perl 5.10 keyword
-;; support.
+;; $Id: cperl-mode.el,v 6.2 2008/04/14 23:14:52 vera Exp vera $
 
-;; The latest version is available from
-;; http://github.com/jrockway/cperl-mode
-;;
-;; (perhaps in the moosex-declare branch)
+;;; If your Emacs does not default to `cperl-mode' on Perl files:
+;;; To use this mode put the following into
+;;; your .emacs file:
+
+;; (autoload 'perl-mode "cperl-mode" "alternate mode for editing Perl programs" t)
 
 ;; You can either fine-tune the bells and whistles of this mode or
 ;; bulk enable them by putting
@@ -49,7 +66,22 @@
 
 ;; DO NOT FORGET to read micro-docs (available from `Perl' menu)   <<<<<<
 ;; or as help on variables `cperl-tips', `cperl-problems',         <<<<<<
-;; `cperl-praise', `cperl-speed'.				   <<<<<<
+;; `cperl-non-problems', `cperl-praise', `cperl-speed'.            <<<<<<
+
+;;; Note also that there are "authoritative" version of this file  <<<<<<
+;;; (available on http://ilyaz.org/software/emacs/), and versions  <<<<<<
+;;; "customized" for a particular Emacs distribution by Emacs      <<<<<<
+;;; maintainers themselves.  As expected, the "authoritative"      <<<<<<
+;;; version is known to be much less buggy.  Usually the           <<<<<<
+;;; maintainers add a verbiage after numbers in `cperl-version'.   <<<<<<
+
+;; Additional useful commands to put into your .emacs file (before
+;; RMS Emacs 20.3):
+
+;; (setq auto-mode-alist
+;;      (append '(("\\.\\([pP][Llm]\\|al\\)$" . perl-mode))  auto-mode-alist ))
+;; (setq interpreter-mode-alist (append interpreter-mode-alist
+;; 				        '(("miniperl" . perl-mode))))
 
 ;; The mode information (on C-h m) provides some customization help.
 ;; If you use font-lock feature of this mode, it is advisable to use
@@ -60,6 +92,14 @@
 ;; functions definitions and packages, arrays, hashes, and variable
 ;; definitions.  If you do not see all these faces, your font-lock does
 ;; not define them, so you need to define them manually.
+;; Maybe you have an obsolete font-lock from 19.28 or earlier.  Upgrade.
+
+;; If you have a grayscale monitor, and do not have the variable
+;; font-lock-display-type bound to 'grayscale, insert
+
+;; (setq font-lock-display-type 'grayscale)
+
+;; into your .emacs file (this is relevant before RMS Emacs 20).
 
 ;; This mode supports font-lock, imenu and mode-compile.  In the
 ;; hairy version font-lock is on, but you should activate imenu
@@ -76,20 +116,1461 @@
 ;; $opt::s  $opt_s  $opt{s}  (s => ...)  /\s+.../
 ;; likewise with m, tr, y, q, qX instead of s
 
+;;; In fact the version of font-lock that this version supports can be
+;;; much newer than the version you actually have. This means that a
+;;; lot of faces can be set up, but are not visible on your screen
+;;; since the coloring rules for this faces are not defined.
+
+;;; Updates: ========================================
+
+;;; Made less hairy by default: parentheses not electric,
+;;; linefeed not magic. Bug with abbrev-mode corrected.
+
+;;;; After 1.4:
+;;;  Better indentation:
+;;;  subs inside braces should work now,
+;;;  Toplevel braces obey customization.
+;;;  indent-for-comment knows about bad cases, cperl-indent-for-comment
+;;;  moves cursor to a correct place.
+;;;  cperl-indent-exp written from the scratch! Slow... (quadratic!) :-(
+;;;        (50 secs on DB::DB (sub of 430 lines), 486/66)
+;;;  Minor documentation fixes.
+;;;  Imenu understands packages as prefixes (including nested).
+;;;  Hairy options can be switched off one-by-one by setting to null.
+;;;  Names of functions and variables changed to conform to `cperl-' style.
+
+;;;; After 1.5:
+;;;  Some bugs with indentation of labels (and embedded subs) corrected.
+;;;  `cperl-indent-region' done (slow :-()).
+;;;  `cperl-fill-paragraph' done.
+;;;  Better package support for `imenu'.
+;;;  Progress indicator for indentation (with `imenu' loaded).
+;;;  `Cperl-set' was busted, now setting the individual hairy option
+;;;     should be better.
+
+;;;; After 1.6:
+;;; `cperl-set-style' done.
+;;; `cperl-check-syntax' done.
+;;; Menu done.
+;;; New config variables `cperl-close-paren-offset' and `cperl-comment-column'.
+;;; Bugs with `cperl-auto-newline' corrected.
+;;; `cperl-electric-lbrace' can work with `cperl-auto-newline' in situation
+;;; like $hash{.
+
+;;;; 1.7 XEmacs (arius@informatik.uni-erlangen.de):
+;;; - use `next-command-event', if `next-command-events' does not exist
+;;; - use `find-face' as def. of `is-face'
+;;; - corrected def. of `x-color-defined-p'
+;;; - added const defs for font-lock-comment-face,
+;;;   font-lock-keyword-face and font-lock-function-name-face
+;;; - added def. of font-lock-variable-name-face
+;;; - added (require 'easymenu) inside an `eval-when-compile'
+;;; - replaced 4-argument `substitute-key-definition' with ordinary
+;;;   `define-key's
+;;; - replaced `mark-active' in menu definition by `cperl-use-region-p'.
+;;; Todo (at least):
+;;; - use emacs-vers.el (http://www.cs.utah.edu/~eeide/emacs/emacs-vers.el.gz)
+;;;   for portable code?
+;;; - should `cperl-mode' do a
+;;;	(if (featurep 'easymenu) (easy-menu-add cperl-menu))
+;;;   or should this be left to the user's `cperl-mode-hook'?
+
+;;; Some bugs introduced by the above fix corrected (IZ ;-).
+;;; Some bugs under XEmacs introduced by the correction corrected.
+
+;;; Some more can remain since there are two many different variants.
+;;; Please feedback!
+
+;;; We do not support fontification of arrays and hashes under
+;;; obsolete font-lock any more. Upgrade.
+
+;;;; after 1.8 Minor bug with parentheses.
+;;;; after 1.9 Improvements from Joe Marzot.
+;;;; after 1.10
+;;;  Does not need easymenu to compile under XEmacs.
+;;;  `vc-insert-headers' should work better.
+;;;  Should work with 19.29 and 19.12.
+;;;  Small improvements to fontification.
+;;;  Expansion of keywords does not depend on C-? being backspace.
+
+;;; after 1.10+
+;;; 19.29 and 19.12 supported.
+;;; `cperl-font-lock-enhanced' deprecated. Use font-lock-extra.el.
+;;; Support for font-lock-extra.el.
+
+;;;; After 1.11:
+;;; Tools submenu.
+;;; Support for perl5-info.
+;;; `imenu-go-find-at-position' in Tools requires imenu-go.el (see hints above)
+;;; Imenu entries do not work with stock imenu.el. Patch sent to maintainers.
+;;; Fontifies `require a if b;', __DATA__.
+;;; Arglist for auto-fill-mode was incorrect.
+
+;;;; After 1.12:
+;;; `cperl-lineup-step' and `cperl-lineup' added: lineup constructions
+;;; vertically.
+;;; `cperl-do-auto-fill' updated for 19.29 style.
+;;; `cperl-info-on-command' now has a default.
+;;; Workaround for broken C-h on XEmacs.
+;;; VC strings escaped.
+;;; C-h f now may prompt for function name instead of going on,
+;;; controlled by `cperl-info-on-command-no-prompt'.
+
+;;;; After 1.13:
+;;; Msb buffer list includes perl files
+;;; Indent-for-comment uses indent-to
+;;; Can write tag files using etags.
+
+;;;; After 1.14:
+;;; Recognizes (tries to ;-) {...} which are not blocks during indentation.
+;;; `cperl-close-paren-offset' affects ?\] too (and ?\} if not block)
+;;; Bug with auto-filling comments started with "##" corrected.
+
+;;;; Very slow now: on DB::DB 0.91, 486/66:
+
+;;;Function Name                             Call Count  Elapsed Time  Average Time
+;;;========================================  ==========  ============  ============
+;;;cperl-block-p                             469         3.7799999999  0.0080597014
+;;;cperl-get-state                           505         163.39000000  0.3235445544
+;;;cperl-comment-indent                      12          0.0299999999  0.0024999999
+;;;cperl-backward-to-noncomment              939         4.4599999999  0.0047497337
+;;;cperl-calculate-indent                    505         172.22000000  0.3410297029
+;;;cperl-indent-line                         505         172.88000000  0.3423366336
+;;;cperl-use-region-p                        40          0.0299999999  0.0007499999
+;;;cperl-indent-exp                          1           177.97000000  177.97000000
+;;;cperl-to-comment-or-eol                   1453        3.9800000000  0.0027391603
+;;;cperl-backward-to-start-of-continued-exp  9           0.0300000000  0.0033333333
+;;;cperl-indent-region                       1           177.94000000  177.94000000
+
+;;;; After 1.15:
+;;; Takes into account white space after opening parentheses during indent.
+;;; May highlight pods and here-documents: see `cperl-pod-here-scan',
+;;; `cperl-pod-here-fontify', `cperl-pod-face'. Does not use this info
+;;; for indentation so far.
+;;; Fontification updated to 19.30 style.
+;;; The change 19.29->30 did not add all the required functionality,
+;;;     but broke "font-lock-extra.el". Get "choose-color.el" from
+;;;       http://ilyaz.org/software/emacs
+
+;;;; After 1.16:
+;;;       else # comment
+;;;    recognized as a start of a block.
+;;;  Two different font-lock-levels provided.
+;;;  `cperl-pod-head-face' introduced. Used for highlighting.
+;;;  `imenu' marks pods, +Packages moved to the head.
+
+;;;; After 1.17:
+;;;  Scan for pods highlights here-docs too.
+;;;  Note that the tag of here-doc may be rehighlighted later by lazy-lock.
+;;;  Only one here-doc-tag per line is supported, and one in comment
+;;;  or a string may break fontification.
+;;;  POD headers were supposed to fill one line only.
+
+;;;; After 1.18:
+;;;  `font-lock-keywords' were set in 19.30 style _always_. Current scheme
+;;;    may  break under XEmacs.
+;;;  `cperl-calculate-indent' dis suppose that `parse-start' was defined.
+;;;  `fontified' tag is added to fontified text as well as `lazy-lock' (for
+;;;    compatibility with older lazy-lock.el) (older one overfontifies
+;;;    something nevertheless :-().
+;;;  Will not indent something inside pod and here-documents.
+;;;  Fontifies the package name after import/no/bootstrap.
+;;;  Added new entry to menu with meta-info about the mode.
+
+;;;; After 1.19:
+;;;  Prefontification works much better with 19.29. Should be checked
+;;;   with 19.30 as well.
+;;;  Some misprints in docs corrected.
+;;;  Now $a{-text} and -text => "blah" are fontified as strings too.
+;;;  Now the pod search is much stricter, so it can help you to find
+;;;    pod sections which are broken because of whitespace before =blah
+;;;    - just observe the fontification.
+
+;;;; After 1.20
+;;;  Anonymous subs are indented with respect to the level of
+;;;    indentation of `sub' now.
+;;;  {} is recognized as hash after `bless' and `return'.
+;;;  Anonymous subs are split by `cperl-linefeed' as well.
+;;;  Electric parens embrace a region if present.
+;;;  To make `cperl-auto-newline' useful,
+;;;    `cperl-auto-newline-after-colon' is introduced.
+;;;  `cperl-electric-parens' is now t or nul. The old meaning is moved to
+;;;  `cperl-electric-parens-string'.
+;;;  `cperl-toggle-auto-newline' introduced, put on C-c C-a.
+;;;  `cperl-toggle-abbrev' introduced, put on C-c C-k.
+;;;  `cperl-toggle-electric' introduced, put on C-c C-e.
+;;;  Beginning-of-defun-regexp was not anchored.
+
+;;;; After 1.21
+;;;  Auto-newline grants `cperl-extra-newline-before-brace' if "{" is typed
+;;;    after ")".
+;;;  {} is recognized as expression after `tr' and friends.
+
+;;;; After 1.22
+;;;  Entry Hierarchy added to imenu. Very primitive so far.
+;;;  One needs newer `imenu-go'.el. A patch to `imenu' is needed as well.
+;;;  Writes its own TAGS files.
+;;;  Class viewer based on TAGS files. Does not trace @ISA so far.
+;;;  19.31: Problems with scan for PODs corrected.
+;;;  First POD header correctly fontified.
+;;;  I needed (setq imenu-use-keymap-menu t) to get good imenu in 19.31.
+;;;  Apparently it makes a lot of hierarchy code obsolete...
+
+;;;; After 1.23
+;;;  Tags filler now scans *.xs as well.
+;;;  The info from *.xs scan is used by the hierarchy viewer.
+;;;  Hierarchy viewer documented.
+;;;  Bug in 19.31 imenu documented.
+
+;;;; After 1.24
+;;;  New location for info-files mentioned,
+;;;  Electric-; should work better.
+;;;  Minor bugs with POD marking.
+
+;;;; After 1.25 (probably not...)
+;;;  `cperl-info-page' introduced.
+;;;  To make `uncomment-region' working, `comment-region' would
+;;;  not insert extra space.
+;;;  Here documents delimiters better recognized
+;;;  (empty one, and non-alphanums in quotes handled). May be wrong with 1<<14?
+;;;  `cperl-db' added, used in menu.
+;;;  imenu scan removes text-properties, for better debugging
+;;;    - but the bug is in 19.31 imenu.
+;;;  formats highlighted by font-lock and prescan, embedded comments
+;;;  are not treated.
+;;;  POD/friends scan merged in one pass.
+;;;  Syntax class is not used for analyzing the code, only char-syntax
+;;;  may be checked against _ or'ed with w.
+;;;  Syntax class of `:' changed to be _.
+;;;  `cperl-find-bad-style' added.
+
+;;;; After 1.25
+;;;  When search for here-documents, we ignore commented << in simplest cases.
+;;;  `cperl-get-help' added, available on C-h v and from menu.
+;;;  Auto-help added. Default with `cperl-hairy', switchable on/off
+;;;   with startup variable `cperl-lazy-help-time' and from
+;;;   menu. Requires `run-with-idle-timer'.
+;;;  Highlighting of @abc{@efg} was wrong - interchanged two regexps.
+
+;;;; After 1.27
+;;;  Indentation: At toplevel after a label - fixed.
+;;;  1.27 was put to archives in binary mode ===> DOSish :-(
+
+;;;; After 1.28
+;;;  Thanks to Martin Buchholz <mrb@Eng.Sun.COM>: misprints in
+;;;  comments and docstrings corrected, XEmacs support cleaned up.
+;;;  The closing parenths would enclose the region into matching
+;;;  parens under the same conditions as the opening ones.
+;;;  Minor updates to `cperl-short-docs'.
+;;;  Will not consider <<= as start of here-doc.
+
+;;;; After 1.29
+;;;  Added an extra advice to look into Micro-docs. ;-).
+;;;  Enclosing of region when you press a closing parenth is regulated by
+;;;  `cperl-electric-parens-string'.
+;;;  Minor updates to `cperl-short-docs'.
+;;;  `initialize-new-tags-table' called only if present (Does this help
+;;;     with generation of tags under XEmacs?).
+;;;  When creating/updating tag files, new info is written at the old place,
+;;;     or at the end (is this a wanted behaviour? I need this in perl build directory).
+
+;;;; After 1.30
+;;;  All the keywords from keywords.pl included (maybe with dummy explanation).
+;;;  No auto-help inside strings, comment, here-docs, formats, and pods.
+;;;  Shrinkwrapping of info, regulated by `cperl-max-help-size',
+;;;  `cperl-shrink-wrap-info-frame'.
+;;;  Info on variables as well.
+;;;  Recognision of HERE-DOCS improved yet more.
+;;;  Autonewline works on `}' without warnings.
+;;;  Autohelp works again on $_[0].
+
+;;;; After 1.31
+;;;  perl-descr.el found its author - hi, Johan!
+;;;  Some support for correct indent after here-docs and friends (may
+;;;  be superseeded by eminent change to Emacs internals).
+;;;  Should work with older Emaxen as well ( `-style stuff removed).
+
+;;;; After 1.32
+
+;;;  Started to add support for `syntax-table' property (should work
+;;;  with patched Emaxen), controlled by
+;;;  `cperl-use-syntax-table-text-property'. Currently recognized:
+;;;    All quote-like operators: m, s, y, tr, qq, qw, qx, q,
+;;;    // in most frequent context:
+;;;          after block or
+;;;                    ~ { ( = | & + - * ! , ;
+;;;          or
+;;;                    while if unless until and or not xor split grep map
+;;;    Here-documents, formats, PODs,
+;;;    ${...}
+;;;    'abc$'
+;;;    sub a ($); sub a ($) {}
+;;;  (provide 'cperl-mode) was missing!
+;;;  `cperl-after-expr-p' is now much smarter after `}'.
+;;;  `cperl-praise' added to mini-docs.
+;;;  Utilities try to support subs-with-prototypes.
+
+;;;; After 1.32.1
+;;;  `cperl-after-expr-p' is now much smarter after "() {}" and "word {}":
+;;;     if word is "else, map, grep".
+;;;  Updated for new values of syntax-table constants.
+;;;  Uses `help-char' (at last!) (disabled, does not work?!)
+;;;  A couple of regexps where missing _ in character classes.
+;;;  -s could be considered as start of regexp, 1../blah/ was not,
+;;;  as was not /blah/ at start of file.
+
+;;;; After 1.32.2
+;;;  "\C-hv" was wrongly "\C-hf"
+;;;  C-hv was not working on `[index()]' because of [] in skip-chars-*.
+;;;  `__PACKAGE__' supported.
+;;;  Thanks for Greg Badros: `cperl-lazy-unstall' is more complete,
+;;;  `cperl-get-help' is made compatible with `query-replace'.
+
+;;;; As of Apr 15, development version of 19.34 supports
+;;;; `syntax-table' text properties. Try setting
+;;;; `cperl-use-syntax-table-text-property'.
+
+;;;; After 1.32.3
+;;;  We scan for s{}[] as well (in simplest situations).
+;;;  We scan for $blah'foo as well.
+;;;  The default is to use `syntax-table' text property if Emacs is good enough.
+;;;  `cperl-lineup' is put on C-M-| (=C-M-S-\\).
+;;;  Start of `cperl-beautify-regexp'.
+
+;;;; After 1.32.4
+;;; `cperl-tags-hier-init' did not work in text-mode.
+;;; `cperl-noscan-files-regexp' had a misprint.
+;;; Generation of Class Hierarchy was broken due to a bug in `x-popup-menu'
+;;;  in 19.34.
+
+;;;; After 1.33:
+;;; my,local highlight vars after {} too.
+;;; TAGS could not be created before imenu was loaded.
+;;; `cperl-indent-left-aligned-comments' created.
+;;; Logic of `cperl-indent-exp' changed a little bit, should be more
+;;;  robust w.r.t. multiline strings.
+;;; Recognition of blah'foo takes into account strings.
+;;; Added '.al' to the list of Perl extensions.
+;;; Class hierarchy is "mostly" sorted (need to rethink algorthm
+;;;  of pruning one-root-branch subtrees to get yet better sorting.)
+;;; Regeneration of TAGS was busted.
+;;; Can use `syntax-table' property when generating TAGS
+;;;  (governed by  `cperl-use-syntax-table-text-property-for-tags').
+
+;;;; After 1.35:
+;;; Can process several =pod/=cut sections one after another.
+;;; Knows of `extproc' when under `emx', indents with `__END__' and `__DATA__'.
+;;; `cperl-under-as-char' implemented (XEmacs people like broken behaviour).
+;;; Beautifier for regexps fixed.
+;;; `cperl-beautify-level', `cperl-contract-level' coded
+;;;
+;;;; Emacs's 20.2 problems:
+;;; `imenu.el' has bugs, `imenu-add-to-menubar' does not work.
+;;; Couple of others problems with 20.2 were reported, my ability to check/fix
+;;; them is very reduced now.
+
+;;;; After 1.36:
+;;;  'C-M-|' in XEmacs fixed
+
+;;;; After 1.37:
+;;;  &&s was not recognized as start of regular expression;
+;;;  Will "preprocess" the contents of //e part of s///e too;
+;;;  What to do with s# blah # foo #e ?
+;;;  Should handle s;blah;foo;; better.
+;;;  Now the only known problems with regular expression recognition:
+;;;;;;;  s<foo>/bar/	- different delimiters (end ignored)
+;;;;;;;  s/foo/\\bar/	- backslash at start of subst (made into one chunk)
+;;;;;;;  s/foo//	- empty subst (made into one chunk + '/')
+;;;;;;;  s/foo/(bar)/	- start-group at start of subst (internal group will not match backwards)
+
+;;;; After 1.38:
+;;;  We highlight closing / of s/blah/foo/e;
+;;;  This handles s# blah # foo #e too;
+;;;  s//blah/, s///, s/blah// works again, and s#blah## too, the algorithm
+;;;   is much simpler now;
+;;;  Next round of changes: s\\\ works, s<blah>/foo/,
+;;;   comments between the first and the second part allowed
+;;;  Another problem discovered:
+;;;;;;;  s[foo] <blah>e	- e part delimited by different <> (will not match)
+;;;  `cperl-find-pods-heres' somehow maybe called when string-face is undefined
+;;;   - put a stupid workaround for 20.1
+
+;;;; After 1.39:
+;;;  Could indent here-docs for comments;
+;;;  These problems fixed:
+;;;;;;;  s/foo/\\bar/	- backslash at start of subst (made into two chunk)
+;;;;;;;  s[foo] <blah>e	- "e" part delimited by "different" <> (will match)
+;;;  Matching brackets honor prefices, may expand abbreviations;
+;;;  When expanding abbrevs, will remove last char only after
+;;;    self-inserted whitespace;
+;;;  More convenient "Refress hard constructs" in menu;
+;;;  `cperl-add-tags-recurse', `cperl-add-tags-recurse-noxs'
+;;;    added (for -batch mode);
+;;;  Better handling of errors when scanning for Perl constructs;
+;;;;;;;  Possible "problem" with class hierarchy in Perl distribution
+;;;;;;;    directory: ./ext duplicates ./lib;
+;;;  Write relative paths for generated TAGS;
+
+;;;; After 1.40:
+;;;  s  /// may be separated by "\n\f" too;
+;;;  `s  #blah' recognized as a comment;
+;;;  Would highlight s/abc//s wrong;
+;;;  Debugging code in `cperl-electric-keywords' was leaking a message;
+
+;;;; After 1.41:
+;;;  RMS changes for 20.3 merged
+
+;;;; 2.0.1.0: RMS mode (has 3 misprints)
+
+;;;; After 2.0:
+;;;  RMS whitespace changes for 20.3 merged
+
+;;;; After 2.1:
+;;;  History updated
+
+;;;; After 2.2:
+;;;  Merge `c-style-alist' since `c-mode' is no more.  (Somebody who
+;;;    uses the styles should check that they work OK!)
+;;;  All the variable warnings go away, some undef functions too.
+
+;;;; After 2.3:
+;;;  Added `cperl-perldoc' (thanks to Anthony Foiani <afoiani@uswest.com>)
+;;;  Added `cperl-pod-to-manpage' (thanks to Nick Roberts <Nick.Roberts@src.bae.co.uk>)
+;;;  All the function warnings go away.
+
+;;;; After 2.4:
+;;;  `Perl doc', `Regexp' submenus created (latter to allow short displays).
+;;;  `cperl-clobber-lisp-bindings' added.
+;;;  $a->y() is not y///.
+;;;  `cperl-after-block-p' was missing a `save-excursion' => wrong results.
+;;;  `cperl-val' was defined too late.
+;;;  `cperl-init-faces' was failing.
+;;;  Init faces when loading `ps-print'.
+
+;;;; After 2.4:
+;;;  `cperl-toggle-autohelp' implemented.
+;;;  `while SPACE LESS' was buggy.
+;;;  `-text' in `[-text => 1]' was not highlighted.
+;;;  `cperl-after-block-p' was FALSE after `sub f {}'.
+
+;;;; After 2.5:
+;;;  `foreachmy', `formy' expanded too.
+;;;  Expand `=pod-directive'.
+;;;  `cperl-linefeed' behaves reasonable in POD-directive lines.
+;;;  `cperl-electric-keyword' prints a message, governed by
+;;;    `cperl-message-electric-keyword'.
+
+;;;; After 2.6:
+;;;  Typing `}' was not checking for being block or not.
+;;;  Beautifying levels in RE: Did not know about lookbehind;
+;;;			       finding *which* level was not intuitive;
+;;;			       `cperl-beautify-levels' added.
+;;;  Allow here-docs contain `=head1' and friends (at least for keywords).
+
+;;;; After 2.7:
+;;;  Fix for broken `font-lock-unfontify-region-function'.  Should
+;;;    preserve `syntax-table' properties even with `lazy-lock'.
+
+;;;; After 2.8:
+;;;  Some more compile time warnings crept in.
+;;;  `cperl-indent-region-fix-else' implemented.
+;;;  `cperl-fix-line-spacing' implemented.
+;;;  `cperl-invert-if-unless' implemented (C-c C-t and in Menu).
+;;;  Upgraded hints to mention 20.2's goods/bads.
+;;;  Started to use `cperl-extra-newline-before-brace-multiline',
+;;;    `cperl-break-one-line-blocks-when-indent',
+;;;    `cperl-fix-hanging-brace-when-indent', `cperl-merge-trailing-else'.
+
+;;;; After 2.9:
+;;;  Workaround for another `font-lock's `syntax-table' text-property bug.
+;;;  `zerop' could be applied to nil.
+;;;  At last, may work with `font-lock' without setting `cperl-font-lock'.
+;;;    (We expect that starting from 19.33, `font-lock' supports keywords
+;;;     being a function - what is a correct version?)
+;;;  Rename `cperl-indent-region-fix-else' to
+;;;    `cperl-indent-region-fix-constructs'.
+;;;  `cperl-fix-line-spacing' could be triggered inside strings, would not
+;;;     know what to do with BLOCKs of map/printf/etc.
+;;;  `cperl-merge-trailing-else' and `cperl-fix-line-spacing' handle
+;;;     `continue' too.
+;;;  Indentation after {BLOCK} knows about map/printf/etc.
+;;;  Finally: treat after-comma lines as continuation lines.
+
+;;;; After 2.10:
+;;;  `continue' made electric.
+;;;  Electric `do' inserts `do/while'.
+;;;  Some extra compile-time warnings crept in.
+;;;  `font-lock' of 19.33 could not handle font-lock-keywords being a function
+;;;      returning a symbol.
+
+;;;; After 2.11:
+;;;  Changes to make syntaxification to be autoredone via `font-lock'.
+;;;    Switched on by `cperl-syntaxify-by-font-lock', off by default so far.
+
+;;;; After 2.12:
+;;;  Remove some commented out chunks.
+;;;  Styles are slightly updated (a lot of work is needed, especially
+;;;    with new `cperl-fix-line-spacing').
+
+;;;; After 2.13:
+;;;  Old value of style is memorized when choosing a new style, may be
+;;;    restored from the same menu.
+;;;  Mode-documentation added to micro-docs.
+;;;  `cperl-praise' updated.
+;;;  `cperl-toggle-construct-fix' added on C-c C-w and menu.
+;;;  `auto-fill-mode' added on C-c C-f and menu.
+;;;  `PerlStyle' style added.
+;;;  Message for termination of scan corrected.
+
+;;;; After 2.14:
+
+;;;  Did not work with -q
+
+;;;; After 2.15:
+
+;;;  `cperl-speed' hints added.
+;;;  Minor style fixes.
+
+;;;; After 2.15:
+;;;  Make backspace electric after expansion of `else/continue' too.
+
+;;;; After 2.16:
+;;;  Starting to merge changes to RMS emacs version.
+
+;;;; After 2.17:
+;;;  Merged custom stuff and darn `font-lock-constant-face'.
+
+;;;; After 2.18:
+;;;  Bumped the version to 3.1
+
+;;;; After 3.1:
+;;;  Fixed customization to honor cperl-hairy.
+;;;  Created customization groups.  Sent to RMS to include into 2.3.
+
+;;;; After 3.2:
+;;;  Interaction of `font-lock-hot-pass' and `cperl-syntaxify-by-font-lock'.
+;;;  (`cperl-after-block-and-statement-beg'):
+;;;  (`cperl-after-block-p'):
+;;;  (`cperl-after-expr-p'):	It is BLOCK if we reach lim when backup sexp.
+;;;  (`cperl-indent-region'):	Make a marker for END - text added/removed.
+;;;  (`cperl-style-alist', `cperl-styles-entries')
+;;;		Include `cperl-merge-trailing-else' where the value is clear.
+
+;;;; After 3.3:
+;;;  (`cperl-tips'):
+;;;  (`cperl-problems'):	Improvements to docs.
+
+;;;; After 3.4:
+;;;  (`cperl-mode'):		Make lazy syntaxification possible.
+;;;  (`cperl-find-pods-heres'): Safe a position in buffer where it is safe to
+;;;				restart syntaxification.
+;;;  (`cperl-syntaxify-by-font-lock'): Set to t, should be safe now.
+
+;;;; After 3.5:
+;;;  (`cperl-syntaxify-by-font-lock'): Better default, customizes to
+;;;				`message' too.
+
+;;;; After 3.6:
+;;;  (`cperl-find-pods-heres'): changed so that -d ?foo? is a RE.
+;;;  (`cperl-array-face'): changed name from `font-lock-emphasized-face'.
+;;;  (`cperl-hash-face'): changed name from  `font-lock-other-emphasized-face'.
+;;;  Use `defface' to define these two extra faces.
+
+;;;; After 3.7:
+;;;  Can use linear algorithm for indentation if Emacs supports it:
+;;;  indenting DB::DB (800+ lines) improved from 69 sec to 11 sec
+;;;  (73 vs 15 with imenu).
+;;;  (`cperl-emacs-can-parse'):	New state.
+;;;  (`cperl-indent-line'):	Corrected to use global state.
+;;;  (`cperl-calculate-indent'):	Likewise.
+;;;  (`cperl-fix-line-spacing'):	Likewise (not used yet).
+
+;;;; After 3.8:
+;;;  (`cperl-choose-color'):	Converted to a function (to be compilable in text-mode).
+
+;;;; After 3.9:
+;;;  (`cperl-dark-background '):	Disable without window-system.
+
+;;;; After 3.10:
+;;;  Do `defface' only if window-system.
+
+;;;; After 3.11:
+;;;  (`cperl-fix-line-spacing'):	sped up to bail out early.
+;;;  (`cperl-indent-region'):	Disable hooks during the call (how to call them later?).
+
+;;;  Now indents 820-line-long function in 6.5 sec (including syntaxification) the first time
+;;;  (when buffer has few properties), 7.1 sec the second time.
+
+;;;Function Name                              Call Count  Elapsed Time  Average Time
+;;;=========================================  ==========  ============  ============
+;;;cperl-indent-exp                           1           10.039999999  10.039999999
+;;;cperl-indent-region                        1           10.0          10.0
+;;;cperl-indent-line                          821         6.2100000000  0.0075639464
+;;;cperl-calculate-indent                     821         5.0199999999  0.0061144945
+;;;cperl-backward-to-noncomment               2856        2.0500000000  0.0007177871
+;;;cperl-fontify-syntaxically                 2           1.78          0.8900000000
+;;;cperl-find-pods-heres                      2           1.78          0.8900000000
+;;;cperl-update-syntaxification               1           1.78          1.78
+;;;cperl-fix-line-spacing                     769         1.4800000000  0.0019245773
+;;;cperl-after-block-and-statement-beg        163         1.4100000000  0.0086503067
+;;;cperl-block-p                              775         1.1800000000  0.0015225806
+;;;cperl-to-comment-or-eol                    3652        1.1200000000  0.0003066812
+;;;cperl-after-block-p                        165         1.0500000000  0.0063636363
+;;;cperl-commentify                           141         0.22          0.0015602836
+;;;cperl-get-state                            813         0.16          0.0001968019
+;;;cperl-backward-to-start-of-continued-exp   26          0.12          0.0046153846
+;;;cperl-delay-update-hook                    2107        0.0899999999  4.271...e-05
+;;;cperl-protect-defun-start                  141         0.0700000000  0.0004964539
+;;;cperl-after-label                          407         0.0599999999  0.0001474201
+;;;cperl-forward-re                           139         0.0299999999  0.0002158273
+;;;cperl-comment-indent                       26          0.0299999999  0.0011538461
+;;;cperl-use-region-p                         8           0.0           0.0
+;;;cperl-lazy-hook                            15          0.0           0.0
+;;;cperl-after-expr-p                         8           0.0           0.0
+;;;cperl-font-lock-unfontify-region-function  1           0.0           0.0
+
+;;;Function Name                              Call Count  Elapsed Time  Average Time
+;;;=========================================  ==========  ============  ============
+;;;cperl-fix-line-spacing                     769         1.4500000000  0.0018855656
+;;;cperl-indent-line                          13          0.3100000000  0.0238461538
+;;;cperl-after-block-and-statement-beg        69          0.2700000000  0.0039130434
+;;;cperl-after-block-p                        69          0.2099999999  0.0030434782
+;;;cperl-calculate-indent                     13          0.1000000000  0.0076923076
+;;;cperl-backward-to-noncomment               177         0.0700000000  0.0003954802
+;;;cperl-get-state                            13          0.0           0.0
+;;;cperl-to-comment-or-eol                    179         0.0           0.0
+;;;cperl-get-help-defer                       1           0.0           0.0
+;;;cperl-lazy-hook                            11          0.0           0.0
+;;;cperl-after-expr-p                         2           0.0           0.0
+;;;cperl-block-p                              13          0.0           0.0
+;;;cperl-after-label                          5           0.0           0.0
+
+;;;; After 3.12:
+;;;  (`cperl-find-pods-heres'): do not warn on `=cut' if doing a chunk only.
+
+;;;; After 3.13:
+;;;  (`cperl-mode'): load pseudo-faces on `cperl-find-pods-heres' (for 19.30).
+;;;  (`x-color-defined-p'): was not compiling on XEmacs
+;;;  (`cperl-find-pods-heres'): 1 << 6 was OK, but 1<<6 was considered as HERE
+;;;                             <file/glob> made into a string.
+
+;;;; After 3.14:
+;;;  (`cperl-find-pods-heres'): Postpone addition of faces after syntactic step
+;;;				Recognition of <FH> was wrong.
+;;;  (`cperl-clobber-lisp-bindings'): if set, C-c variants are the old ones
+;;;  (`cperl-unwind-to-safe'):	New function.
+;;;  (`cperl-fontify-syntaxically'): Use `cperl-unwind-to-safe' to start at reasonable position.
+
+;;;; After 3.15:
+;;;  (`cperl-forward-re'):	Highlight the trailing / in s/foo// as string.
+;;;			Highlight the starting // in s//foo/ as function-name.
+
+;;;; After 3.16:
+;;;  (`cperl-find-pods-heres'): Highlight `gem' in s///gem as a keyword.
+
+;;;; After 4.0:
+;;;  (`cperl-find-pods-heres'): `qr' added
+;;;  (`cperl-electric-keyword'):	Likewise
+;;;  (`cperl-electric-else'):		Likewise
+;;;  (`cperl-to-comment-or-eol'):	Likewise
+;;;  (`cperl-make-regexp-x'):	Likewise
+;;;  (`cperl-init-faces'):	Likewise, and `lock' (as overridable?).
+;;;  (`cperl-find-pods-heres'): Knows that split// is null-RE.
+;;;				Highlights separators in 3-parts expressions
+;;;				as labels.
+
+;;;; After 4.1:
+;;;  (`cperl-find-pods-heres'):	<> was considered as a glob
+;;;  (`cperl-syntaxify-unwind'): New configuration variable
+;;;  (`cperl-fontify-m-as-s'):	New configuration variable
+
+;;;; After 4.2:
+;;;  (`cperl-find-pods-heres'): of the last line being `=head1' fixed.
+
+;;;  Handling of a long construct is still buggy if only the part of
+;;;  construct touches the updated region (we unwind to the start of
+;;;  long construct, but the end may have residual properties).
+
+;;;  (`cperl-unwind-to-safe'):	would not go to beginning of buffer.
+;;;  (`cperl-electric-pod'):	check for after-expr was performed
+;;;				inside of POD too.
+
+;;;; After 4.3:
+;;;  (`cperl-backward-to-noncomment'):	better treatment of PODs and HEREs.
+
+;;;  Indent-line works good, but indent-region does not - at toplevel...
+;;;  (`cperl-unwind-to-safe'):	Signature changed.
+;;;  (`x-color-defined-p'):     was defmacro'ed with a tick.  Remove another def.
+;;;  (`cperl-clobber-mode-lists'): New configuration variable.
+;;;  (`cperl-array-face'): One of definitions was garbled.
+
+;;;; After 4.4:
+;;;  (`cperl-not-bad-style-regexp'):	Updated.
+;;;  (`cperl-make-regexp-x'):	Misprint in a message.
+;;;  (`cperl-find-pods-heres'):	$a-1 ? foo : bar; was a regexp.
+;;;                             `<< (' was considered a start of POD.
+;;;  Init:			`cperl-is-face' was busted.
+;;;  (`cperl-make-face'):	New macros.
+;;;  (`cperl-force-face'):	New macros.
+;;;  (`cperl-init-faces'):	Corrected to use new macros;
+;;;				`if' for copying `reference-face' to
+;;;				`constant-face' was backward.
+;;;  (`font-lock-other-type-face'): Done via `defface' too.
+
+;;;; After 4.5:
+;;;  (`cperl-init-faces-weak'):	use `cperl-force-face'.
+;;;  (`cperl-after-block-p'):	After END/BEGIN we are a block.
+;;;  (`cperl-mode'):		`font-lock-unfontify-region-function'
+;;;				was set to a wrong function.
+;;;  (`cperl-comment-indent'):	Commenting __END__ was not working.
+;;;  (`cperl-indent-for-comment'):	Likewise.
+;;;				(Indenting is still misbehaving at toplevel.)
+
+;;;; After 4.5:
+;;;  (`cperl-unwind-to-safe'):	Signature changed, unwinds end too.
+;;;  (`cperl-find-pods-heres'):	mark qq[]-etc sections as syntax-type=string
+;;;  (`cperl-fontify-syntaxically'): Unwinds start and end to go out of
+;;;				     long strings (not very successful).
+
+;;;   >>>>  CPerl should be usable in write mode too now <<<<
+
+;;;  (`cperl-syntaxify-by-font-lock'): Better default - off in text-mode.
+;;;  (`cperl-tips'): 		Updated docs.
+;;;  (`cperl-problems'):	Updated docs.
+
+;;;; After 4.6:
+;;;  (`cperl-calculate-indent'):	Did not consider `,' as continuation mark for statements.
+;;;  (`cperl-write-tags'):	Correct for XEmacs's `visit-tags-table-buffer'.
+
+;;;; After 4.7:
+;;;  (`cperl-calculate-indent'): Avoid parse-data optimization at toplevel.
+;;;				 Should indent correctly at toplevel too.
+;;;  (`cperl-tags-hier-init'):	Gross hack to pretend we work (are we?).
+;;;  (`cperl-find-pods-heres'):	Was not processing sub protos after a comment ine.
+;;;				Was treating $a++ <= 5 as a glob.
+
+;;;; After 4.8:
+;;;  (toplevel):		require custom unprotected => failure on 19.28.
+;;;  (`cperl-xemacs-p')		defined when compile too
+;;;  (`cperl-tags-hier-init'):	Another try to work around XEmacs problems
+;;;				Better progress messages.
+;;;  (`cperl-find-tags'):	Was writing line/pos in a wrong order,
+;;;				pos off by 1 and not at beg-of-line.
+;;;  (`cperl-etags-snarf-tag'): New macro
+;;;  (`cperl-etags-goto-tag-location'): New macro
+;;;  (`cperl-write-tags'):	When removing old TAGS info was not
+;;;				relativizing filename
+
+;;;; After 4.9:
+;;;  (`cperl-version'):		New variable.  New menu entry
+
+;;;; After 4.10:
+;;;  (`cperl-tips'):		Updated.
+;;;  (`cperl-non-problems'):	Updated.
+;;;  random:			References to future 20.3 removed.
+
+;;;; After 4.11:
+;;;  (`perl-font-lock-keywords'): Would not highlight `sub foo($$);'.
+;;;  Docstrings:		Menu was described as `CPerl' instead of `Perl'
+
+;;;; After 4.12:
+;;;  (`cperl-toggle-construct-fix'): Was toggling to t instead of 1.
+;;;  (`cperl-ps-print-init'):	Associate `cperl-array-face', `cperl-hash-face'
+;;;				remove `font-lock-emphasized-face'.
+;;;				remove `font-lock-other-emphasized-face'.
+;;;				remove `font-lock-reference-face'.
+;;;				remove `font-lock-keyword-face'.
+;;;				Use `eval-after-load'.
+;;;  (`cperl-init-faces'):	remove init `font-lock-other-emphasized-face'.
+;;;				remove init `font-lock-emphasized-face'.
+;;;				remove init `font-lock-keyword-face'.
+;;;  (`cperl-tips-faces'):	New variable and an entry into Mini-docs.
+;;;  (`cperl-indent-region'):	Do not indent whitespace lines
+;;;  (`cperl-indent-exp'):	Was not processing else-blocks.
+;;;  (`cperl-calculate-indent'): Remove another parse-data optimization
+;;;				 at toplevel: would indent correctly.
+;;;  (`cperl-get-state'):	NOP line removed.
+
+;;;; After 4.13:
+;;;  (`cperl-ps-print-init'):	Remove not-CPerl-related faces.
+;;;  (`cperl-ps-print'):	New function and menu entry.
+;;;  (`cperl-ps-print-face-properties'):	New configuration variable.
+;;;  (`cperl-invalid-face'):	New configuration variable.
+;;;  (`cperl-nonoverridable-face'):	New face.  Renamed from
+;;;					`font-lock-other-type-face'.
+;;;  (`perl-font-lock-keywords'):	Highlight trailing whitespace
+;;;  (`cperl-contract-levels'):	Documentation corrected.
+;;;  (`cperl-contract-level'):	Likewise.
+
+;;;; After 4.14:
+;;;  (`cperl-ps-print'): `ps-print-face-extension-alist' was not in old Emaxen,
+;;;				same with `ps-extend-face-list'
+;;;  (`cperl-ps-extend-face-list'):	New macro.
+
+;;;; After 4.15:
+;;;  (`cperl-init-faces'):	Interpolate `cperl-invalid-face'.
+;;;  (`cperl-forward-re'):	Emit a meaningful error instead of a cryptic
+;;;				one for uncomplete REx near end-of-buffer.
+;;;  (`cperl-find-pods-heres'):	Tolerate unfinished REx at end-of-buffer.
+
+;;;; After 4.16:
+;;;  (`cperl-find-pods-heres'): `unwind-protect' was left commented.
+
+;;;; After 4.17:
+;;;  (`cperl-invalid-face'):	Change to ''underline.
+
+;;;; After 4.18:
+;;;  (`cperl-find-pods-heres'):	/ and ? after : start a REx.
+;;;  (`cperl-after-expr-p'):	Skip labels when checking
+;;;  (`cperl-calculate-indent'): Correct for labels when calculating
+;;;					indentation of continuations.
+;;;				Docstring updated.
+
+;;;; After 4.19:
+;;;  Minor (mostly spelling) corrections from 20.3.3 merged.
+
+;;;; After 4.20:
+;;;  (`cperl-tips'):		Another workaround added.  Sent to RMS for 20.4.
+
+;;;; After 4.21:
+;;;  (`cperl-praise'):		Mention linear-time indent.
+;;;  (`cperl-find-pods-heres'):	@if ? a : b was considered a REx.
+
+;;;; After 4.22:
+;;;  (`cperl-after-expr-p'):	Make true after __END__.
+;;;  (`cperl-electric-pod'):	"SYNOPSIS" was misspelled.
+
+;;;; After 4.23:
+;;;  (`cperl-beautify-regexp-piece'):	Was not allowing for *? after a class.
+;;;					Allow for POSIX char-classes.
+;;;					Remove trailing whitespace when
+;;;					adding new linebreak.
+;;;					Add a level counter to stop shallow.
+;;;					Indents unprocessed groups rigidly.
+;;;  (`cperl-beautify-regexp'):	Add an optional count argument to go that
+;;;				many levels deep.
+;;;  (`cperl-beautify-level'):	Likewise
+;;;  Menu:			Add new entries to Regexp menu to do one level
+;;;  (`cperl-contract-level'):	Was entering an infinite loop
+;;;  (`cperl-find-pods-heres'):	Typo (double quoting).
+;;;				Was detecting < $file > as FH instead of glob.
+;;;				Support for comments in RExen (except
+;;;				for m#\#comment#x), governed by
+;;;				`cperl-regexp-scan'.
+;;;  (`cperl-regexp-scan'):	New customization variable.
+;;;  (`cperl-forward-re'):	Improve logic of resetting syntax table.
+
+;;;; After 4.23 and: After 4.24:
+;;;  (`cperl-contract-levels'):	Restore position.
+;;;  (`cperl-beautify-level'):	Likewise.
+;;;  (`cperl-beautify-regexp'):	Likewise.
+;;;  (`cperl-commentify'):	Rudimental support for length=1 runs
+;;;  (`cperl-find-pods-heres'):	Process 1-char long REx comments too /a#/x
+;;;				Processes REx-comments in #-delimited RExen.
+;;;				MAJOR BUG CORRECTED: after a misparse
+;;;				  a body of a subroutine could be corrupted!!!
+;;;				  One might need to reeval the function body
+;;;				  to fix things.  (A similar bug was
+;;;				  present in `cperl-indent-region' eons ago.)
+;;; To reproduce:
+;;   (defun foo () (let ((a '(t))) (insert (format "%s" a)) (setcar a 'BUG) t))
+;;   (foo)
+;;   (foo)
+;;; C-x C-e the above three lines (at end-of-line).  First evaluation
+;;; of `foo' inserts (t), second one inserts (BUG) ?!
+;;;
+;;; In CPerl it was triggered by inserting then deleting `/' at start of
+;;;      /  a (?# asdf  {[(}asdf )ef,/;
+
+;;;; After 4.25:
+;;; (`cperl-commentify'):	Was recognizing length=2 "strings" as length=1.
+;;; (`imenu-example--create-perl-index'):
+;;;				Was not enforcing syntaxification-to-the-end.
+;;; (`cperl-invert-if-unless'):	Allow `for', `foreach'.
+;;; (`cperl-find-pods-heres'):	Quote `cperl-nonoverridable-face'.
+;;;				Mark qw(), m()x as indentable.
+;;; (`cperl-init-faces'):	Highlight `sysopen' too.
+;;;				Highlight $var in `for my $var' too.
+;;; (`cperl-invert-if-unless'):	Was leaving whitespace at end.
+;;; (`cperl-linefeed'):		Was splitting $var{$foo} if point after `{'.
+;;; (`cperl-calculate-indent'): Remove old commented out code.
+;;;				Support (primitive) indentation of qw(), m()x.
+
+
+;;;; After 4.26:
+;;; (`cperl-problems'):		Mention `fill-paragraph' on comment. \"" and
+;;;				q [] with intervening newlines.
+;;; (`cperl-autoindent-on-semi'):	New customization variable.
+;;; (`cperl-electric-semi'):	Use `cperl-autoindent-on-semi'.
+;;; (`cperl-tips'):		Mention how to make CPerl the default mode.
+;;; (`cperl-mode'):		Support `outline-minor-mode'
+;;;				(Thanks to Mark A. Hershberger).
+;;; (`cperl-outline-level'):	New function.
+;;; (`cperl-highlight-variables-indiscriminately'):	New customization var.
+;;; (`cperl-init-faces'):	Use `cperl-highlight-variables-indiscriminately'.
+;;;				(Thanks to Sean Kamath <kamath@pogo.wv.tek.com>).
+;;; (`cperl-after-block-p'):	Support CHECK and INIT.
+;;; (`cperl-init-faces'):	Likewise and "our".
+;;;				(Thanks to Doug MacEachern <dougm@covalent.net>).
+;;; (`cperl-short-docs'):	Likewise and "our".
+
+
+;;;; After 4.27:
+;;; (`cperl-find-pods-heres'):	Recognize \"" as a string.
+;;;				Mark whitespace and comments between q and []
+;;;				  as `syntax-type' => `prestring'.
+;;;				Allow whitespace between << and "FOO".
+;;; (`cperl-problems'):		Remove \"" and q [] with intervening newlines.
+;;;				Mention multiple <<EOF as unsupported.
+;;; (`cperl-highlight-variables-indiscriminately'):	Doc misprint fixed.
+;;; (`cperl-indent-parens-as-block'):	New configuration variable.
+;;; (`cperl-calculate-indent'):	Merge cases of indenting non-BLOCK groups.
+;;;				Use `cperl-indent-parens-as-block'.
+;;; (`cperl-find-pods-heres'):	Test for =cut without empty line instead of
+;;;				complaining about no =cut.
+;;; (`cperl-electric-pod'):	Change the REx for POD from "\n\n=" to "^\n=".
+;;; (`cperl-find-pods-heres'):	Likewise.
+;;; (`cperl-electric-pod'):	Change `forward-sexp' to `forward-word':
+;;;				POD could've been marked as comment already.
+;;; (`cperl-unwind-to-safe'):	Unwind before start of POD too.
+
+;;;; After 4.28:
+;;; (`cperl-forward-re'):	Throw an error at proper moment REx unfinished.
+
+;;;; After 4.29:
+;;; (`x-color-defined-p'):	Make an extra case to peacify the warning.
+;;; Toplevel:			`defvar' to peacify the warnings.
+;;; (`cperl-find-pods-heres'):	Could access `font-lock-comment-face' in -nw.
+;;;;				No -nw-compile time warnings now.
+;;; (`cperl-find-tags'):	TAGS file had too short substring-to-search.
+;;;				Be less verbose in non-interactive mode
+;;; (`imenu-example--create-perl-index'):	Set index-marker after name
+;;; (`cperl-outline-regexp'):	New variable.
+;;; (`cperl-outline-level'):	Made compatible with `cperl-outline-regexp'.
+;;; (`cperl-mode'):		Made use `cperl-outline-regexp'.
+
+;;;; After 4.30:
+;;; (`cperl-find-pods-heres'):	=cut the last thing, no blank line, was error.
+;;; (`cperl-outline-level'):	Make start-of-file same level as `package'.
+
+;;;; After 4.31:
+;;; (`cperl-electric-pod'):	`head1' and `over' electric only if empty.
+;;; (`cperl-unreadable-ok'):	New variable.
+;;; (`cperl-find-tags'):	Use `cperl-unreadable-ok', do not fail
+;;;				on an unreadable file
+;;; (`cperl-write-tags'):	Use `cperl-unreadable-ok', do not fail
+;;;				on an unreadable directory
+
+;;;; After 4.32:
+;;;  Syncronized with v1.60 from Emacs 21.3.
+;;;  Mostly docstring and formatting changes, and:
+
+;;;  (`cperl-noscan-files-regexp'): Do not scan CVS subdirs
+;;;  (`cperl-problems'):	Note that newer XEmacsen may syntaxify too
+;;;  (`imenu-example--create-perl-index'):
+;;;				Renamed to `cperl-imenu--create-perl-index'
+;;;  (`cperl-mode'):		Replace `make-variable-buffer-local' by `make-local-variable'
+;;;  (`cperl-setup-tmp-buf'):	Likewise
+;;;  (`cperl-fix-line-spacing'): Fix a misprint of "t" for "\t"
+;;;  (`cperl-next-bad-style'):  Fix misprints in character literals
+
+;;;; After 4.33:
+;;;  (`cperl-font-lock-keywords'): +etc: Aliased to perl-font-lock-keywords.
+
+;;;; After 4.34:
+;;;  Further updates of whitespace and spelling w.r.t. RMS version.
+;;;  (`cperl-font-lock-keywords'): +etc: Avoid warnings when aliasing.
+;;;  (`cperl-mode'):		Use `normal-auto-fill-function' if present.
+;;;  (`cperl-use-major-mode'):	New variable
+;;;  (`cperl-can-font-lock'):	New variable; replaces `window-system'
+;;;  (`cperl-tags-hier-init'):	use `display-popup-menus-p' (if present)
+;;;				to choose `x-popup-menu' vs `tmm-prompt'
+
+;;;; 4.35 has the following differences from version 1.40+ of RMS Emacs:
+
+;;; New variables `cperl-use-major-mode', `cperl-can-font-lock';
+;;; `cperl-use-major-mode' is (effectively) 'cperl-mode in RMS.
+;;; `cperl-under-as-char'  is nil in RMS.
+;;; Minor differences in docstrings, and `cperl-non-problems'.
+;;; Backward compatibility addressed: (`); (function (lambda ...)); font-lock;
+;;; (:italic t bold t) vs (:slant italic :weight bold) in faces;
+;;; `normal-auto-fill-function'.
+;;; RMS version has wrong logic in `cperl-calculate-indent': $a = { } is
+;;; wrongly indented if the closing brace is on a separate line.
+;;; Different choice of ordering if's for is-x-REx and (eq (char-after b) ?\#)
+;;; in `cperl-find-pods-heres'. [Cosmetic]
+
+;;;; After 4.35:
+;;;  (`cperl-find-pods-heres'):	If no end of HERE-doc found, mark to the end
+;;;				of buffer.  This enables recognition of end
+;;;				of HERE-doc "as one types".
+;;;				Require "\n" after trailing tag of HERE-doc.
+;;;				\( made non-quoting outside of string/comment
+;;;				(gdj-contributed).
+;;;				Likewise for \$.
+;;;				Remove `here-doc-group' text property at start
+;;;				(makes this property reliable).
+;;;				Text property `first-format-line' ==> t.
+;;;				Do not recognize $opt_s and $opt::s as s///.
+;;;  (`cperl-perldoc'):		Use case-sensitive search (contributed).
+;;;  (`cperl-fix-line-spacing'): Allow "_" in $vars of foreach etc. when
+;;;				underscore isn't a word char (gdj-contributed).
+;;;  (`defun-prompt-regexp'):	Allow prototypes.
+;;;  (`cperl-vc-header-alist'):	Extract numeric version from the Id.
+;;;  Toplevel:			Put toggle-autohelp into the mode menu.
+;;;				Better docs for toggle/set/unset autohelp.
+;;;  (`cperl-electric-backspace-untabify'): New customization variable
+;;;  (`cperl-after-expr-p'):	Works after here-docs, formats, and PODs too
+;;;				(affects many electric constructs).
+;;;  (`cperl-calculate-indent'): Takes into account `first-format-line' ==>
+;;;				works after format.
+;;;  (`cperl-short-docs'):	Make it work with ... too.
+;;;				"array context" ==> "list context"
+;;;  (`cperl-electric-keyword'): make $if (etc: "$@%&*") non-electric
+;;;				'(' after keyword would insert a doubled paren
+;;;  (`cperl-electric-paren'):	documented affected by `cperl-electric-parens'
+;;;  (`cperl-electric-rparen'):	Likewise
+;;;  (`cperl-build-manpage'):	New function by Nick Roberts
+;;;  (`cperl-perldoc'):		Make it work in XEmacs too
+
+;;;; After 4.36:
+;;;  (`cperl-find-pods-heres'):	Recognize s => 1 and {s} (as a key or varname),
+;;;				{ s:: } and { s::bar::baz } as varnames.
+;;;  (`cperl-after-expr-p'):	Updates syntaxification before checks
+;;;  (`cperl-calculate-indent'): Likewise
+;;;				Fix wrong indent of blocks starting with POD
+;;;  (`cperl-after-block-p'):	Optional argument for checking for a pre-block
+;;;				Recognize `continue' blocks too.
+;;;  (`cperl-electric-brace'):	use `cperl-after-block-p' for detection;
+;;;				Now works for else/continue/sub blocks
+;;;  (`cperl-short-docs'):	Minor edits; make messages fit 80-column screen
+
+;;;; After 5.0:
+;;;  `cperl-add-tags-recurse-noxs-fullpath': new function (for -batch mode)
+
+;;;; After 5.1:
+;;;;;; Major edit.  Summary of most visible changes:
+
+;;;;;; a) Multiple <<HERE per line allowed.
+;;;;;; b) Handles multiline subroutine declaration headers (with comments).
+;;;;;;    (The exception is `cperl-etags' - but it is not used in the rest
+;;;;;;    of the mode.)
+;;;;;; c) Fontifies multiline my/our declarations (even with comments,
+;;;;;;    and with legacy `font-lock').
+;;;;;; d) Major speedup of syntaxification, both immediate and postponed
+;;;;;;    (3.5x to 15x [for different CPUs and versions of Emacs] on the
+;;;;;;    huge real-life document I tested).
+;;;;;; e) New bindings, edits to imenu.
+;;;;;; f) "_" is made into word-char during fontification/syntaxification;
+;;;;;;    some attempts to recognize non-word "_" during other operations too.
+;;;;;; g) Detect bug in Emacs with `looking-at' inside `narrow' and bulk out.
+;;;;;; h) autoload some more perldoc-related stuff
+;;;;;; i) Some new convenience features: ISpell POD/HEREDOCs, narrow-to-HEREDOC
+;;;;;; j) Attempt to incorporate XEmacs edits which reached me
+
+;;;; Fine-grained changelog:
+;;; `cperl-hook-after-change':	New configuration variable
+;;; `cperl-vc-sccs-header':	Likewise
+;;; `cperl-vc-sccs-header':	Likewise
+;;; `cperl-vc-header-alist':	Default via two preceding variables
+;;; `cperl-invalid-face':	Remove double quoting under XEmacs
+;;;					(still needed under 21.2)
+;;; `cperl-tips':		Update URLs for resources
+;;; `cperl-problems':		Likewise
+;;; `cperl-praise':		Mention new features
+;;; New C-c key bindings:	for `cperl-find-bad-style',
+;;;	`cperl-pod-spell', `cperl-here-doc-spell', `cperl-narrow-to-here-doc',
+;;;	`cperl-perdoc', `cperl-perldoc-at-point'
+;;; CPerl Mode menu changes:	"Fix style by spaces", "Imenu on Perl Info"
+;;;	moved, new submenu of Tools with Ispell entries and narrowing.
+;;; `cperl-after-sub-regexp':	New defsubst
+;;; `cperl-imenu--function-name-regexp-perl': Use `cperl-after-sub-regexp',
+;;;				Allows heads up to head4
+;;;				Allow "package;"
+;;; `defun-prompt-regexp':	Use `cperl-after-sub-regexp',
+;;; `paren-backwards-message':	??? Something for XEmacs???
+;;; `cperl-mode':		Never auto-switch abbrev-mode off
+;;;				Try to allow '_' be non-word char
+;;;				Do not use `font-lock-unfontify-region-function' on XEmacs
+;;;				Reset syntax cache on mode start
+;;;				Support multiline facification (even
+;;;				        on legacy `font-lock')
+;;; `cperl-facemenu-add-face-function':	??? Some contributed code ???
+;;; `cperl-after-change-function':	Since `font-lock' and `lazy-lock'
+;;;         refuse to inform us whether the fontification is due to lazy
+;;;         calling or due to edit to a buffer, install our own hook
+;;;         (controlled by `cperl-hook-after-change')
+;;; `cperl-electric-pod':	=cut may have been recognized as start
+;;; `cperl-block-p':		Moved, updated for attributes
+;;; `cperl-calculate-indent':	Try to allow '_' be non-word char
+;;;				Support subs with attributes
+;;; `cperl-where-am-i':		Queit (?) a warning
+;;; `cperl-cached-syntax-table'	New function
+;;; `cperl-forward-re':		Use `cperl-cached-syntax-table'
+;;; `cperl-unwind-to-safe':	Recognize `syntax-type' property
+;;;					changing in a middle of line
+;;; `cperl-find-sub-attrs':	New function
+;;; `cperl-find-pods-heres':	Allow many <<EOP per line
+;;;				Allow subs with attributes
+;;;				Major speedups (3.5x..15x on a real-life
+;;;				        test file nph-proxy.pl)
+;;;				Recognize "extproc " (OS/2)
+;;;				        case-folded and only at start
+;;;				/x on s///x with empty replacement was
+;;;				        not recognized
+;;;				Better comments
+;;; `cperl-after-block-p':	Remarks on diff with `cperl-block-p'
+;;;				Allow subs with attributes, labels
+;;;				Do not confuse "else::foo" with "else"
+;;;				Minor optimizations...
+;;; `cperl-after-expr-p':	Try to allow '_' be non-word char
+;;; `cperl-fill-paragraph':	Try to detect a major bug in Emacs
+;;;         with `looking-at' inside `narrow' and bulk out if found
+;;; `cperl-imenu--create-perl-index':	Updates for new
+;;;         `cperl-imenu--function-name-regexp-perl'
+;;; `cperl-outline-level':	Likewise
+;;; `cperl-init-faces':		Allow multiline subroutine headers
+;;;         and my/our declarations, and ones with comments
+;;;				Allow subroutine attributes
+;;; `cperl-imenu-on-info':	Better docstring.
+;;; `cperl-etags'		Rudimentary support for attributes
+;;;				Support for packages and "package;"
+;;; `cperl-add-tags-recurse-noxs':	Better (?) docstring
+;;; `cperl-add-tags-recurse-noxs-fullpath': Likewise
+;;; `cperl-tags-hier-init':	Misprint for `fboundp' fixed
+;;; `cperl-not-bad-style-regexp':	Try to allow '_' be non-word char
+;;; `cperl-perldoc':		Add autoload
+;;; `cperl-perldoc-at-point':	Likewise
+;;; `cperl-here-doc-spell':	New function
+;;; `cperl-pod-spell':		Likewise
+;;; `cperl-map-pods-heres':	Likewise
+;;; `cperl-get-here-doc-region':	Likewise
+;;; `cperl-font-lock-fontify-region-function': Likewise (backward compatibility
+;;;					        for legacy `font-lock')
+;;; `cperl-font-lock-unfontify-region-function': Fix style
+;;; `cperl-fontify-syntaxically':	Recognize and optimize away
+;;;         deferred calls with no-change.  Governed by `cperl-hook-after-change'
+;;; `cperl-fontify-update':	Recognize that syntaxification region
+;;;         can be larger than fontification one.
+;;;         XXXX we leave `cperl-postpone' property, so this is quadratic...
+;;; `cperl-fontify-update-bad':	Temporary placeholder until
+;;;         it is clear how to implement `cperl-fontify-update'.
+;;; `cperl-time-fontification':	New function
+;;; `attrib-group':		New text attribute
+;;; `multiline':		New value: `syntax-type' text attribute
+
+;;;; After 5.2:
+;;; `cperl-emulate-lazy-lock':	New function
+;;; `cperl-fontify-syntaxically': Would skip large regions
+;;; Add `cperl-time-fontification', `cperl-emulate-lazy-lock' to menu
+;;; Some globals were declared, but uninitialized
+
+;;;; After 5.3, 5.4:
+;;; `cperl-facemenu-add-face-function':	Add docs, fix U<>
+;;; Copyright message updated.
+;;; `cperl-init-faces':		Work around a bug in `font-lock'. May slow
+;;;					facification down a bit.
+;;;				Misprint for my|our|local for old `font-lock'
+;;;				"our" was not fontified same as "my|local"
+;;;				Highlight variables after "my" etc even in
+;;;					a middle of an expression
+;;;				Do not facify multiple variables after my etc
+;;;					unless parentheses are present
+
+;;; After 5.5, 5.6
+;;; `cperl-fontify-syntaxically': after-change hook could reset
+;;;	`cperl-syntax-done-to' to a middle of line; unwind to BOL.
+
+;;; After 5.7:
+;;; `cperl-init-faces':		Allow highlighting of local ($/)
+;;; `cperl-problems-old-emaxen': New variable (for the purpose of DOCSTRING).
+;;; `cperl-problems':		Remove fixed problems.
+;;; `cperl-find-pods-heres':	Recognize #-comments in m##x too
+;;;				Recognize charclasses (unless delimiter is \).
+;;; `cperl-fontify-syntaxically': Unwinding to safe was done in wrong order
+;;; `cperl-regexp-scan':	Update docs
+;;; `cperl-beautify-regexp-piece': use information got from regexp scan
+
+;;; After 5.8:
+;;; Major user visible changes:
+;;; Recognition and fontification of character classes in RExen.
+;;; Variable indentation of RExen according to groups
+;;;
+;;; `cperl-find-pods-heres':	Recognize POSIX classes in REx charclasses
+;;;				Fontify REx charclasses in variable-name face
+;;;				Fontify POSIX charclasses in "type" face
+;;;				Fontify unmatched "]" in function-name face
+;;;				Mark first-char of HERE-doc as `front-sticky'
+;;;				Reset `front-sticky' property when needed
+;;; `cperl-calculate-indent':	Indents //x -RExen accordning to parens level
+;;; `cperl-to-comment-or-eol':	Recognize ends of `syntax-type' constructs
+;;; `cperl-backward-to-noncomment': Recognize stringy `syntax-type' constructs
+;;;				Support `narrow'ed buffers.
+;;; `cperl-praise':		Remove a reservation
+;;; `cperl-make-indent':	New function
+;;; `cperl-indent-for-comment':	Use `cperl-make-indent'
+;;; `cperl-indent-line':	Likewise
+;;; `cperl-lineup':		Likewise
+;;; `cperl-beautify-regexp-piece': Likewise
+;;; `cperl-contract-level':	Likewise
+;;; `cperl-toggle-set-debug-unwind': New function
+;;;				New menu entry for this
+;;; `fill-paragraph-function':	Use when `boundp'
+;;; `cperl-calculate-indent':	Take into account groups when indenting RExen
+;;; `cperl-to-comment-or-eol':	Recognize # which end a string
+;;; `cperl-modify-syntax-type':	Make only syntax-table property non-sticky
+;;; `cperl-fill-paragraph':	Return t: needed for `fill-paragraph-function'
+;;; `cperl-fontify-syntaxically': More clear debugging message
+;;; `cperl-pod2man-build-command': XEmacs portability: check `Man-filter-list'
+;;; `cperl-init-faces':		More complicated highlight even on XEmacs (new)
+;;; Merge cosmetic changes from XEmacs
+
+;;; After 5.9:
+;;; `cperl-1+':			Moved to before the first use
+;;; `cperl-1-':			Likewise
+
+;;; After 5.10:
+
+;;; This code may lock Emacs hard!!!  Use on your own risk!
+
+;;; `cperl-font-locking':	New internal variable
+;;; `cperl-beginning-of-property': New function
+;;; `cperl-calculate-indent':	Use `cperl-beginning-of-property'
+;;;	instead of `previous-single-property-change'
+;;; `cperl-unwind-to-safe':	Likewise
+;;; `cperl-after-expr-p':	Likewise
+;;; `cperl-get-here-doc-region': Likewise
+;;; `cperl-font-lock-fontify-region-function': Likewise
+;;; `cperl-to-comment-or-eol':	Do not call `cperl-update-syntaxification'
+;;;					recursively
+;;;				Bound `next-single-property-change'
+;;;					via `point-max'
+;;; `cperl-unwind-to-safe':	Bound likewise
+;;; `cperl-font-lock-fontify-region-function': Likewise
+;;; `cperl-find-pods-heres':	Mark as recursive for `cperl-to-comment-or-eol'
+;;;				Initialization of
+;;;	`cperl-font-lock-multiline-start' could be missed if the "main"
+;;;	fontification did not run due to the keyword being already fontified.
+;;; `cperl-pod-spell':		Return t from do-one-chunk function
+;;; `cperl-map-pods-heres':	Stop when the worker returns nil
+;;;				Call `cperl-update-syntaxification'
+;;; `cperl-get-here-doc-region': Call `cperl-update-syntaxification'
+;;; `cperl-get-here-doc-delim':	Remove unused function
+
+;;; After 5.11:
+
+;;;  The possible lockup of Emacs (introduced in 5.10) fixed
+
+;;; `cperl-unwind-to-safe':	`cperl-beginning-of-property' won't return nil
+;;; `cperl-syntaxify-for-menu':	New customization variable
+;;; `cperl-select-this-pod-or-here-doc': New function
+;;; `cperl-get-here-doc-region': Extra argument
+;;;				Do not adjust pos by 1
+
+;;; New menu entries (Perl/Tools): selection of current POD or HERE-DOC section
+;;;				(Debugging CPerl:) backtrace on fontification
+
+;;; After 5.12:
+;;; `cperl-cached-syntax-table': use `car-safe'
+;;; `cperl-forward-re':		Remove spurious argument SET-ST
+;;;				Add documentation
+;;; `cperl-forward-group-in-re': New function
+;;; `cperl-find-pods-heres':	Find and highlight (?{}) blocks in RExen
+;;;	(XXXX Temporary (?) hack is to syntax-mark them as comment)
+
+;;; After 5.13:
+;;; `cperl-string-syntax-table': Make { and } not-grouping
+;;;   (Sometimes they ARE grouping in RExen, but matching them would only
+;;;    confuse in many situations when they are not)
+;;; `beginning-of-buffer':	Replaced two occurences with goto-char...
+;;; `cperl-calculate-indent':	`char-after' could be nil...
+;;; `cperl-find-pods-heres':	REx can start after "[" too
+;;;				Hightlight (??{}) in RExen too 
+;;; `cperl-maybe-white-and-comment-rex': New constant
+;;; `cperl-white-and-comment-rex': Likewise
+;;;				XXXX Not very efficient, but hard to make
+;;;				better while keeping 1 group
+
+;;; After 5.13:
+;;; `cperl-find-pods-heres':	$foo << identifier() is not a HERE-DOC
+;;;				Likewise for 1 << identifier
+
+;;; After 5.14:
+;;; `cperl-find-pods-heres':	Different logic for $foo .= <<EOF etc
+;;;				Error-less condition-case could fail
+;;; `cperl-font-lock-fontify-region-function': Likewise
+;;; `cperl-init-faces':		Likewise
+
+;;; After 5.15:
+;;; `cperl-find-pods-heres':	Support property REx-part2
+;;; `cperl-calculate-indent':	Likewise
+;;;				Don't special-case REx with non-empty 1st line
+;;; `cperl-find-pods-heres':	In RExen, highlight non-literal backslashes
+;;;				Invert highlighting of charclasses: 
+;;;					now the envelop is highlighted
+;;;				Highlight many others 0-length builtins
+;;; `cperl-praise':		Mention indenting and highlight in RExen
+
+;;; After 5.15:
+;;; `cperl-find-pods-heres':	Highlight capturing parens in REx
+
+;;; After 5.16:
+;;; `cperl-find-pods-heres':	Highlight '|' for alternation
+;;;	Initialize `font-lock-warning-face' if not present
+;;; `cperl-find-pods-heres':	Use `font-lock-warning-face' instead of
+;;;					 `font-lock-function-name-face'
+;;; `cperl-look-at-leading-count': Likewise
+;;; `cperl-find-pods-heres':	localize `font-lock-variable-name-face'
+;;;					`font-lock-keyword-face' (needed for
+;;;					batch processing) etc
+;;;				Use `font-lock-builtin-face' for builtin in REx
+;;;					Now `font-lock-variable-name-face'
+;;;					is used for interpolated variables
+;;;				Use "talking aliases" for faces inside REx
+;;;				Highlight parts of REx (except in charclasses)
+;;;					according to the syntax and/or semantic
+;;;				Syntax-mark a {}-part of (?{}) as "comment"
+;;;					(it was the ()-part)
+;;;				Better logic to distinguish what is what in REx
+;;; `cperl-tips-faces':		Document REx highlighting
+;;; `cperl-praise':		Mention REx syntax highlight etc.
+
+;;; After 5.17:
+;;; `cperl-find-sub-attrs':	Would not always manage to print error message
+;;; `cperl-find-pods-heres':	localize `font-lock-constant-face'
+
+;;; After 5.18:
+;;; `cperl-find-pods-heres':	Misprint in REx for parsing REx
+;;;				Very minor optimization
+;;;				`my-cperl-REx-modifiers-face' got quoted
+;;;				Recognize "print $foo <<END" as HERE-doc
+;;;				Put `REx-interpolated' text attribute if needed
+;;; `cperl-invert-if-unless-modifiers':	New function
+;;; `cperl-backward-to-start-of-expr': Likewise
+;;; `cperl-forward-to-end-of-expr': Likewise
+;;; `cperl-invert-if-unless':	Works in "the opposite way" too
+;;;				Cursor position on return is on the switch-word
+;;;				Indents comments better
+;;; `REx-interpolated':		New text attribute
+;;; `cperl-next-interpolated-REx': New function
+;;; `cperl-next-interpolated-REx-0': Likewise
+;;; `cperl-next-interpolated-REx-1': Likewise
+;;; "\C-c\C-x", "\C-c\C-y", "\C-c\C-v":	New keybinding for these functions
+;;; Perl/Regexp menu:		3 new entries for `cperl-next-interpolated-REx'
+;;; `cperl-praise':		Mention finded interpolated RExen
+
+;;; After 5.19:
+;;; `cperl-init-faces':		Highlight %$foo, @$foo too
+;;; `cperl-short-docs':		Better docs for system, exec
+;;; `cperl-find-pods-heres':	Better detect << after print {FH} <<EOF etc.
+;;;				Would not find HERE-doc ended by EOF without NL
+;;; `cperl-short-docs':		Correct not-doubled \-escapes
+;;; start block:		Put some `defvar' for stuff gone from XEmacs
+
+;;; After 5.20:
+;;; initial comment:		Extend copyright, fix email address
+;;; `cperl-indent-comment-at-column-0': New customization variable
+;;; `cperl-comment-indent':	Indentation after $#a would increasy by 1
+;;; `cperl-mode':		Make `defun-prompt-regexp' grok BEGIN/END etc
+;;; `cperl-find-pods-heres':	Mark CODE of s///e as `syntax-type' `multiline'
+;;; `cperl-at-end-of-expr':	Would fail if @BAR=12 follows after ";"
+;;; `cperl-init-faces':		If `cperl-highlight-variables-indiscriminately'
+;;;					highlight $ in $foo too (UNTESTED)
+;;; `cperl-set-style':		Docstring missed some available styles
+;;; toplevel:			Menubar/Perl/Indent-Styles had FSF, now K&R
+;;;				Change "Current" to "Memorize Current"
+;;; `cperl-indent-wrt-brace':	New customization variable; the default is
+;;;				as for pre-5.2 version
+;;; `cperl-styles-entries':	Keep `cperl-extra-newline-before-brace-multiline'
+;;; `cperl-style-alist':	Likewise
+;;; `cperl-fix-line-spacing':	Support `cperl-merge-trailing-else' being nil,
+;;;				and `cperl-extra-newline-before-brace' etc
+;;;				being t
+;;; `cperl-indent-exp':		Plans B and C to find continuation blocks even
+;;;				if `cperl-extra-newline-before-brace' is t
+
+;;; After 5.21:
+;;; Improve some docstrings concerning indentation.
+;;; `cperl-indent-rules-alist':	New variable
+;;; `cperl-sniff-for-indent':	New function name
+;;				(separated from `cperl-calculate-indent')
+;;; `cperl-calculate-indent':	Separated the sniffer and the indenter;
+;;;				uses `cperl-sniff-for-indent' now
+;;; `cperl-comment-indent':	Test for `cperl-indent-comment-at-column-0'
+;;;				was inverted;
+;;;				Support `comment-column' = 0
+
+;;; After 5.22:
+;;; `cperl-where-am-i':		Remove function
+;;; `cperl-backward-to-noncomment': Would go too far when skipping POD/HEREs
+;;; `cperl-sniff-for-indent':	[string] and [comment] were inverted
+;;;				When looking for label, skip s:m:y:tr
+;;; `cperl-indent-line':	Likewise
+;;; `cperl-mode':		`font-lock-multiline' was assumed auto-local
+;;; `cperl-windowed-init':	Wrong `ps-print' handling
+;;;				 (both thanks to Chong Yidong)
+;;; `cperl-look-at-leading-count': Could fail with unfinished RExen
+;;; `cperl-find-pods-heres':	If the second part of s()[] is missing,
+;;;					could try to highlight delimiters...
+
+;;; After 5.23:
+;;; toplevel:			Add comment on existence of different flavors
+;;; `cperl-string-syntax-table': Was treating quotes as special
+;;; Mode menu:			Add "Report indentation context"
+;;; `cperl-sniff-for-indent':	Update comments
+;;; `cperl-make-regexp-x':	Was treating qr wrong
+;;; `cperl-fill-paragraph': 	v22.1 needs `save-excursion' (XXXX BUG???)
+;;;					(Thanks to Pete Harlan)
+;;; `cperl-build-manpage':	set `Man-switches' for use in
+;;;					`Man-getpage-in-background'
+;;; `cperl-perldoc':		Likewise (Thanks to Alexander Haeckel)
+;;; `cperl-beautify-regexp-piece': Allow for indentation of (?:)-group
+;;; `cperl-beautify-level':	Likewise
+;;; `cperl-mode':		`compilation-error-regexp-alist-alist'
+;;;					is defined in Emacs22, with different
+;;;					semantic than in XEmacs21
+;;;					(Thanks to Mark T. Kennedy)
+;;; toplevel:			Need to defvar `compilation-error-regexp-alist'
+;;; `cperl-find-pods-heres':	Check for unfinished s treated s/a// as such
+;;;				Better comments in REx highlighting
+;;;				Highlighting of - in charclasses
+;;;				(Does not pay attention to alphanum/dash delim)
+;;; `cperl-forward-re':		Do not print "unmatched" during electric {
+
+;;; After 5.24:
+;;; `cperl-find-pods-heres':	Better comments in REx highlighting
+;;;				Treat backslashes before POSIX charclass better
+;;;				Highlighting of - and \ESCAPED in charclasses
+;;;				  (Doesnt pay attention to alphanum/dash delim)
+;;;				Change POSIX class highlight to variable-name
+;;; `cperl-highlight-charclass': New subst
+;;; `cperl-tips-faces'		Correct literal backwacks, mention multipliers
+
+;;; After 6.0:
+;;;; Incorporate XEmacs changes:
+;;; `cperl-mode-map':		Bind 'delete 'backspace on XEmacs
+;;; `cperl-electric-delete':	New (unsupported) function for XEmacs bindings
+;;; toplevel:			Define obsolete alias for `pod-spell'
+;;;				autoload updates to `mode-alist's
+
+;;; After 6.1:
+;;; toplevel:			Add .PM to autoload mode list
+;;; `cperl-insert-faces-example': New function
+;;; Mode menu:			New Micro-docs choice: Show Faces
+
 ;;; Code:
 
-(defvar vc-rcs-header)
-(defvar vc-sccs-header)
-
-(eval-when-compile
+(if (fboundp 'eval-when-compile)
+    (eval-when-compile
       (condition-case nil
 	  (require 'custom)
 	(error nil))
       (condition-case nil
 	  (require 'man)
 	(error nil))
+      (defconst cperl-xemacs-p (string-match "XEmacs\\|Lucid" emacs-version))
       (defvar cperl-can-font-lock
-	(or (featurep 'xemacs)
+	(or cperl-xemacs-p
 	    (and (boundp 'emacs-major-version)
 		 (or window-system
 		     (> emacs-major-version 20)))))
@@ -100,12 +1581,15 @@
       (defvar font-lock-background-mode) ; not in Emacs
       (defvar font-lock-display-type)	; ditto
       (defvar paren-backwards-message)	; Not in newer XEmacs?
+      (defvar vc-rcs-header)		; likewise?
+      (defvar vc-sccs-header)		; likewise?
+      (defvar compilation-error-regexp-alist) ; used in Emacs 22
       (or (fboundp 'defgroup)
 	  (defmacro defgroup (name val doc &rest arr)
 	    nil))
       (or (fboundp 'custom-declare-variable)
 	  (defmacro defcustom (name val doc &rest arr)
-	    `(defvar ,name ,val ,doc)))
+	    (` (defvar (, name) (, val) (, doc)))))
       (or (and (fboundp 'custom-declare-variable)
 	       (string< "19.31" emacs-version))	;  Checked with 19.30: defface does not work
 	  (defmacro defface (&rest arr)
@@ -113,58 +1597,64 @@
       ;; Avoid warning (tmp definitions)
       (or (fboundp 'x-color-defined-p)
 	  (defmacro x-color-defined-p (col)
-	    (cond ((fboundp 'color-defined-p) `(color-defined-p ,col))
+	    (cond ((fboundp 'color-defined-p) (` (color-defined-p (, col))))
 		  ;; XEmacs >= 19.12
-		  ((fboundp 'valid-color-name-p) `(valid-color-name-p ,col))
+		  ((fboundp 'valid-color-name-p) (` (valid-color-name-p (, col))))
 		  ;; XEmacs 19.11
-		  ((fboundp 'x-valid-color-name-p) `(x-valid-color-name-p ,col))
+		  ((fboundp 'x-valid-color-name-p) (` (x-valid-color-name-p (, col))))
 		  (t '(error "Cannot implement color-defined-p")))))
       (defmacro cperl-is-face (arg)	; Takes quoted arg
 	(cond ((fboundp 'find-face)
-	       `(find-face ,arg))
+	       (` (find-face (, arg))))
 	      (;;(and (fboundp 'face-list)
 	       ;;	(face-list))
 	       (fboundp 'face-list)
-	       `(member ,arg (and (fboundp 'face-list)
-                                  (face-list))))
+	       (` (member (, arg) (and (fboundp 'face-list)
+				       (face-list)))))
 	      (t
-	       `(boundp ,arg))))
+	       (` (boundp (, arg))))))
       (defmacro cperl-make-face (arg descr) ; Takes unquoted arg
 	(cond ((fboundp 'make-face)
-	       `(make-face (quote ,arg)))
+	       (` (make-face (quote (, arg)))))
 	      (t
-	       `(defvar ,arg (quote ,arg) ,descr))))
+	       (` (defvar (, arg) (quote (, arg)) (, descr))))))
       (defmacro cperl-force-face (arg descr) ; Takes unquoted arg
-	`(progn
-	     (or (cperl-is-face (quote ,arg))
-		 (cperl-make-face ,arg ,descr))
-	     (or (boundp (quote ,arg)) ; We use unquoted variants too
-		 (defvar ,arg (quote ,arg) ,descr))))
-      (if (featurep 'xemacs)
+	(` (progn
+	     (or (cperl-is-face (quote (, arg)))
+		 (cperl-make-face (, arg) (, descr)))
+	     (or (boundp (quote (, arg))) ; We use unquoted variants too
+		 (defvar (, arg) (quote (, arg)) (, descr))))))
+      (if cperl-xemacs-p
 	  (defmacro cperl-etags-snarf-tag (file line)
-	    `(progn
-               (beginning-of-line 2)
-               (list ,file ,line)))
+	    (` (progn
+		 (beginning-of-line 2)
+		 (list (, file) (, line)))))
 	(defmacro cperl-etags-snarf-tag (file line)
-	  `(etags-snarf-tag)))
-      (if (featurep 'xemacs)
+	  (` (etags-snarf-tag))))
+      (if cperl-xemacs-p
 	  (defmacro cperl-etags-goto-tag-location (elt)
-	    ;;(progn
-            ;; (switch-to-buffer (get-file-buffer (elt ,elt 0)))
-            ;; (set-buffer (get-file-buffer (elt ,elt 0)))
-            ;; Probably will not work due to some save-excursion???
-            ;; Or save-file-position?
-            ;; (message "Did I get to line %s?" (elt ,elt 1))
-            `(goto-line (string-to-int (elt ,elt 1))))
+	    (`;;(progn
+	     ;; (switch-to-buffer (get-file-buffer (elt (, elt) 0)))
+	     ;; (set-buffer (get-file-buffer (elt (, elt) 0)))
+	     ;; Probably will not work due to some save-excursion???
+	     ;; Or save-file-position?
+	     ;; (message "Did I get to line %s?" (elt (, elt) 1))
+	     (goto-line (string-to-int (elt (, elt) 1)))))
 	;;)
 	(defmacro cperl-etags-goto-tag-location (elt)
-	  `(etags-goto-tag-location ,elt))))
+	  (` (etags-goto-tag-location (, elt)))))))
+
+(defconst cperl-xemacs-p (string-match "XEmacs\\|Lucid" emacs-version))
 
 (defvar cperl-can-font-lock
-  (or (featurep 'xemacs)
+  (or cperl-xemacs-p
       (and (boundp 'emacs-major-version)
 	   (or window-system
 	       (> emacs-major-version 20)))))
+
+(condition-case nil
+    (require 'custom)
+  (error nil))				; Already fixed by eval-when-compile
 
 (defun cperl-choose-color (&rest list)
   (let (answer)
@@ -176,11 +1666,11 @@
       (setq list (cdr list)))
     answer))
 
+
 (defgroup cperl nil
   "Major mode for editing Perl code."
   :prefix "cperl-"
-  :group 'languages
-  :version "20.3")
+  :group 'languages)
 
 (defgroup cperl-indentation-details nil
   "Indentation."
@@ -199,7 +1689,6 @@
 
 (defgroup cperl-faces nil
   "Fontification colors."
-  :link '(custom-group-link :tag "Font Lock Faces group" font-lock-faces)
   :prefix "cperl-"
   :group 'cperl)
 
@@ -240,19 +1729,6 @@ for constructs with multiline if/unless/while/until/for/foreach condition."
   "*Indentation of CPerl statements with respect to containing block."
   :type 'integer
   :group 'cperl-indentation-details)
-
-;; Is is not unusual to put both things like perl-indent-level and
-;; cperl-indent-level in the local variable section of a file. If only
-;; one of perl-mode and cperl-mode is in use, a warning will be issued
-;; about the variable. Autoload these here, so that no warning is
-;; issued when using either perl-mode or cperl-mode.
-;;;###autoload(put 'cperl-indent-level 'safe-local-variable 'integerp)
-;;;###autoload(put 'cperl-brace-offset 'safe-local-variable 'integerp)
-;;;###autoload(put 'cperl-continued-brace-offset 'safe-local-variable 'integerp)
-;;;###autoload(put 'cperl-label-offset 'safe-local-variable 'integerp)
-;;;###autoload(put 'cperl-continued-statement-offset 'safe-local-variable 'integerp)
-;;;###autoload(put 'cperl-extra-newline-before-brace 'safe-local-variable 'booleanp)
-;;;###autoload(put 'cperl-merge-trailing-else 'safe-local-variable 'booleanp)
 
 (defcustom cperl-lineup-step nil
   "*`cperl-lineup' will always lineup at multiple of this number.
@@ -296,11 +1772,6 @@ This is in addition to cperl-continued-statement-offset."
 (defcustom cperl-indent-wrt-brace t
   "*Non-nil means indent statements in if/etc block relative brace, not if/etc.
 Versions 5.2 ... 5.20 behaved as if this were `nil'."
-  :type 'boolean
-  :group 'cperl-indentation-details)
-
-(defcustom cperl-indent-subs-specially t
-  "*Non-nil means indent subs that are inside other blocks (hash values, for example) relative to the beginning of the \"sub\" keyword, rather than relative to the statement that contains the declaration."
   :type 'boolean
   :group 'cperl-indentation-details)
 
@@ -377,15 +1848,7 @@ Can be overwritten by `cperl-hairy' if nil."
 
 (defcustom cperl-electric-keywords nil
   "*Not-nil (and non-null) means keywords are electric in CPerl.
-Can be overwritten by `cperl-hairy' if nil.
-
-Uses `abbrev-mode' to do the expansion.  If you want to use your
-own abbrevs in cperl-mode, but do not want keywords to be
-electric, you must redefine `cperl-mode-abbrev-table': do
-\\[edit-abbrevs], search for `cperl-mode-abbrev-table', and, in
-that paragraph, delete the words that appear at the ends of lines and
-that begin with \"cperl-electric\".
-"
+Can be overwritten by `cperl-hairy' if nil."
   :type '(choice (const null) boolean)
   :group 'cperl-affected-by-hairy)
 
@@ -424,10 +1887,13 @@ Affects: `cperl-font-lock', `cperl-electric-lbrace-space',
      :group 'cperl)
 
 ;; This became obsolete...
-(defvar cperl-vc-header-alist nil)
-(make-obsolete-variable
- 'cperl-vc-header-alist
- "use cperl-vc-rcs-header or cperl-vc-sccs-header instead.")
+(defcustom cperl-vc-header-alist '()
+  "*What to use as `vc-header-alist' in CPerl.
+Obsolete, with newer Emacsen use `cperl-vc-rcs-header' or
+`cperl-vc-sccs-header' instead.  If this list is empty, `vc-header-alist'
+will be reconstructed basing on these two variables."
+  :type '(repeat (list symbol string))
+  :group 'cperl)
 
 (defcustom cperl-clobber-mode-lists
   (not
@@ -441,7 +1907,7 @@ Affects: `cperl-font-lock', `cperl-electric-lbrace-space',
 
 (defcustom cperl-info-on-command-no-prompt nil
   "*Not-nil (and non-null) means not to prompt on C-h f.
-The opposite behavior is always available if prefixed with C-c.
+The opposite behaviour is always available if prefixed with C-c.
 Can be overwritten by `cperl-hairy' if nil."
   :type '(choice (const null) boolean)
   :group 'cperl-affected-by-hairy)
@@ -460,28 +1926,31 @@ Can be overwritten by `cperl-hairy' to be 5 sec if nil."
   :group 'cperl-affected-by-hairy)
 
 (defcustom cperl-pod-face 'font-lock-comment-face
-  "*Face for POD highlighting."
+  "*The result of evaluation of this expression is used for POD highlighting."
   :type 'face
   :group 'cperl-faces)
 
 (defcustom cperl-pod-head-face 'font-lock-variable-name-face
-  "*Face for POD highlighting.
+  "*The result of evaluation of this expression is used for POD highlighting.
 Font for POD headers."
   :type 'face
   :group 'cperl-faces)
 
 (defcustom cperl-here-face 'font-lock-string-face
-  "*Face for here-docs highlighting."
+  "*The result of evaluation of this expression is used for here-docs highlighting."
   :type 'face
   :group 'cperl-faces)
 
 ;;; Some double-evaluation happened with font-locks...  Needed with 21.2...
-(defvar cperl-singly-quote-face (featurep 'xemacs))
+(defvar cperl-singly-quote-face cperl-xemacs-p)
 
-(defcustom cperl-invalid-face 'underline
-  "*Face for highlighting trailing whitespace."
+(defcustom cperl-invalid-face		; Does not customize with '' on XEmacs
+  (if cperl-singly-quote-face
+      'underline ''underline) ; On older Emacsen was evaluated by `font-lock'
+  (if cperl-singly-quote-face
+      "*This face is used for highlighting trailing whitespace."
+    "*The result of evaluation of this expression highlights trailing whitespace.")
   :type 'face
-  :version "21.1"
   :group 'cperl-faces)
 
 (defcustom cperl-pod-here-fontify '(featurep 'font-lock)
@@ -498,7 +1967,7 @@ Font for POD headers."
   "*Non-nil means perform additional highlighting on variables.
 Currently only changes how scalar variables are highlighted.
 Note that that variable is only read at initialization time for
-the variable `cperl-font-lock-keywords-2', so changing it after you've
+the variable `perl-font-lock-keywords-2', so changing it after you've
 entered CPerl mode the first time will have no effect."
   :type 'boolean
   :group 'cperl)
@@ -578,7 +2047,7 @@ If nil, the value of `cperl-indent-level' will be used."
   :type 'boolean
   :group 'cperl-indentation-details)
 
-(defcustom cperl-under-as-char nil
+(defcustom cperl-under-as-char t
   "*Non-nil means that the _ (underline) should be treated as word char."
   :type 'boolean
   :group 'cperl)
@@ -654,7 +2123,7 @@ This way enabling/disabling of menu items is more correct."
     (font-lock-function-name-face	nil nil		bold italic box)
     (font-lock-constant-face		nil "LightGray"	bold)
     (cperl-array-face			nil "LightGray"	bold underline)
-    (cperl-hash-face				nil "LightGray"	bold italic underline)
+    (cperl-hash-face			nil "LightGray"	bold italic underline)
     (font-lock-comment-face		nil "LightGray"	italic)
     (font-lock-string-face		nil nil		italic underline)
     (cperl-nonoverridable-face		nil nil		italic underline)
@@ -668,49 +2137,51 @@ This way enabling/disabling of menu items is more correct."
 				   (repeat symbol)))))
   :group 'cperl-faces)
 
-(defvar cperl-dark-background
-  (cperl-choose-color "navy" "os2blue" "darkgreen"))
-(defvar cperl-dark-foreground
-  (cperl-choose-color "orchid1" "orange"))
+(if cperl-can-font-lock
+    (progn
+      (defvar cperl-dark-background
+	(cperl-choose-color "navy" "os2blue" "darkgreen"))
+      (defvar cperl-dark-foreground
+	(cperl-choose-color "orchid1" "orange"))
 
-(defface cperl-nonoverridable-face
-  `((((class grayscale) (background light))
-     (:background "Gray90" :slant italic :underline t))
-    (((class grayscale) (background dark))
-     (:foreground "Gray80" :slant italic :underline t :weight bold))
-    (((class color) (background light))
-     (:foreground "chartreuse3"))
-    (((class color) (background dark))
-     (:foreground ,cperl-dark-foreground))
-    (t (:weight bold :underline t)))
-  "Font Lock mode face used non-overridable keywords and modifiers of regexps."
-  :group 'cperl-faces)
+      (defface cperl-nonoverridable-face
+	(` ((((class grayscale) (background light))
+	     (:background "Gray90" :italic t :underline t))
+	    (((class grayscale) (background dark))
+	     (:foreground "Gray80" :italic t :underline t :bold t))
+	    (((class color) (background light))
+	     (:foreground "chartreuse3"))
+	    (((class color) (background dark))
+	     (:foreground (, cperl-dark-foreground)))
+	    (t (:bold t :underline t))))
+	"Font Lock mode face used to highlight array names."
+	:group 'cperl-faces)
 
-(defface cperl-array-face
-  `((((class grayscale) (background light))
-     (:background "Gray90" :weight bold))
-    (((class grayscale) (background dark))
-     (:foreground "Gray80" :weight bold))
-    (((class color) (background light))
-     (:foreground "Blue" :background "lightyellow2" :weight bold))
-    (((class color) (background dark))
-     (:foreground "yellow" :background ,cperl-dark-background :weight bold))
-    (t (:weight bold)))
-  "Font Lock mode face used to highlight array names."
-  :group 'cperl-faces)
+      (defface cperl-array-face
+	(` ((((class grayscale) (background light))
+	     (:background "Gray90" :bold t))
+	    (((class grayscale) (background dark))
+	     (:foreground "Gray80" :bold t))
+	    (((class color) (background light))
+	     (:foreground "Blue" :background "lightyellow2" :bold t))
+	    (((class color) (background dark))
+	     (:foreground "yellow" :background (, cperl-dark-background) :bold t))
+	    (t (:bold t))))
+	"Font Lock mode face used to highlight array names."
+	:group 'cperl-faces)
 
-(defface cperl-hash-face
-  `((((class grayscale) (background light))
-     (:background "Gray90" :weight bold :slant italic))
-    (((class grayscale) (background dark))
-     (:foreground "Gray80" :weight bold :slant italic))
-    (((class color) (background light))
-     (:foreground "Red" :background "lightyellow2" :weight bold :slant italic))
-    (((class color) (background dark))
-     (:foreground "Red" :background ,cperl-dark-background :weight bold :slant italic))
-    (t (:weight bold :slant italic)))
-  "Font Lock mode face used to highlight hash names."
-  :group 'cperl-faces)
+      (defface cperl-hash-face
+	(` ((((class grayscale) (background light))
+	     (:background "Gray90" :bold t :italic t))
+	    (((class grayscale) (background dark))
+	     (:foreground "Gray80" :bold t :italic t))
+	    (((class color) (background light))
+	     (:foreground "Red" :background "lightyellow2" :bold t :italic t))
+	    (((class color) (background dark))
+	     (:foreground "Red" :background (, cperl-dark-background) :bold t :italic t))
+	    (t (:bold t :italic t))))
+	"Font Lock mode face used to highlight hash names."
+	:group 'cperl-faces)))
 
 
 
@@ -724,8 +2195,8 @@ patches to related files.
 
 For best results apply to an older Emacs the patches from
   ftp://ftp.math.ohio-state.edu/pub/users/ilya/cperl-mode/patches
-\(this upgrades syntax-parsing abilities of Emacsen v19.34 and
-v20.2 up to the level of Emacs v20.3 - a must for a good Perl
+\(this upgrades syntax-parsing abilities of RMS Emaxen v19.34 and
+v20.2 up to the level of RMS Emacs v20.3 - a must for a good Perl
 mode.)  As of beginning of 2003, XEmacs may provide a similar ability.
 
 Get support packages choose-color.el (or font-lock-extra.el before
@@ -739,6 +2210,10 @@ mode-compile.el.
 
 If your Emacs does not default to `cperl-mode' on Perl files, and you
 want it to: put the following into your .emacs file:
+
+  (autoload 'perl-mode \"cperl-mode\" \"alternate mode for editing Perl programs\" t)
+
+or
 
   (defalias 'perl-mode 'cperl-mode)
 
@@ -763,9 +2238,18 @@ Switch auto-help on/off with Perl/Tools/Auto-help.
 Though with contemporary Emaxen CPerl mode should maintain the correct
 parsing of Perl even when editing, sometimes it may be lost.  Fix this by
 
+  M-x norm RET
+
+or
+
   \\[normal-mode]
 
 In cases of more severe confusion sometimes it is helpful to do
+
+  M-x load-l RET cperl-mode RET
+  M-x norm RET
+
+or
 
   \\[load-library] cperl-mode RET
   \\[normal-mode]
@@ -785,14 +2269,14 @@ to detect it and bulk out).
 
 See documentation of a variable `cperl-problems-old-emaxen' for the
 problems which disappear if you upgrade Emacs to a reasonably new
-version (20.3 for Emacs, and those of 2004 for XEmacs).")
+version (20.3 for RMS Emacs, and those of 2004 for XEmacs).")
 
 (defvar cperl-problems-old-emaxen 'please-ignore-this-line
   "Description of problems in CPerl mode specific for older Emacs versions.
 
-Emacs had a _very_ restricted syntax parsing engine until version
+Emacs had a _very_ restricted syntax parsing engine until RMS's Emacs
 20.1.  Most problems below are corrected starting from this version of
-Emacs, and all of them should be fixed in version 20.3.  (Or apply
+Emacs, and all of them should be fixed in RMS's version 20.3.  (Or apply
 patches to Emacs 19.33/34 - see tips.)  XEmacs was very backward in
 this respect (until 2003).
 
@@ -817,19 +2301,75 @@ should work if the balance of delimiters is not broken by POD).
 
 The main trick (to make $ a \"backslash\") makes constructions like
 ${aaa} look like unbalanced braces.  The only trick I can think of is
-to insert it as $ {aaa} (valid in perl5, not in perl4).
+to insert it as $ {aaa} (legal in perl5, not in perl4).
 
 Similar problems arise in regexps, when /(\\s|$)/ should be rewritten
 as /($|\\s)/.  Note that such a transposition is not always possible.
 
 The solution is to upgrade your Emacs or patch an older one.  Note
-that Emacs 20.2 has some bugs related to `syntax-table' text
+that RMS's 20.2 has some bugs related to `syntax-table' text
 properties.  Patches are available on the main CPerl download site,
 and on CPAN.
 
 If these bugs cannot be fixed on your machine (say, you have an inferior
 environment and cannot recompile), you may still disable all the fancy stuff
 via `cperl-use-syntax-table-text-property'.")
+
+(defvar cperl-non-problems 'please-ignore-this-line
+"As you know from `problems' section, Perl syntax is too hard for CPerl on
+older Emacsen.  Here is what you can do if you cannot upgrade, or if
+you want to switch off these capabilities on RMS Emacs 20.2 (+patches) or 20.3
+or better.  Please skip this docs if you run a capable Emacs already.
+
+Most of the time, if you write your own code, you may find an equivalent
+\(and almost as readable) expression (what is discussed below is usually
+not relevant on newer Emacsen, since they can do it automatically).
+
+Try to help CPerl: add comments with embedded quotes to fix CPerl
+misunderstandings about the end of quotation:
+
+$a='500$';      # ';
+
+You won't need it too often.  The reason: $ \"quotes\" the following
+character (this saves a life a lot of times in CPerl), thus due to
+Emacs parsing rules it does not consider tick (i.e., ' ) after a
+dollar as a closing one, but as a usual character.  This is usually
+correct, but not in the above context.
+
+Even with older Emacsen the indentation code is pretty wise.  The only
+drawback is that it relied on Emacs parsing to find matching
+parentheses.  And Emacs *could not* match parentheses in Perl 100%
+correctly.  So
+	1 if s#//#/#;
+would not break indentation, but
+	1 if ( s#//#/# );
+would.  Upgrade.
+
+By similar reasons
+	s\"abc\"def\";
+could confuse CPerl a lot.
+
+If you still get wrong indentation in situation that you think the
+code should be able to parse, try:
+
+a) Check what Emacs thinks about balance of your parentheses.
+b) Supply the code to me (IZ).
+
+Pods were treated _very_ rudimentally.  Here-documents were not
+treated at all (except highlighting and inhibiting indentation).  Upgrade.
+
+To speed up coloring the following compromises exist:
+   a) sub in $mypackage::sub may be highlighted.
+   b) -z in [a-z] may be highlighted.
+   c) if your regexp contains a keyword (like \"s\"), it may be highlighted.
+
+
+Imenu in 19.31 is broken.  Set `imenu-use-keymap-menu' to t, and remove
+`car' before `imenu-choose-buffer-index' in `imenu'.
+`imenu-add-to-menubar' in 20.2 is broken.
+A lot of things on XEmacs may be broken too, judging by bug reports I
+receive.  Note that some releases of XEmacs are better than the others
+as far as bugs reports I see are concerned.")
 
 (defvar cperl-praise 'please-ignore-this-line
   "Advantages of CPerl mode.
@@ -851,7 +2391,7 @@ voice);
 
 3) Everything is customizable, one-by-one or in a big sweep;
 
-4) It has many easily-accessible \"tools\":
+4) It has many easily-accessable \"tools\":
         a) Can run program, check syntax, start debugger;
         b) Can lineup vertically \"middles\" of rows, like `=' in
                 a  = b;
@@ -972,8 +2512,8 @@ B) Speed of editing operations.
 (defvar cperl-tips-faces 'please-ignore-this-line
   "CPerl mode uses following faces for highlighting:
 
-  `cperl-array-face'			Array names
-  `cperl-hash-face'			Hash names
+  `cperl-array-face'		Array names
+  `cperl-hash-face'		Hash names
   `font-lock-comment-face'	Comments, PODs and whatever is considered
 				syntaxically to be not code
   `font-lock-constant-face'	HERE-doc delimiters, labels, delimiters of
@@ -992,7 +2532,7 @@ B) Speed of editing operations.
   `font-lock-type-face'		Overridable keywords
   `font-lock-variable-name-face' Variable declarations, indirect array and
 				hash names, POD headers/item names
-  `cperl-invalid'		Trailing whitespace
+  `cperl-invalid-face'		Trailing whitespace
 
 Note that in several situations the highlighting tries to inform about
 possible confusion, such as different colors for function names in
@@ -1002,7 +2542,7 @@ m// and s/// which do not do what one would expect them to do.
 Help with best setup of these faces for printout requested (for each of
 the faces: please specify bold, italic, underline, shadow and box.)
 
-In regular expressions (except character classes):
+In regular expressions (including character classes):
   `font-lock-string-face'	\"Normal\" stuff and non-0-length constructs
   `font-lock-constant-face':	Delimiters
   `font-lock-warning-face'	Special-cased m// and s//foo/,
@@ -1010,14 +2550,16 @@ In regular expressions (except character classes):
 				we couldn't match, misplaced quantifiers,
 				unrecognized escape sequences
   `cperl-nonoverridable-face'	Modifiers, as gism in m/REx/gism
-  `font-lock-type-face'		POSIX classes inside charclasses,
-				escape sequences with arguments (\x \23 \p \N)
+  `font-lock-type-face'		escape sequences with arguments (\\x \\23 \\p \\N)
 				and others match-a-char escape sequences
   `font-lock-keyword-face'	Capturing parens, and |
   `font-lock-function-name-face' Special symbols: $ ^ . [ ] [^ ] (?{ }) (??{ })
-  `font-lock-builtin-face'	\"Remaining\" 0-length constructs, executable
-				parts of a REx, not-capturing parens
-  `font-lock-variable-name-face' Interpolated constructs, embedded code
+				\"Range -\" in character classes
+  `font-lock-builtin-face'	\"Remaining\" 0-length constructs, multipliers
+				?+*{}, not-capturing parens, leading
+				backslashes of escape sequences
+  `font-lock-variable-name-face' Interpolated constructs, embedded code,
+				POSIX classes (inside charclasses)
   `font-lock-comment-face'	Embedded comments
 
 ")
@@ -1027,11 +2569,11 @@ In regular expressions (except character classes):
 ;;; Portability stuff:
 
 (defmacro cperl-define-key (emacs-key definition &optional xemacs-key)
-  `(define-key cperl-mode-map
-     ,(if xemacs-key
-	  `(if (featurep 'xemacs) ,xemacs-key ,emacs-key)
-	emacs-key)
-     ,definition))
+  (` (define-key cperl-mode-map
+       (, (if xemacs-key
+	      (` (if cperl-xemacs-p (, xemacs-key) (, emacs-key)))
+	    emacs-key))
+       (, definition))))
 
 (defvar cperl-del-back-ch
   (car (append (where-is-internal 'delete-backward-char)
@@ -1042,7 +2584,7 @@ In regular expressions (except character classes):
      (setq cperl-del-back-ch (aref cperl-del-back-ch 0)))
 
 (defun cperl-mark-active () (mark))	; Avoid undefined warning
-(if (featurep 'xemacs)
+(if cperl-xemacs-p
     (progn
       ;; "Active regions" are on: use region only if active
       ;; "Active regions" are off: use region unconditionally
@@ -1058,9 +2600,12 @@ In regular expressions (except character classes):
 (defun cperl-putback-char (c)		; Emacs 19
   (set 'unread-command-events (list c))) ; Avoid undefined warning
 
-(if (featurep 'xemacs)
-    (defun cperl-putback-char (c)	; XEmacs >= 19.12
-      (setq unread-command-events (list (eval '(character-to-event c))))))
+(if (boundp 'unread-command-events)
+    (if cperl-xemacs-p
+	(defun cperl-putback-char (c)	; XEmacs >= 19.12
+	  (setq unread-command-events (list (eval '(character-to-event c))))))
+  (defun cperl-putback-char (c)		; XEmacs <= 19.11
+    (set 'unread-command-event (eval '(character-to-event c))))) ; Avoid warnings
 
 (or (fboundp 'uncomment-region)
     (defun uncomment-region (beg end)
@@ -1077,7 +2622,7 @@ In regular expressions (except character classes):
   ;; If POST, do not do it with postponed fontification
   (if (and post cperl-syntaxify-by-font-lock)
       nil
-  (put-text-property (max (point-min) (1- from))
+    (put-text-property (max (point-min) (1- from))
 		       to cperl-do-not-fontify t)))
 
 (defcustom cperl-mode-hook nil
@@ -1118,27 +2663,30 @@ versions of Emacs."
 
 ;;; Probably it is too late to set these guys already, but it can help later:
 
-;;;(and cperl-clobber-mode-lists
-;;;(setq auto-mode-alist
-;;;      (append '(("\\.\\([pP][Llm]\\|al\\)$" . perl-mode))  auto-mode-alist ))
-;;;(and (boundp 'interpreter-mode-alist)
-;;;     (setq interpreter-mode-alist (append interpreter-mode-alist
-;;;					  '(("miniperl" . perl-mode))))))
-(eval-when-compile
-  (mapc (lambda (p)
-	  (condition-case nil
-	      (require p)
-	    (error nil)))
-	'(imenu easymenu etags timer man info))
-  (if (fboundp 'ps-extend-face-list)
-      (defmacro cperl-ps-extend-face-list (arg)
-	`(ps-extend-face-list ,arg))
-    (defmacro cperl-ps-extend-face-list (arg)
-      `(error "This version of Emacs has no `ps-extend-face-list'")))
-  ;; Calling `cperl-enable-font-lock' below doesn't compile on XEmacs,
-  ;; macros instead of defsubsts don't work on Emacs, so we do the
-  ;; expansion manually.  Any other suggestions?
-  (require 'cl))
+(and cperl-clobber-mode-lists
+     (setq auto-mode-alist
+      (append '(("\\.\\([pP][Llm]\\|al\\)$" . perl-mode))  auto-mode-alist ))
+     (and (boundp 'interpreter-mode-alist)
+	  (setq interpreter-mode-alist (append interpreter-mode-alist
+					       '(("miniperl" . perl-mode))))))
+(if (fboundp 'eval-when-compile)
+    (eval-when-compile
+      (mapcar (lambda (p)
+		(condition-case nil
+		    (require p)
+		  (error nil)))
+	      '(imenu easymenu etags timer man info))
+      (if (fboundp 'ps-extend-face-list)
+	  (defmacro cperl-ps-extend-face-list (arg)
+	    (` (ps-extend-face-list (, arg))))
+	(defmacro cperl-ps-extend-face-list (arg)
+	  (` (error "This version of Emacs has no `ps-extend-face-list'"))))
+      ;; Calling `cperl-enable-font-lock' below doesn't compile on XEmacs,
+      ;; macros instead of defsubsts don't work on Emacs, so we do the
+      ;; expansion manually.  Any other suggestions?
+      (if cperl-can-font-lock
+	  (require 'font-lock))
+      (require 'cl)))
 
 (defvar cperl-mode-abbrev-table nil
   "Abbrev table in use in CPerl mode buffers.")
@@ -1181,7 +2729,12 @@ versions of Emacs."
 		    [(control meta |)])
   ;;(cperl-define-key "\M-q" 'cperl-fill-paragraph)
   ;;(cperl-define-key "\e;" 'cperl-indent-for-comment)
-  (cperl-define-key "\177" 'cperl-electric-backspace)
+  ;; XEmacs change: bind cperl-electric-delete to 'delete
+  (if cperl-xemacs-p
+      (progn
+        (cperl-define-key 'backspace 'cperl-electric-backspace)
+        (cperl-define-key 'delete 'cperl-electric-delete))
+    (cperl-define-key "\177" 'cperl-electric-backspace))
   (cperl-define-key "\t" 'cperl-indent-command)
   ;; don't clobber the backspace binding:
   (cperl-define-key "\C-c\C-hF" 'cperl-info-on-command
@@ -1210,7 +2763,7 @@ versions of Emacs."
 		      ;;(concat (char-to-string help-char) "v") ; does not work
 		      'cperl-get-help
 		      [(control c) (control h) v]))
-  (if (and (featurep 'xemacs)
+  (if (and cperl-xemacs-p
 	   (<= emacs-minor-version 11) (<= emacs-major-version 19))
       (progn
 	;; substitute-key-definition is usefulness-deenhanced...
@@ -1244,7 +2797,7 @@ versions of Emacs."
 	 ["End of function" end-of-defun t]
 	 ["Mark function" mark-defun t]
 	 ["Indent expression" cperl-indent-exp t]
-	  ["Fill paragraph/comment" fill-paragraph t]
+	 ["Fill paragraph/comment" cperl-fill-paragraph t]
 	 "----"
 	 ["Line up a construction" cperl-lineup (cperl-use-region-p)]
 	 ["Invert if/unless/while etc" cperl-invert-if-unless t]
@@ -1262,7 +2815,7 @@ versions of Emacs."
 	  ["Contract groups" cperl-contract-levels
 	   cperl-use-syntax-table-text-property]
 	  "----"
-	  ["Find next interpolated" cperl-next-interpolated-REx
+	  ["Find next interpolated" cperl-next-interpolated-REx 
 	   (next-single-property-change (point-min) 'REx-interpolated)]
 	  ["Find next interpolated (no //o)"
 	   cperl-next-interpolated-REx-0
@@ -1330,6 +2883,9 @@ versions of Emacs."
 	  ["Debug backtrace on syntactic scan (BEWARE!!!)"
 	   (cperl-toggle-set-debug-unwind nil t) t]
 	  "----"
+	  ["Report indentation context"
+	   (message "%s" (cperl-sniff-for-indent)) t]
+	  "----"
 	  ["Class Hierarchy from TAGS" cperl-tags-hier-init t]
 	  ;;["Update classes" (cperl-tags-hier-init t) tags-table-list]
 	  ("Tags"
@@ -1387,12 +2943,14 @@ versions of Emacs."
 	 ("Micro-docs"
 	  ["Tips" (describe-variable 'cperl-tips) t]
 	  ["Problems" (describe-variable 'cperl-problems) t]
+	  ["Non-problems" (describe-variable 'cperl-non-problems) t]
 	  ["Speed" (describe-variable 'cperl-speed) t]
 	  ["Praise" (describe-variable 'cperl-praise) t]
 	  ["Faces" (describe-variable 'cperl-tips-faces) t]
+	  ["Show Faces" (cperl-insert-faces-example) t]
 	  ["CPerl mode" (describe-function 'cperl-mode) t]
 	  ["CPerl version"
-	   (message "The version of master-file for this CPerl is %s-Emacs"
+	   (message "The version of master-file for this CPerl is %s"
 		    cperl-version) t]))))
   (error nil))
 
@@ -1410,6 +2968,7 @@ Should contain exactly one group.")
 (defconst cperl-white-and-comment-rex "\\([ \t\n]\\|#[^\n]*\n\\)+"
 "Regular expression to match whitespace with interpspersed comments.
 Should contain exactly one group.")
+
 
 ;;; Is incorporated in `cperl-imenu--function-name-regexp-perl'
 ;;; `cperl-outline-regexp', `defun-prompt-regexp'.
@@ -1450,19 +3009,6 @@ the last)."
    "\\)?"				; END n+6=proto-group
    ))
 
-;;; Tired of editing this in 8 places every time I remember that there
-;;; is another method-defining keyword
-(defvar cperl-sub-keywords
-  '("sub"))
-
-(defvar cperl-sub-regexp (regexp-opt cperl-sub-keywords))
-
-(defun cperl-char-ends-sub-keyword-p (char)
-  "Return T if CHAR is the last character of a perl sub keyword."
-  (loop for keyword in cperl-sub-keywords
-        when (eq char (aref keyword (1- (length keyword))))
-        return t))
-
 ;;; Details of groups in this are used in `cperl-imenu--create-perl-index'
 ;;;  and `cperl-outline-level'.
 ;;;; Was: 2=sub|package; now 2=package-group, 5=package-name 8=sub-name (+3)
@@ -1474,8 +3020,7 @@ the last)."
 	    cperl-white-and-comment-rex ; 4 = pre-package-name
 	       "\\([a-zA-Z_0-9:']+\\)\\)?\\)" ; 5 = package-name
        "\\|"
-          "[ \t]*"
-          cperl-sub-regexp
+          "[ \t]*sub"
 	  (cperl-after-sub-regexp 'named nil) ; 8=name 11=proto 14=attr-start
 	  cperl-maybe-white-and-comment-rex	; 15=pre-block
    "\\|"
@@ -1524,27 +3069,36 @@ the last)."
   (modify-syntax-entry ?$ "." cperl-string-syntax-table)
   (modify-syntax-entry ?\{ "." cperl-string-syntax-table)
   (modify-syntax-entry ?\} "." cperl-string-syntax-table)
+  (modify-syntax-entry ?\" "." cperl-string-syntax-table)
+  (modify-syntax-entry ?' "." cperl-string-syntax-table)
+  (modify-syntax-entry ?` "." cperl-string-syntax-table)
   (modify-syntax-entry ?# "." cperl-string-syntax-table)) ; (?# comment )
 
 
 
+;; provide an alias for working with emacs 19.  the perl-mode that comes
+;; with it is really bad, and this lets us seamlessly replace it.
+;;;###autoload
+(fset 'perl-mode 'cperl-mode)
 (defvar cperl-faces-init nil)
 ;; Fix for msb.el
 (defvar cperl-msb-fixed nil)
-(defvar cperl-use-major-mode 'cperl-mode)
+(defvar font-lock-syntactic-keywords)
+(defvar perl-font-lock-keywords)
+(defvar perl-font-lock-keywords-1)
+(defvar perl-font-lock-keywords-2)
+(defvar outline-level)
+(if (fboundp 'defvaralias)
+    (let ((f 'defvaralias)) ; Some functions deduce stuff from the mode name...
+      (funcall f 'cperl-font-lock-keywords   'perl-font-lock-keywords)
+      (funcall f 'cperl-font-lock-keywords-1 'perl-font-lock-keywords-1)
+      (funcall f 'cperl-font-lock-keywords-2 'perl-font-lock-keywords-2)))
+
+(defvar cperl-use-major-mode 'perl-mode)
 (defvar cperl-font-lock-multiline-start nil)
 (defvar cperl-font-lock-multiline nil)
+(defvar cperl-compilation-error-regexp-alist nil)
 (defvar cperl-font-locking nil)
-
-;; NB as it stands the code in cperl-mode assumes this only has one
-;; element. If Xemacs 19 support were dropped, this could all be simplified.
-(defvar cperl-compilation-error-regexp-alist
-  ;; This look like a paranoiac regexp: could anybody find a better one? (which WORKS).
-  '(("^[^\n]* \\(file\\|at\\) \\([^ \t\n]+\\) [^\n]*line \\([0-9]+\\)[\\., \n]"
-     2 3))
-  "Alist that specifies how to match errors in perl output.")
-
-(defvar compilation-error-regexp-alist)
 
 ;;;###autoload
 (defun cperl-mode ()
@@ -1602,7 +3156,7 @@ you type it inside the inline block of control construct, like
 and you are on a boundary of a statement inside braces, it will
 transform the construct into a multiline and will place you into an
 appropriately indented blank line.  If you need a usual
-`newline-and-indent' behavior, it is on \\[newline-and-indent],
+`newline-and-indent' behaviour, it is on \\[newline-and-indent],
 see documentation on `cperl-electric-linefeed'.
 
 Use \\[cperl-invert-if-unless] to change a construction of the form
@@ -1705,8 +3259,9 @@ corresponding variables.  Use \\[cperl-set-style] to do this.  Use
 Part of the indentation style is how different parts of if/elsif/else
 statements are broken into lines; in CPerl, this is reflected on how
 templates for these constructs are created (controlled by
-`cperl-extra-newline-before-brace'), and how reflow-logic should treat \"continuation\" blocks of else/elsif/continue, controlled by the same variable,
-and by `cperl-extra-newline-before-brace-multiline',
+`cperl-extra-newline-before-brace'), and how reflow-logic should treat
+\"continuation\" blocks of else/elsif/continue, controlled by the same
+variable, and by `cperl-extra-newline-before-brace-multiline',
 `cperl-merge-trailing-else', `cperl-indent-region-fix-constructs'.
 
 If `cperl-indent-level' is 0, the statement after opening brace in
@@ -1716,9 +3271,10 @@ column 0 is indented on
 Turning on CPerl mode calls the hooks in the variable `cperl-mode-hook'
 with no args.
 
-DO NOT FORGET to read micro-docs (available from `Perl' menu)
+DO NOT FORGET to read micro-docs (available from `Perl' menu,
 or as help on variables `cperl-tips', `cperl-problems',
-`cperl-praise', `cperl-speed'."
+`cperl-non-problems', `cperl-praise', `cperl-speed',
+`cperl-tips-faces')."
   (interactive)
   (kill-all-local-variables)
   (use-local-map cperl-mode-map)
@@ -1736,8 +3292,9 @@ or as help on variables `cperl-tips', `cperl-problems',
 			  [(control c) (control h) f])))
   (setq major-mode cperl-use-major-mode)
   (setq mode-name "CPerl")
-  (let ((prev-a-c abbrevs-changed))
-    (define-abbrev-table 'cperl-mode-abbrev-table '(
+  (if (not cperl-mode-abbrev-table)
+      (let ((prev-a-c abbrevs-changed))
+	(define-abbrev-table 'cperl-mode-abbrev-table '(
 		("if" "if" cperl-electric-keyword 0)
 		("elsif" "elsif" cperl-electric-keyword 0)
 		("while" "while" cperl-electric-keyword 0)
@@ -1758,7 +3315,7 @@ or as help on variables `cperl-tips', `cperl-problems',
 		("over" "over" cperl-electric-pod 0)
 		("head1" "head1" cperl-electric-pod 0)
 		("head2" "head2" cperl-electric-pod 0)))
-	(setq abbrevs-changed prev-a-c))
+	(setq abbrevs-changed prev-a-c)))
   (setq local-abbrev-table cperl-mode-abbrev-table)
   (if (cperl-val 'cperl-electric-keywords)
       (abbrev-mode 1))
@@ -1777,14 +3334,14 @@ or as help on variables `cperl-tips', `cperl-problems',
   (setq paragraph-separate paragraph-start)
   (make-local-variable 'paragraph-ignore-fill-prefix)
   (setq paragraph-ignore-fill-prefix t)
-  (if (featurep 'xemacs)
+  (if cperl-xemacs-p
     (progn
       (make-local-variable 'paren-backwards-message)
       (set 'paren-backwards-message t)))
   (make-local-variable 'indent-line-function)
   (setq indent-line-function 'cperl-indent-line)
   (make-local-variable 'require-final-newline)
-  (setq require-final-newline mode-require-final-newline)
+  (setq require-final-newline t)
   (make-local-variable 'comment-start)
   (setq comment-start "# ")
   (make-local-variable 'comment-end)
@@ -1798,11 +3355,10 @@ or as help on variables `cperl-tips', `cperl-problems',
 ;;;	  (cperl-after-sub-regexp 'named nil) ; 8=name 11=proto 14=attr-start
 ;;;	  cperl-maybe-white-and-comment-rex	; 15=pre-block
   (setq defun-prompt-regexp
-	(concat "^[ \t]*\\("
-                cperl-sub-regexp
+	(concat "[ \t]*\\(sub"
 		(cperl-after-sub-regexp 'named 'attr-groups)
 		"\\|"			; per toke.c
-		"\\(BEGIN\\|UNITCHECK\\|CHECK\\|INIT\\|END\\|AUTOLOAD\\|DESTROY\\)"
+		"\\(BEGIN\\|CHECK\\|INIT\\|END\\|AUTOLOAD\\|DESTROY\\)"
 		"\\)"
 		cperl-maybe-white-and-comment-rex))
   (make-local-variable 'comment-indent-function)
@@ -1827,35 +3383,33 @@ or as help on variables `cperl-tips', `cperl-problems',
   (set 'vc-sccs-header cperl-vc-sccs-header)
   ;; This one is obsolete...
   (make-local-variable 'vc-header-alist)
-  (with-no-warnings
-   (set 'vc-header-alist (or cperl-vc-header-alist ; Avoid warning
-			     `((SCCS ,(car cperl-vc-sccs-header))
-			       (RCS ,(car cperl-vc-rcs-header)))))
-   )
-  (cond ((boundp 'compilation-error-regexp-alist-alist);; xemacs 20.x
+  (set 'vc-header-alist (or cperl-vc-header-alist ; Avoid warning
+			    (` ((SCCS (, (car cperl-vc-sccs-header)))
+				     (RCS (, (car cperl-vc-rcs-header)))))))
+  (cond ((boundp 'compilation-error-regexp-alist-alist);; xemacs 20.x, emacs22
 	 (make-local-variable 'compilation-error-regexp-alist-alist)
 	 (set 'compilation-error-regexp-alist-alist
-	      (cons (cons 'cperl (car cperl-compilation-error-regexp-alist))
+	      (cons (cons 'cperl cperl-compilation-error-regexp-alist)
 		    (symbol-value 'compilation-error-regexp-alist-alist)))
-         (if (fboundp 'compilation-build-compilation-error-regexp-alist)
-             (let ((f 'compilation-build-compilation-error-regexp-alist))
-               (funcall f))
-           (make-local-variable 'compilation-error-regexp-alist)
-           (push 'cperl compilation-error-regexp-alist)))
+	 (if (fboundp 'compilation-build-compilation-error-regexp-alist)
+	     (let ((f 'compilation-build-compilation-error-regexp-alist))
+	       (funcall f))		; xemacs 20.x
+	   (make-local-variable 'compilation-error-regexp-alist) ; emacs22
+	   (push 'cperl compilation-error-regexp-alist)))
 	((boundp 'compilation-error-regexp-alist);; xmeacs 19.x
 	 (make-local-variable 'compilation-error-regexp-alist)
 	 (set 'compilation-error-regexp-alist
-	       (append cperl-compilation-error-regexp-alist
-		       (symbol-value 'compilation-error-regexp-alist)))))
+	       (cons cperl-compilation-error-regexp-alist
+		     (symbol-value 'compilation-error-regexp-alist)))))
   (make-local-variable 'font-lock-defaults)
   (setq	font-lock-defaults
 	(cond
 	 ((string< emacs-version "19.30")
-	  '(cperl-font-lock-keywords-2 nil nil ((?_ . "w"))))
+	  '(perl-font-lock-keywords-2 nil nil ((?_ . "w"))))
 	 ((string< emacs-version "19.33") ; Which one to use?
-	  '((cperl-font-lock-keywords
-	     cperl-font-lock-keywords-1
-	     cperl-font-lock-keywords-2) nil nil ((?_ . "w"))))
+	  '((perl-font-lock-keywords
+	     perl-font-lock-keywords-1
+	     perl-font-lock-keywords-2) nil nil ((?_ . "w"))))
 	 (t
 	  '((cperl-load-font-lock-keywords
 	     cperl-load-font-lock-keywords-1
@@ -1871,20 +3425,20 @@ or as help on variables `cperl-tips', `cperl-problems',
 	(or (boundp 'font-lock-unfontify-region-function)
 	    (set 'font-lock-unfontify-region-function
 		 'font-lock-default-unfontify-region))
-	(unless (featurep 'xemacs)		; Our: just a plug for wrong font-lock
+	(unless cperl-xemacs-p		; Our: just a plug for wrong font-lock
 	  (make-local-variable 'font-lock-unfontify-region-function)
 	  (set 'font-lock-unfontify-region-function ; not present with old Emacs
 	       'cperl-font-lock-unfontify-region-function))
 	(make-local-variable 'cperl-syntax-done-to)
 	(setq cperl-syntax-done-to nil)	; reset syntaxification cache
+	;; Another bug: unless font-lock-syntactic-keywords, font-lock
+	;;  ignores syntax-table text-property.  (t) is a hack
+	;;  to make font-lock think that font-lock-syntactic-keywords
+	;;  are defined
 	(make-local-variable 'font-lock-syntactic-keywords)
 	(setq font-lock-syntactic-keywords
 	      (if cperl-syntaxify-by-font-lock
-		  '((cperl-fontify-syntaxically))
-                ;; unless font-lock-syntactic-keywords, font-lock (pre-22.1)
-                ;;  used to ignore syntax-table text-properties.  (t) is a hack
-                ;;  to make font-lock think that font-lock-syntactic-keywords
-                ;;  are defined.
+		  '(t (cperl-fontify-syntaxically))
 		'(t)))))
   (if (boundp 'font-lock-multiline)	; Newer font-lock; use its facilities
       (progn
@@ -1899,7 +3453,7 @@ or as help on variables `cperl-tips', `cperl-problems',
   (make-local-variable 'cperl-old-style)
   (if (boundp 'normal-auto-fill-function) ; 19.33 and later
       (set (make-local-variable 'normal-auto-fill-function)
-	   'cperl-do-auto-fill)
+	   'cperl-do-auto-fill)	      ; RMS has it as #'cperl-do-auto-fill ???
     (or (fboundp 'cperl-old-auto-fill-mode)
 	(progn
 	  (fset 'cperl-old-auto-fill-mode (symbol-function 'auto-fill-mode))
@@ -1918,15 +3472,41 @@ or as help on variables `cperl-tips', `cperl-problems',
        (not cperl-msb-fixed)
        (cperl-msb-fix))
   (if (featurep 'easymenu)
-      (easy-menu-add cperl-menu))	; A NOP in Emacs.
-  (run-mode-hooks 'cperl-mode-hook)
+      (easy-menu-add cperl-menu))	; A NOP in RMS Emacs.
+  (run-hooks 'cperl-mode-hook)
   (if cperl-hook-after-change
-      (add-hook 'after-change-functions 'cperl-after-change-function nil t))
+      (progn
+	(make-local-hook 'after-change-functions)
+	(add-hook 'after-change-functions 'cperl-after-change-function nil t)))
   ;; After hooks since fontification will break this
   (if cperl-pod-here-scan
       (or cperl-syntaxify-by-font-lock
        (progn (or cperl-faces-init (cperl-init-faces-weak))
 	      (cperl-find-pods-heres)))))
+
+(defun cperl-insert-faces-example ()
+  "Insert example \"CODE\" demonstrating CPerl facification at beginning-of-line."
+  (or (bolp)
+      (beginning-of-line))
+  (insert
+  "my $o = sprintf grep //, <<EOP, $ENV{$_} or warn $$msg[0] for @ARGV; #junk 
+some string
+EOP
+-f _ or -f $_ or die 'What?';
+
+/\\3333\\xFg\\x{FFF}a\\ppp\\PPP\\qqq\\C\\99f(?{  foo  })(??{  foo  })/;
+/a{4,5}\\.b[^a[:ff:]b]x$ab->$[|$,$ab->[cd]->[ef]|$ab[xy].|^${a,b}{c,d}/;
+/(?<=foo)(?<!bar)(x\")(?:$ab|\\$\\/)$|\\\\\\b\\x888\\776\\[\\:$/xxx;
+m?(\\?\\?{b,a})? + m/(??{aa})(?(?=xx)aa|bb)(?#aac)/;
+m$(^ab[c]\\$)$ + m+(^ab[c]\\$\\+)+ + m](^ab[c\\]$|.+)] + m)(^ab[c]$|.+\\));
+s{a}{};
+s/.a//;
+m^a[\\^b-e\\xFF]c^ + m.a[^b]\\.c.;					#  OK
+m^a[\\^-b-\\e--[\\--\\xFF\\c[\\cX-\\0333-\\0555-\\N{name}\\pp--\\P{prop}--\\\\\\05555]^;
+m^a[[:alpha:]-[:alpha:]-a-[:alpha:][-aa-[[:alpha:]-b-[:alpha:]-[:alpha:]]^;
+m^a[x\\\\[:alpha:]-\\\\[:alpha:]-a-\\\\[:alpha:][-aa-[[:alpha:]-b-\\\\[:alpha:]-\\\\[:alpha:]]^;
+m^a[x\\\\[:alpha:][:alpha:]\\\\[:alpha:][-aa-[[:alpha:]\\\\[:alpha:][:alpha:]]^;
+"))
 
 ;; Fix for perldb - make default reasonable
 (defun cperl-db ()
@@ -2068,11 +3648,11 @@ char is \"{\", insert extra newline before only if
 	  (save-excursion
 	    (setq insertpos (point-marker))
 	    (goto-char other-end)
-	    (setq last-command-event ?\{)
+	    (setq last-command-char ?\{)
 	    (cperl-electric-lbrace arg insertpos))
 	  (forward-char 1))
       ;; Check whether we close something "usual" with `}'
-      (if (and (eq last-command-event ?\})
+      (if (and (eq last-command-char ?\})
 	       (not
 		(condition-case nil
 		    (save-excursion
@@ -2090,7 +3670,7 @@ char is \"{\", insert extra newline before only if
 			  (save-excursion
 			    (skip-chars-backward " \t")
 			    (bolp)))
-		     (and (eq last-command-event ?\{) ; Do not insert newline
+		     (and (eq last-command-char ?\{) ; Do not insert newline
 			  ;; if after ")" and `cperl-extra-newline-before-brace'
 			  ;; is nil, do not insert extra newline.
 			  (not cperl-extra-newline-before-brace)
@@ -2111,14 +3691,16 @@ char is \"{\", insert extra newline before only if
 	      (save-excursion
 		(if insertpos (progn (goto-char insertpos)
 				     (search-forward (make-string
-						      1 last-command-event))
+						      1 last-command-char))
 				     (setq insertpos (1- (point)))))
 		(delete-char -1))))
 	(if insertpos
 	    (save-excursion
 	      (goto-char insertpos)
 	      (self-insert-command (prefix-numeric-value arg)))
-	  (self-insert-command (prefix-numeric-value arg)))))))
+	  (self-insert-command (prefix-numeric-value arg))
+	  ;;;(insert (make-string (prefix-numeric-value arg) last-command-char))
+	  )))))
 
 (defun cperl-electric-lbrace (arg &optional end)
   "Insert character, correct line's indentation, correct quoting by space."
@@ -2139,7 +3721,7 @@ char is \"{\", insert extra newline before only if
 	 (save-excursion
 	   (skip-chars-backward "$")
 	   (looking-at "\\(\\$\\$\\)*\\$\\([^\\$]\\|$\\)"))
-	 (insert ?\s))
+	 (insert ?\ ))
     ;; Check whether we are in comment
     (if (and
 	 (save-excursion
@@ -2150,12 +3732,12 @@ char is \"{\", insert extra newline before only if
       (setq cperl-auto-newline nil))
     (cperl-electric-brace arg)
     (and (cperl-val 'cperl-electric-parens)
-	 (eq last-command-event ?{)
-	 (memq last-command-event
+	 (eq last-command-char ?{)
+	 (memq last-command-char
 	       (append cperl-electric-parens-string nil))
 	 (or (if other-end (goto-char (marker-position other-end)))
 	     t)
-	 (setq last-command-event ?} pos (point))
+	 (setq last-command-char ?} pos (point))
 	 (progn (cperl-electric-brace arg t)
 		(goto-char pos)))))
 
@@ -2172,11 +3754,11 @@ See `cperl-electric-parens'."
 			 (point-marker))
 		     nil)))
     (if (and (cperl-val 'cperl-electric-parens)
-	     (memq last-command-event
+	     (memq last-command-char
 		   (append cperl-electric-parens-string nil))
 	     (>= (save-excursion (cperl-to-comment-or-eol) (point)) (point))
 	     ;;(not (save-excursion (search-backward "#" beg t)))
-	     (if (eq last-command-event ?<)
+	     (if (eq last-command-char ?<)
 		 (progn
 		   (and abbrev-mode ; later it is too late, may be after `for'
 			(expand-abbrev))
@@ -2187,7 +3769,7 @@ See `cperl-electric-parens'."
 	  (if other-end (goto-char (marker-position other-end)))
 	  (insert (make-string
 		   (prefix-numeric-value arg)
-		   (cdr (assoc last-command-event '((?{ .?})
+		   (cdr (assoc last-command-char '((?{ .?})
 						   (?[ . ?])
 						   (?( . ?))
 						   (?< . ?>))))))
@@ -2202,7 +3784,7 @@ Affected by `cperl-electric-parens'."
   (let ((beg (save-excursion (beginning-of-line) (point)))
 	(other-end (if (and cperl-electric-parens-mark
 			    (cperl-val 'cperl-electric-parens)
-			    (memq last-command-event
+			    (memq last-command-char
 				  (append cperl-electric-parens-string nil))
 			    (cperl-mark-active)
 			    (< (mark) (point)))
@@ -2211,7 +3793,7 @@ Affected by `cperl-electric-parens'."
 	p)
     (if (and other-end
 	     (cperl-val 'cperl-electric-parens)
-	     (memq last-command-event '( ?\) ?\] ?\} ?\> ))
+	     (memq last-command-char '( ?\) ?\] ?\} ?\> ))
 	     (>= (save-excursion (cperl-to-comment-or-eol) (point)) (point))
 	     ;;(not (save-excursion (search-backward "#" beg t)))
 	     )
@@ -2221,7 +3803,7 @@ Affected by `cperl-electric-parens'."
 	  (if other-end (goto-char other-end))
 	  (insert (make-string
 		   (prefix-numeric-value arg)
-		   (cdr (assoc last-command-event '((?\} . ?\{)
+		   (cdr (assoc last-command-char '((?\} . ?\{)
 						   (?\] . ?\[)
 						   (?\) . ?\()
 						   (?\> . ?\<))))))
@@ -2233,9 +3815,9 @@ Affected by `cperl-electric-parens'."
 Help message may be switched off by setting `cperl-message-electric-keyword'
 to nil."
   (let ((beg (save-excursion (beginning-of-line) (point)))
-	(dollar (and (eq last-command-event ?$)
+	(dollar (and (eq last-command-char ?$)
 		     (eq this-command 'self-insert-command)))
-	(delete (and (memq last-command-event '(?\s ?\n ?\t ?\f))
+	(delete (and (memq last-command-char '(?\ ?\n ?\t ?\f))
 		     (memq this-command '(self-insert-command newline))))
 	my do)
     (and (save-excursion
@@ -2289,7 +3871,7 @@ to nil."
 				 (forward-char 1)
 			       (delete-char 1)))
 	     (search-backward ")")
-	     (if (eq last-command-event ?\()
+	     (if (eq last-command-char ?\()
 		 (progn			; Avoid "if (())"
 		   (delete-backward-char 1)
 		   (delete-backward-char -1))))
@@ -2310,7 +3892,7 @@ to nil."
 
 (defun cperl-electric-pod ()
   "Insert a POD chunk appropriate after a =POD directive."
-  (let ((delete (and (memq last-command-event '(?\s ?\n ?\t ?\f))
+  (let ((delete (and (memq last-command-char '(?\ ?\n ?\t ?\f))
 		     (memq this-command '(self-insert-command newline))))
 	head1 notlast name p really-delete over)
     (and (save-excursion
@@ -2530,7 +4112,7 @@ If in POD, insert appropriate lines."
   (interactive "P")
   (let ((end (point))
 	(auto (and cperl-auto-newline
-		   (or (not (eq last-command-event ?:))
+		   (or (not (eq last-command-char ?:))
 		       cperl-auto-newline-after-colon)))
 	insertpos)
     (if (and ;;(not arg)
@@ -2544,7 +4126,7 @@ If in POD, insert appropriate lines."
 		     ;; Colon is special only after a label
 		     ;; So quickly rule out most other uses of colon
 		     ;; and do no indentation for them.
-		     (and (eq last-command-event ?:)
+		     (and (eq last-command-char ?:)
 			  (save-excursion
 			    (forward-word 1)
 			    (skip-chars-forward " \t")
@@ -2577,13 +4159,13 @@ If in POD, insert appropriate lines."
 
 (defun cperl-electric-backspace (arg)
   "Backspace, or remove the whitespace around the point inserted by an electric
-key.  Will untabify if `cperl-electric-backspace-untabify' is non-nil."
+key.  Will untabivy if `cperl-electric-backspace-untabify' is non-nil."
   (interactive "p")
   (if (and cperl-auto-newline
 	   (memq last-command '(cperl-electric-semi
 				cperl-electric-terminator
 				cperl-electric-lbrace))
-	   (memq (preceding-char) '(?\s ?\t ?\n)))
+	   (memq (preceding-char) '(?\  ?\t ?\n)))
       (let (p)
 	(if (eq last-command 'cperl-electric-lbrace)
 	    (skip-chars-forward " \t\n"))
@@ -2595,7 +4177,7 @@ key.  Will untabify if `cperl-electric-backspace-untabify' is non-nil."
 	 (setq this-command 'cperl-electric-else-really))
     (if (and cperl-auto-newline
 	     (eq last-command 'cperl-electric-else-really)
-	     (memq (preceding-char) '(?\s ?\t ?\n)))
+	     (memq (preceding-char) '(?\  ?\t ?\n)))
 	(let (p)
 	  (skip-chars-forward " \t\n")
 	  (setq p (point))
@@ -2605,7 +4187,29 @@ key.  Will untabify if `cperl-electric-backspace-untabify' is non-nil."
 	  (backward-delete-char-untabify arg)
 	(delete-backward-char arg)))))
 
-(put 'cperl-electric-backspace 'delete-selection 'supersede)
+;; XEmacs addition
+;; helper function for deletion, which honors the desired delete direction
+;; behavior.  Added by Gary D. Foster, <Gary.Foster@corp.sun.com> and bound
+;; to the 'delete keysym by default.
+(defun cperl-electric-delete (arg)
+  "Delete, or remove the whitespace inserted by an electric key.
+Delete direction is controlled by the setting of `delete-key-deletes-forward'."
+  (interactive "*p")
+  (if (and cperl-auto-newline
+	   (memq last-command '(cperl-electric-semi
+				cperl-electric-terminator
+				cperl-electric-lbrace))
+	   (memq (preceding-char) '(?  ?\t ?\n)))
+      (let (p)
+	(if (eq last-command 'cperl-electric-lbrace)
+	    (skip-chars-forward " \t\n"))
+	(setq p (point))
+	(skip-chars-backward " \t\n")
+	(delete-region (point) p))
+    (if (fboundp 'backward-or-forward-delete-char)
+	(let ((f 'backward-or-forward-delete-char))
+	  (funcall f arg))		; Avoid "not defined"
+      (backward-delete-char-untabify arg))))
 
 (defun cperl-inside-parens-p ()		;; NOT USED????
   (condition-case ()
@@ -2756,11 +4360,7 @@ Will not look before LIM."
   )
 
 (defun cperl-sniff-for-indent (&optional parse-data) ; was parse-start
-  ;; Old workhorse for calculation of indentation; the major problem
-  ;; is that it mixes the sniffer logic to understand what the current line
-  ;; MEANS with the logic to actually calculate where to indent it.
-  ;; The latter part should be eventually moved to `cperl-calculate-indent';
-  ;; actually, this is mostly done now...
+  ;; the sniffer logic to understand what the current line MEANS.
   (cperl-update-syntaxification (point) (point))
   (let ((res (get-text-property (point) 'syntax-type)))
     (save-excursion
@@ -2875,7 +4475,7 @@ Will not look before LIM."
 				    (skip-chars-backward " \t")
 				    (looking-at "[ \t]*[a-zA-Z_][a-zA-Z_0-9]*[ \t]*:")))
 			     (get-text-property (point) 'first-format-line)))
-
+		   
 		   ;; Look at previous line that's at column 0
 		   ;; to determine whether we are in top-level decls
 		   ;; or function's arg decls.  Set basic-indent accordingly.
@@ -3002,13 +4602,12 @@ Will not look before LIM."
 			;; first thing on the line, say in the case of
 			;; anonymous sub in a hash.
 			(if (and;; Is it a sub in group starting on this line?
-                             cperl-indent-subs-specially
 			     (cond ((get-text-property (point) 'attrib-group)
 				    (goto-char (cperl-beginning-of-property
 						(point) 'attrib-group)))
 				   ((eq (preceding-char) ?b)
 				    (forward-sexp -1)
-				    (looking-at (concat cperl-sub-regexp "\\>"))))
+				    (looking-at "sub\\>")))
 			     (setq p (nth 1 ; start of innermost containing list
 					  (parse-partial-sexp
 					   (save-excursion (beginning-of-line)
@@ -3103,14 +4702,14 @@ and closing parentheses and brackets."
 		 0)
 	       (current-column)))
 	   (t
-	    (error "Unrecognized value of indent: %s" i))))
+	    (error "Unrecognized value of indent: " i))))
 	 ;;
 	 ;; Indenter for stuff at toplevel
 	 ;;
 	 ((eq 'toplevel (elt i 0)) ;; [toplevel start char-after state immed-after-block]
 	  (+ (save-excursion		; To beg-of-defun, or end of last sexp
 	       (goto-char (elt i 1))	; start = Good place to start parsing
-	       (- (current-indentation) ;
+	       (- (current-indentation) ; 
 		  (if (elt i 4) cperl-indent-level 0)))	; immed-after-block
 	     (if (eq (elt i 2) ?{) cperl-continued-brace-offset 0) ; char-after
 	     ;; Look at previous line that's at column 0
@@ -3217,9 +4816,9 @@ and closing parentheses and brackets."
 		       (cperl-calculate-indent))
 		   (current-indentation))))))
 	 (t
-	  (error "Unrecognized value of indent: %s" i))))
+	  (error "Unrecognized value of indent: " i))))
        (t
-	(error "Got strange value of indent: %s" i))))))
+	(error (format "Got strange value of indent: " i)))))))
 
 (defun cperl-calculate-indent-within-comment ()
   "Return the indentation amount for line, assuming that
@@ -3408,7 +5007,7 @@ modify syntax-type text property if the situation is too hard."
 	      (progn
 		(setq i (point) i2 i)
 		(if ender
-		    (if (memq (following-char) '(?\s ?\t ?\n ?\f))
+		    (if (memq (following-char) '(?\  ?\t ?\n ?\f))
 			(progn
 			  (if (looking-at "[ \t\n\f]+\\(#[^\n]*\n[ \t\n\f]*\\)+")
 			      (goto-char (match-end 0))
@@ -3420,12 +5019,16 @@ modify syntax-type text property if the situation is too hard."
 		(setq set-st nil)
 		(setq ender (cperl-forward-re lim end nil st-l err-l
 					      argument starter ender)
-		 ender (nth 2 ender)))))
+		      ender (nth 2 ender)))))
       (error (goto-char lim)
 	     (setq set-st nil)
 	     (if reset-st
 		 (set-syntax-table reset-st))
 	     (or end
+		 (and
+		      cperl-brace-recursing 
+		      (or (eq ostart  ?\{)
+			  (eq starter ?\{)))
 		 (message
 		  "End of `%s%s%c ... %c' string/RE not found: %s"
 		  argument
@@ -3437,7 +5040,7 @@ modify syntax-type text property if the situation is too hard."
 	  (modify-syntax-entry starter (if (eq starter ?\\) "\\" ".") st)
 	  (if ender (modify-syntax-entry ender "." st))))
     ;; i: have 2 args, after end of the first arg
-    ;; i2: start of the second arg, if any (before delim if `ender').
+    ;; i2: start of the second arg, if any (before delim iff `ender').
     ;; ender: the last arg bounded by parens-like chars, the second one of them
     ;; starter: the starting delimiter of the first arg
     ;; go-forward: has 2 args, and the second part is empty
@@ -3624,6 +5227,54 @@ Should be called with the point before leading colon of an attribute."
 	 (1- (point)) (point)
 	 'face font-lock-warning-face))))
 
+;; Do some smarter-highlighting
+;; XXXX Currently ignores alphanum/dash delims,
+(defsubst cperl-highlight-charclass (endbracket dashface bsface onec-space)
+  (let ((l '(1 5 7)) ll lle lll
+	;; 2 groups, the first takes the whole match (include \[trnfabe])
+	(singleChar (concat "\\(" "[^\\\\]" "\\|" "\\\\[^cdg-mo-qsu-zA-Z0-9_]" "\\|" "\\\\c." "\\|" "\\\\x" "\\([0-9a-fA-F][0-9a-fA-F]?\\|\\={[0-9a-fA-F]+}\\)" "\\|" "\\\\0?[0-7][0-7]?[0-7]?" "\\|" "\\\\N{[^{}]*}" "\\)")))
+    (while				; look for unescaped - between non-classes
+	(re-search-forward
+	 ;; On 19.33, certain simplifications lead
+	 ;; to bugs (as in  [^a-z] \\| [trnfabe]  )
+	 (concat	       		; 1: SingleChar (include \[trnfabe])
+	  singleChar
+	  ;;"\\(" "[^\\\\]" "\\|" "\\\\[^cdg-mo-qsu-zA-Z0-9_]" "\\|" "\\\\c." "\\|" "\\\\x" "\\([0-9a-fA-F][0-9a-fA-F]?\\|\\={[0-9a-fA-F]+}\\)" "\\|" "\\\\0?[0-7][0-7]?[0-7]?" "\\|" "\\\\N{[^{}]*}" "\\)"
+	  "\\("				; 3: DASH SingleChar (match optionally)
+	    "\\(-\\)"			; 4: DASH
+	    singleChar			; 5: SingleChar
+	    ;;"\\(" "[^\\\\]" "\\|" "\\\\[^cdg-mo-qsu-zA-Z0-9_]" "\\|" "\\\\c." "\\|" "\\\\x" "\\([0-9a-fA-F][0-9a-fA-F]?\\|\\={[0-9a-fA-F]+}\\)" "\\|" "\\\\0?[0-7][0-7]?[0-7]?" "\\|" "\\\\N{[^{}]*}" "\\)"
+	  "\\)?"
+	  "\\|"
+	  "\\("				; 7: other escapes
+	    "\\\\[pP]" "\\([^{]\\|{[^{}]*}\\)"
+	    "\\|" "\\\\[^pP]" "\\)"
+	  )
+	 endbracket 'toend)
+      (if (match-beginning 4)
+	  (cperl-postpone-fontification
+	   (match-beginning 4) (match-end 4)
+	   'face dashface))
+      ;; save match data (for looking-at)
+      (setq lll (mapcar (function (lambda (elt) (cons (match-beginning elt)
+						      (match-end elt)))) l))
+      (while lll
+	(setq ll (car lll))
+	(setq lle (cdr ll)
+	      ll (car ll))
+	;; (message "Got %s of %s" ll l)
+	(if (and ll (eq (char-after ll) ?\\ ))
+	    (save-excursion
+	      (goto-char ll)
+	      (cperl-postpone-fontification ll (1+ ll)
+	       'face bsface)
+	      (if (looking-at "\\\\[a-zA-Z0-9]")
+		  (cperl-postpone-fontification (1+ ll) lle
+		   'face onec-space))))
+	(setq lll (cdr lll))))
+    (goto-char endbracket)		; just in case something misbehaves???
+    t))
+
 ;;; Debugging this may require (setq max-specpdl-size 2000)...
 (defun cperl-find-pods-heres (&optional min max non-inter end ignore-max end-of-here-doc)
   "Scans the buffer for hard-to-parse Perl constructions.
@@ -3631,7 +5282,7 @@ If `cperl-pod-here-fontify' is not-nil after evaluation, will fontify
 the sections using `cperl-pod-head-face', `cperl-pod-face',
 `cperl-here-face'."
   (interactive)
-  (or min (setq min (point-min)
+ (or min (setq min (point-min)
 		cperl-syntax-state nil
 		cperl-syntax-done-to min))
   (or max (setq max (point-max)))
@@ -3639,7 +5290,7 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 	 face head-face here-face b e bb tag qtag b1 e1 argument i c tail tb
 	 is-REx is-x-REx REx-subgr-start REx-subgr-end was-subgr i2 hairy-RE
 	 (case-fold-search nil) (inhibit-read-only t) (buffer-undo-list t)
-	 (modified (buffer-modified-p)) overshoot is-o-REx name
+	 (modified (buffer-modified-p)) overshoot is-o-REx
 	 (after-change-functions nil)
 	 (cperl-font-locking t)
 	 (use-syntax-state (and cperl-syntax-state
@@ -3734,7 +5385,7 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 		"\\([?/<]\\)"	; /blah/ or ?blah? or <file*glob>
 		"\\|"
 		;; 1+6+2+1+1=11 extra () before this
-		"\\<" cperl-sub-regexp "\\>" ;  sub with proto/attr
+		"\\<sub\\>"		;  sub with proto/attr
 		"\\("
 		   cperl-white-and-comment-rex
 		   "\\(::[a-zA-Z_:'0-9]*\\|[a-zA-Z_'][a-zA-Z_:'0-9]*\\)\\)?" ; name
@@ -3930,7 +5581,7 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 	       ;;; XXX What to do: foo <<bar ???
 	       ;;; XXX Need to support print {a} <<B ???
 				       (forward-sexp -1)
-				       (save-match-data
+				       (save-match-data	
 					; $foo << b; $f .= <<B;
 					; ($f+1) << b; a($f) . <<B;
 					; foo 1, <<B; $x{a} <<b;
@@ -3944,7 +5595,7 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 						(progn
 						  (forward-sexp -2)
 						  (not
-						   (looking-at "\\(printf?\\|say\\|system\\|exec\\|sort\\)\\>")))
+						   (looking-at "\\(printf?\\|system\\|exec\\|sort\\)\\>")))
 						(error t)))))))
 				   (error nil))) ; func(<<EOF)
 			       (and (not (match-beginning 6)) ; Empty
@@ -3962,7 +5613,7 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 			qtag (regexp-quote tag))
 		  (cond (cperl-pod-here-fontify
 			 ;; Highlight the starting delimiter
-			 (cperl-postpone-fontification
+			 (cperl-postpone-fontification 
 			  b1 e1 'face my-cperl-delimiters-face)
 			 (cperl-put-do-not-fontify b1 e1 t)))
 		  (forward-line)
@@ -4122,8 +5773,8 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 				    (and (eq (char-syntax (preceding-char)) ?w)
 					 (progn
 					   (forward-sexp -1)
-;; After these keywords `/' starts a RE.  One should add all the
-;; functions/builtins which expect an argument, but ...
+;;; After these keywords `/' starts a RE.  One should add all the
+;;; functions/builtins which expect an argument, but ...
 					   (if (eq (preceding-char) ?-)
 					       ;; -d ?foo? is a RE
 					       (looking-at "[a-zA-Z]\\>")
@@ -4131,7 +5782,7 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 					      (not (memq (preceding-char)
 							 '(?$ ?@ ?& ?%)))
 					      (looking-at
-					       "\\(while\\|if\\|unless\\|until\\|and\\|or\\|not\\|xor\\|split\\|grep\\|map\\|print\\|say\\)\\>")))))
+					       "\\(while\\|if\\|unless\\|until\\|and\\|or\\|not\\|xor\\|split\\|grep\\|map\\|print\\)\\>")))))
 				    (and (eq (preceding-char) ?.)
 					 (eq (char-after (- (point) 2)) ?.))
 				    (bobp))
@@ -4315,14 +5966,20 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 		    (if (and is-REx cperl-regexp-scan)
 			;; Process RExen: embedded comments, charclasses and ]
 ;;;/\3333\xFg\x{FFF}a\ppp\PPP\qqq\C\99f(?{  foo  })(??{  foo  })/;
-;;;/a\.b[^a[:ff:]b]x$ab->$[|$,$ab->[cd]->[ef]|$ab[xy].|^${a,b}{c,d}/;
-;;;/(?<=foo)(?<!bar)(x)(?:$ab|\$\/)$|\\\b\x888\776\[\:$/xxx;
+;;;/a{4,5}\.b[^a[:ff:]b]x$ab->$[|$,$ab->[cd]->[ef]|$ab[xy].|^${a,b}{c,d}/;
+;;;/(?<=foo)(?<!bar)(x")(?:$ab|\$\/)$|\\\b\x888\776\[\:$/xxx;
 ;;;m?(\?\?{b,a})? + m/(??{aa})(?(?=xx)aa|bb)(?#aac)/;
 ;;;m$(^ab[c]\$)$ + m+(^ab[c]\$\+)+ + m](^ab[c\]$|.+)] + m)(^ab[c]$|.+\));
-;;;m^a[\^b]c^ + m.a[^b]\.c.;
+;;;s{a}{};
+;;;s/.a//;
+;;;m^a[\^b-e\xFF]c^ + m.a[^b]\.c.;					#  OK
+;;;m^a[\^-b-\e--[\--\xFF\c[\cX-\0333-\0555-\N{name}\pp--\P{prop}--\\\05555]^;
+;;;m^a[[:alpha:]-[:alpha:]-a-[:alpha:][-aa-[[:alpha:]-b-[:alpha:]-[:alpha:]]^;
+;;;m^a[x\\[:alpha:]-\\[:alpha:]-a-\\[:alpha:][-aa-[[:alpha:]-b-\\[:alpha:]-\\[:alpha:]]^;
+;;;m^a[x\\[:alpha:][:alpha:]\\[:alpha:][-aa-[[:alpha:]\\[:alpha:][:alpha:]]^;
 			(save-excursion
 			  (goto-char (1+ b))
-			  ;; First
+			  ;; First 
 			  (cperl-look-at-leading-count is-x-REx e)
 			  (setq hairy-RE
 				(concat
@@ -4483,7 +6140,7 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 				 ;; This is not pretty: the 5.8.7 logic:
 				 ;; \0numx  -> octal (up to total 3 dig)
 				 ;; \DIGIT  -> backref unless \0
-				 ;; \DIGITs -> backref if valid
+				 ;; \DIGITs -> backref if legal
 				 ;;	     otherwise up to 3 -> octal
 				 ;; Do not try to distinguish, we guess
 				 ((or (and (memq qtag (append "01234567" nil))
@@ -4491,7 +6148,7 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 					    "\\=[01234567]?[01234567]?"
 					    (1- e) 'to-end))
 				      (and (memq qtag (append "89" nil))
-					   (re-search-forward
+					   (re-search-forward 
 					    "\\=[0123456789]*" (1- e) 'to-end))
 				      (and (eq qtag ?x)
 					   (re-search-forward
@@ -4506,6 +6163,7 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 				   'face my-cperl-REx-length1-face))))
 			      (setq was-subgr nil)) ; We do stuff here
 			     ((match-beginning 3) ; [charclass]
+			      ;; Highlight leader, trailer, POSIX classes
 			      (forward-char 1)
 			      (if (eq (char-after b) ?^ )
 				  (and (eq (following-char) ?\\ )
@@ -4514,9 +6172,9 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 				       (forward-char 2))
 				(and (eq (following-char) ?^ )
 				     (forward-char 1)))
-			      (setq argument b ; continue?
+			      (setq argument b ; continue? & end of last POSIX
 				    tag nil ; list of POSIX classes
-				    qtag (point))
+				    qtag (point)) ; after leading ^ if present
 			      (if (eq (char-after b) ?\] )
 				  (and (eq (following-char) ?\\ )
 				       (eq (char-after (cperl-1+ (point)))
@@ -4525,11 +6183,12 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 				       (forward-char 2))
 				(and (eq (following-char) ?\] )
 				     (forward-char 1)))
+			      (setq REx-subgr-end qtag)	;EndOf smart-highlighed
 			      ;; Apparently, I can't put \] into a charclass
 			      ;; in m]]: m][\\\]\]] produces [\\]]
 ;;; POSIX?  [:word:] [:^word:] only inside []
-;;;				       "\\=\\(\\\\.\\|[^][\\\\]\\|\\[:\\^?\sw+:]\\|\\[[^:]\\)*]")
-			      (while
+;;;	       "\\=\\(\\\\.\\|[^][\\\\]\\|\\[:\\^?\sw+:]\\|\\[[^:]\\)*]")
+			      (while	; look for unescaped ]
 				  (and argument
 				       (re-search-forward
 					(if (eq (char-after b) ?\] )
@@ -4541,11 +6200,11 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 				      (and
 				       (search-backward "[" argument t)
 				       (< REx-subgr-start (point))
-				       (not
-					(and ; Should work with delim = \
-					 (eq (preceding-char) ?\\ )
-					 (= (% (skip-chars-backward
-						"\\\\") 2) 0)))
+				       (setq argument (point)) ; POSIX-start
+				       (or ; Should work with delim = \
+					(not (eq (preceding-char) ?\\ ))
+					;; XXXX Double \\ is needed with 19.33
+					(= (% (skip-chars-backward "\\\\") 2) 0))
 				       (looking-at
 					(cond
 					 ((eq (char-after b) ?\] )
@@ -4561,14 +6220,25 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 					   (char-to-string (char-after b))
 					   "\\|\\sw\\)+:\]"))
 					 (t "\\\\*\\[:\\^?\\sw*:]")))
-				       (setq argument (point))))
+				       (goto-char REx-subgr-end)
+				       (cperl-highlight-charclass
+					argument my-cperl-REx-spec-char-face
+					my-cperl-REx-0length-face my-cperl-REx-length1-face)))
 				    (setq tag (cons (cons argument (point))
 						    tag)
-					  argument (point)) ; continue
+					  argument (point)
+					  REx-subgr-end argument) ; continue
 				  (setq argument nil)))
 			      (and argument
 				   (message "Couldn't find end of charclass in a REx, pos=%s"
 					    REx-subgr-start))
+			      (setq argument (1- (point)))
+			      (goto-char REx-subgr-end)
+			      (cperl-highlight-charclass
+			       argument my-cperl-REx-spec-char-face
+			       my-cperl-REx-0length-face my-cperl-REx-length1-face)
+			      (forward-char 1)
+			      ;; Highlight starter, trailer, POSIX
 			      (if (and cperl-use-syntax-table-text-property
 				       (> (- (point) 2) REx-subgr-start))
 				  (put-text-property
@@ -4587,7 +6257,7 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 			      (while tag
 				(cperl-postpone-fontification
 				 (car (car tag)) (cdr (car tag))
-				 'face my-cperl-REx-length1-face)
+				 'face font-lock-variable-name-face) ;my-cperl-REx-length1-face
 				(setq tag (cdr tag)))
 			      (setq was-subgr nil)) ; did facing already
 			     ;; Now rare stuff:
@@ -4617,7 +6287,7 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 					   (setq qtag "Can't find })")))
 				  (progn
 				    (goto-char (1- e))
-				    (message "%s" qtag))
+				    (message qtag))
 				(cperl-postpone-fontification
 				 (1- tag) (1- (point))
 				 'face font-lock-variable-name-face)
@@ -4662,12 +6332,11 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 		    (if (and is-REx is-x-REx)
 			(put-text-property (1+ b) (1- e)
 					   'syntax-subtype 'x-REx)))
-		  (if (and i2 e1 b1 (> e1 b1))
+		  (if (and i2 e1 (or (not b1) (> e1 b1)))
 		      (progn		; No errors finding the second part...
 			(cperl-postpone-fontification
 			 (1- e1) e1 'face my-cperl-delimiters-face)
-			(if (and (not (eobp))
-				 (assoc (char-after b) cperl-starters))
+			(if (assoc (char-after b) cperl-starters)
 			    (progn
 			      (cperl-postpone-fontification
 			       b1 (1+ b1) 'face my-cperl-delimiters-face)
@@ -4741,11 +6410,7 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
       (and (buffer-modified-p)
 	   (not modified)
 	   (set-buffer-modified-p nil))
-      ;; I do not understand what this is doing here.  It breaks font-locking
-      ;; because it resets the syntax-table from font-lock-syntax-table to
-      ;; cperl-mode-syntax-table.
-      ;; (set-syntax-table cperl-mode-syntax-table)
-      )
+      (set-syntax-table cperl-mode-syntax-table))
     (list (car err-l) overshoot)))
 
 (defun cperl-find-pods-heres-region (min max)
@@ -4774,8 +6439,8 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 	    (setq stop t))))))
 
 ;; Used only in `cperl-calculate-indent'...
-(defun cperl-block-p ()
-  "Positions is before ?\{.  Checks whether it starts a block."
+(defun cperl-block-p ()		   ; Do not C-M-q !  One string contains ";" !
+  ;; Positions is before ?\{.  Checks whether it starts a block.
   ;; No save-excursion!  This is more a distinguisher of a block/hash ref...
   (cperl-backward-to-noncomment (point-min))
   (or (memq (preceding-char) (append ";){}$@&%\C-@" nil)) ; Or label!  \C-@ at bobp
@@ -4794,7 +6459,7 @@ the sections using `cperl-pod-head-face', `cperl-pod-face',
 		   (and (eq (preceding-char) ?b)
 			(progn
 			  (forward-sexp -1)
-			  (looking-at (concat cperl-sub-regexp "[ \t\n\f#]"))))))))))
+			  (looking-at "sub[ \t\n\f#]")))))))))
 
 ;;; What is the difference of (cperl-after-block-p lim t) and (cperl-block-p)?
 ;;; No save-excursion; condition-case ...  In (cperl-block-p) the block
@@ -4823,16 +6488,15 @@ statement would start; thus the block in ${func()} does not count."
 		  (save-excursion
 		    (forward-sexp -1)
 		    ;; else {}     but not    else::func {}
-		    (or (and (looking-at "\\(else\\|continue\\|grep\\|map\\|BEGIN\\|END\\|UNITCHECK\\|CHECK\\|INIT\\)\\>")
+		    (or (and (looking-at "\\(else\\|continue\\|grep\\|map\\|BEGIN\\|END\\|CHECK\\|INIT\\)\\>")
 			     (not (looking-at "\\(\\sw\\|_\\)+::")))
 			;; sub f {}
 			(progn
 			  (cperl-backward-to-noncomment lim)
-			  (and (cperl-char-ends-sub-keyword-p (preceding-char))
+			  (and (eq (preceding-char) ?b)
 			       (progn
 				 (forward-sexp -1)
-				 (looking-at
-                                  (concat cperl-sub-regexp "[ \t\n\f#]")))))))
+				 (looking-at "sub[ \t\n\f#]"))))))
 		;; What preceeds is not word...  XXXX Last statement in sub???
 		(cperl-after-expr-p lim))))
       (error nil))))
@@ -4948,9 +6612,12 @@ CHARS is a string that contains good characters to have before us (however,
 	   (forward-sexp -1)
 	   (not
 	    (looking-at
-	     "\\(map\\|grep\\|say\\|printf?\\|system\\|exec\\|tr\\|s\\)\\>")))))))
+	     "\\(map\\|grep\\|printf?\\|system\\|exec\\|tr\\|s\\)\\>")))))))
 
 
+(defvar innerloop-done nil)
+(defvar last-depth nil)
+
 (defun cperl-indent-exp ()
   "Simple variant of indentation of continued-sexp.
 
@@ -4984,13 +6651,13 @@ conditional/loop constructs."
 			(if (eq (following-char) ?$ ) ; for my $var (list)
 			    (progn
 			      (forward-sexp -1)
-			      (if (looking-at "\\(state\\|my\\|local\\|our\\)\\>")
+			      (if (looking-at "\\(my\\|local\\|our\\)\\>")
 				  (forward-sexp -1))))
 			(if (looking-at
 			     (concat "\\(\\elsif\\|if\\|unless\\|while\\|until"
 				     "\\|for\\(each\\)?\\>\\(\\("
 				     cperl-maybe-white-and-comment-rex
-				     "\\(state\\|my\\|local\\|our\\)\\)?"
+				     "\\(my\\|local\\|our\\)\\)?"
 				     cperl-maybe-white-and-comment-rex
 				     "\\$[_a-zA-Z0-9]+\\)?\\)\\>"))
 			    (progn
@@ -5047,7 +6714,7 @@ Returns some position at the last line."
 		  (setq p (point))
 		  (skip-chars-forward " \t\n")
 		  (delete-region p (point))
-	      (insert (make-string cperl-indent-region-fix-constructs ?\s))
+		  (insert (make-string cperl-indent-region-fix-constructs ?\ ))
 		  (beginning-of-line)))
 	  (if (looking-at "[ \t]*}[ \t]*\\(els\\(e\\|if\\)\\|continue\\)\\>")
 	      (save-excursion
@@ -5065,7 +6732,7 @@ Returns some position at the last line."
 	    (progn
 	      (search-forward "}")
 	      (delete-horizontal-space)
-	      (insert (make-string cperl-indent-region-fix-constructs ?\s))
+	      (insert (make-string cperl-indent-region-fix-constructs ?\ ))
 	      (beginning-of-line)))
 	;; Looking at:
 	;; else   {
@@ -5074,31 +6741,31 @@ Returns some position at the last line."
 	    (progn
 	      (forward-word 1)
 	      (delete-horizontal-space)
-	      (insert (make-string cperl-indent-region-fix-constructs ?\s))
+	      (insert (make-string cperl-indent-region-fix-constructs ?\ ))
 	      (beginning-of-line)))
 	;; Looking at:
 	;; foreach my    $var
 	(if (looking-at
-	     "[ \t]*\\<for\\(each\\)?[ \t]+\\(state\\|my\\|local\\|our\\)\\(\t*\\|[ \t][ \t]+\\)[^ \t\n]")
+	     "[ \t]*\\<for\\(each\\)?[ \t]+\\(my\\|local\\|our\\)\\(\t*\\|[ \t][ \t]+\\)[^ \t\n]")
 	    (progn
 	      (forward-word 2)
 	      (delete-horizontal-space)
-	      (insert (make-string cperl-indent-region-fix-constructs ?\s))
+	      (insert (make-string cperl-indent-region-fix-constructs ?\ ))
 	      (beginning-of-line)))
 	;; Looking at:
 	;; foreach my $var     (
 	(if (looking-at
-	     "[ \t]*\\<for\\(each\\)?[ \t]+\\(state\\|my\\|local\\|our\\)[ \t]*\\$[_a-zA-Z0-9]+\\(\t*\\|[ \t][ \t]+\\)[^ \t\n#]")
+	     "[ \t]*\\<for\\(each\\)?[ \t]+\\(my\\|local\\|our\\)[ \t]*\\$[_a-zA-Z0-9]+\\(\t*\\|[ \t][ \t]+\\)[^ \t\n#]")
 	    (progn
 	      (forward-sexp 3)
 	      (delete-horizontal-space)
 	      (insert
-	       (make-string cperl-indent-region-fix-constructs ?\s))
+	       (make-string cperl-indent-region-fix-constructs ?\ ))
 	      (beginning-of-line)))
 	;; Looking at (with or without "}" at start, ending after "({"):
 	;; } foreach my $var ()         OR   {
 	(if (looking-at
-	     "[ \t]*\\(}[ \t]*\\)?\\<\\(\\els\\(e\\|if\\)\\|continue\\|if\\|unless\\|while\\|for\\(each\\)?\\(\\([ \t]+\\(state\\|my\\|local\\|our\\)\\)?[ \t]*\\$[_a-zA-Z0-9]+\\)?\\|until\\)\\>\\([ \t]*(\\|[ \t\n]*{\\)\\|[ \t]*{")
+	     "[ \t]*\\(}[ \t]*\\)?\\<\\(\\els\\(e\\|if\\)\\|continue\\|if\\|unless\\|while\\|for\\(each\\)?\\(\\([ \t]+\\(my\\|local\\|our\\)\\)?[ \t]*\\$[_a-zA-Z0-9]+\\)?\\|until\\)\\>\\([ \t]*(\\|[ \t\n]*{\\)\\|[ \t]*{")
 	    (progn
 	      (setq ml (match-beginning 8)) ; "(" or "{" after control word
 	      (re-search-forward "[({]")
@@ -5137,7 +6804,7 @@ Returns some position at the last line."
 				  (cperl-fix-line-spacing end parse-data)
 				  (setq ret (point)))))
 			(insert
-			 (make-string cperl-indent-region-fix-constructs ?\s))))
+			 (make-string cperl-indent-region-fix-constructs ?\ ))))
 		     ((and (looking-at "[ \t]*\n")
 			   (not (if ml
 				    cperl-extra-newline-before-brace-multiline
@@ -5239,7 +6906,7 @@ conditional/loop constructs."
       (let ((indent-info (if cperl-emacs-can-parse
 			     (list nil nil nil)	; Cannot use '(), since will modify
 			   nil))
-	    (pm 0)
+	    (pm 0) (imenu-scanning-message "Indenting... (%3d%%)")
 	    after-change-functions	; Speed it up!
 	    st comm old-comm-indent new-comm-indent p pp i empty)
 	(if h-a-c (add-hook 'after-change-functions 'cperl-delay-update-hook))
@@ -5250,7 +6917,12 @@ conditional/loop constructs."
 	(goto-char start)
 	(setq end (set-marker (make-marker) end)) ; indentation changes pos
 	(or (bolp) (beginning-of-line 2))
+	(or (fboundp 'imenu-progress-message)
+	    (message "Indenting... For feedback load `imenu'..."))
 	(while (and (<= (point) end) (not (eobp))) ; bol to check start
+	  (and (fboundp 'imenu-progress-message)
+	       (imenu-progress-message
+		pm (/ (* 100 (- (point) start)) (- end start -1))))
 	  (setq st (point))
 	  (if (or
 	       (setq empty (looking-at "[ \t]*\n"))
@@ -5258,9 +6930,9 @@ conditional/loop constructs."
 		    (or (eq (current-indentation) (or old-comm-indent
 						      comment-column))
 			(setq old-comm-indent nil))))
-	    (if (and old-comm-indent
+	      (if (and old-comm-indent
 		       (not empty)
-		     (= (current-indentation) old-comm-indent)
+		       (= (current-indentation) old-comm-indent)
 		       (not (eq (get-text-property (point) 'syntax-type) 'pod))
 		       (not (eq (get-text-property (point) 'syntax-table)
 				cperl-st-cfence)))
@@ -5268,10 +6940,10 @@ conditional/loop constructs."
 		    (indent-for-comment)))
 	    (progn
 	      (setq i (cperl-indent-line indent-info))
-	    (or comm
-		(not i)
-		(progn
-		  (if cperl-indent-region-fix-constructs
+	      (or comm
+		  (not i)
+		  (progn
+		    (if cperl-indent-region-fix-constructs
 			(goto-char (cperl-fix-line-spacing end indent-info)))
 		    (if (setq old-comm-indent
 			      (and (cperl-to-comment-or-eol)
@@ -5281,12 +6953,15 @@ conditional/loop constructs."
 				   (not (eq (get-text-property (point)
 							       'syntax-table)
 					    cperl-st-cfence))
-				 (current-column)))
-		      (progn (indent-for-comment)
-			     (skip-chars-backward " \t")
-			     (skip-chars-backward "#")
-			     (setq new-comm-indent (current-column))))))))
-	(beginning-of-line 2)))
+				   (current-column)))
+			(progn (indent-for-comment)
+			       (skip-chars-backward " \t")
+			       (skip-chars-backward "#")
+			       (setq new-comm-indent (current-column))))))))
+	  (beginning-of-line 2))
+      	(if (fboundp 'imenu-progress-message)
+	    (imenu-progress-message pm 100)
+	  (message nil)))
       ;; Now run the update hooks
       (and after-change-functions
 	   cperl-update-end
@@ -5299,13 +6974,12 @@ conditional/loop constructs."
 	     (delete-char -1))))))
 
 ;; Stolen from lisp-mode with a lot of improvements
-
 (defun cperl-fill-paragraph (&optional justify iteration)
-  "Like `fill-paragraph', but handle CPerl comments.
+  "Like \\[fill-paragraph], but handle CPerl comments.
 If any of the current line is a comment, fill the comment or the
 block of it that point is in, preserving the comment's initial
 indentation and initial hashes.  Behaves usually outside of comment."
-  ;; (interactive "P") ; Only works when called from fill-paragraph.  -stef
+  (interactive "P")
   (let (;; Non-nil if the current line contains a comment.
 	has-comment
 	fill-paragraph-function		; do not recurse
@@ -5333,7 +7007,7 @@ indentation and initial hashes.  Behaves usually outside of comment."
 	(looking-at "#+[ \t]*")
 	(setq start (point) c (current-column)
 	      comment-fill-prefix
-	      (concat (make-string (current-column) ?\s)
+	      (concat (make-string (current-column) ?\ )
 		      (buffer-substring (match-beginning 0) (match-end 0)))
 	      spaces (progn (skip-chars-backward " \t")
 			    (buffer-substring (point) start))
@@ -5361,17 +7035,17 @@ indentation and initial hashes.  Behaves usually outside of comment."
 			 (looking-at "^[ \t]*#+[ \t]*[^ \t\n#]")))
 	   (point)))
 	;; Remove existing hashes
-	(save-excursion
 	(goto-char (point-min))
-	(while (progn (forward-line 1) (< (point) (point-max)))
-	  (skip-chars-forward " \t")
-	  (if (looking-at "#+")
-	      (progn
-		(if (and (eq (point) (match-beginning 0))
-			 (not (eq (point) (match-end 0)))) nil
+	(save-excursion			; By some strange reason:needed in 22.1
+	  (while (progn (forward-line 1) (< (point) (point-max)))
+	    (skip-chars-forward " \t")
+	    (if (looking-at "#+")
+		(progn
+		  (if (and (eq (point) (match-beginning 0))
+			   (not (eq (point) (match-end 0)))) nil
 		    (error
- "Bug in Emacs: `looking-at' in `narrow-to-region': match-data is garbage"))
-		(delete-char (- (match-end 0) (match-beginning 0)))))))
+		     "Bug in Emacs: `looking-at' in `narrow-to-region': match-data is garbage"))
+		  (delete-char (- (match-end 0) (match-beginning 0)))))))
 
 	;; Lines with only hashes on them can be paragraph boundaries.
 	(let ((paragraph-start (concat paragraph-start "\\|^[ \t#]*$"))
@@ -5398,22 +7072,20 @@ indentation and initial hashes.  Behaves usually outside of comment."
 	 fill-column)
       (let ((c (save-excursion (beginning-of-line)
 			       (cperl-to-comment-or-eol) (point)))
-	    (s (memq (following-char) '(?\s ?\t))) marker)
-	(if (>= c (point))
-	    ;; Don't break line inside code: only inside comment.
-	    nil
+	    (s (memq (following-char) '(?\ ?\t))) marker)
+	(if (>= c (point)) nil
 	  (setq marker (point-marker))
-	  (fill-paragraph nil)
+	  (cperl-fill-paragraph)
 	  (goto-char marker)
 	  ;; Is not enough, sometimes marker is a start of line
 	  (if (bolp) (progn (re-search-forward "#+[ \t]*")
 			    (goto-char (match-end 0))))
 	  ;; Following space could have gone:
-	  (if (or (not s) (memq (following-char) '(?\s ?\t))) nil
+	  (if (or (not s) (memq (following-char) '(?\ ?\t))) nil
 	    (insert " ")
 	    (backward-char 1))
 	  ;; Previous space could have gone:
-	  (or (memq (preceding-char) '(?\s ?\t)) (insert " "))))))
+	  (or (memq (preceding-char) '(?\ ?\t)) (insert " "))))))
 
 (defun cperl-imenu-addback (lst &optional isback name)
   ;; We suppose that the lst is a DAG, unless the first element only
@@ -5423,18 +7095,19 @@ indentation and initial hashes.  Behaves usually outside of comment."
 	(t
 	 (or name
 	     (setq name "+++BACK+++"))
-	 (mapc (lambda (elt)
-		 (if (and (listp elt) (listp (cdr elt)))
-		     (progn
-		       ;; In the other order it goes up
-		       ;; one level only ;-(
-		       (setcdr elt (cons (cons name lst)
-					 (cdr elt)))
-		       (cperl-imenu-addback (cdr elt) t name))))
-	       (if isback (cdr lst) lst))
+	 (mapcar (lambda (elt)
+		   (if (and (listp elt) (listp (cdr elt)))
+		       (progn
+			 ;; In the other order it goes up
+			 ;; one level only ;-(
+			 (setcdr elt (cons (cons name lst)
+					   (cdr elt)))
+			 (cperl-imenu-addback (cdr elt) t name))))
+		 (if isback (cdr lst) lst))
 	 lst)))
 
 (defun cperl-imenu--create-perl-index (&optional regexp)
+  (require 'cl)
   (require 'imenu)			; May be called from TAGS creator
   (let ((index-alist '()) (index-pack-alist '()) (index-pod-alist '())
 	(index-unsorted-alist '()) (i-s-f (default-value 'imenu-sort-function))
@@ -5442,12 +7115,17 @@ indentation and initial hashes.  Behaves usually outside of comment."
 	packages ends-ranges p marker is-proto
 	(prev-pos 0) is-pack index index1 name (end-range 0) package)
     (goto-char (point-min))
+    (if noninteractive
+	(message "Scanning Perl for index")
+      (imenu-progress-message prev-pos 0))
     (cperl-update-syntaxification (point-max) (point-max))
     ;; Search for the function
     (progn ;;save-match-data
       (while (re-search-forward
 	      (or regexp cperl-imenu--function-name-regexp-perl)
 	      nil t)
+	(or noninteractive
+	    (imenu-progress-message prev-pos))
 	;; 2=package-group, 5=package-name 8=sub-name
 	(cond
 	 ((and				; Skip some noise if building tags
@@ -5526,6 +7204,8 @@ indentation and initial hashes.  Behaves usually outside of comment."
 	  (setq index1 (cons (concat "=" name) (cdr index)))
 	  (push index index-pod-alist)
 	  (push index1 index-unsorted-alist)))))
+    (or noninteractive
+	(imenu-progress-message prev-pos 100))
     (setq index-alist
 	  (if (default-value 'imenu-sort-function)
 	      (sort index-alist (default-value 'imenu-sort-function))
@@ -5594,6 +7274,19 @@ indentation and initial hashes.  Behaves usually outside of comment."
 	(t 5)))				; should not happen
 
 
+(defvar cperl-compilation-error-regexp-alist
+  ;; This look like a paranoiac regexp: could anybody find a better one? (which WORKS).
+  '(("^[^\n]* \\(file\\|at\\) \\([^ \t\n]+\\) [^\n]*line \\([0-9]+\\)[\\., \n]"
+     2 3))
+  "Alist that specifies how to match errors in perl output.")
+
+(if (fboundp 'eval-after-load)
+    (eval-after-load
+	"mode-compile"
+      '(setq perl-compilation-error-regexp-alist
+	     cperl-compilation-error-regexp-alist)))
+
+
 (defun cperl-windowed-init ()
   "Initialization under windowed version."
   (cond ((featurep 'ps-print)
@@ -5614,25 +7307,27 @@ indentation and initial hashes.  Behaves usually outside of comment."
 		 "ps-print"
 	       '(or cperl-faces-init (cperl-init-faces)))))))
 
-(defvar cperl-font-lock-keywords-1 nil
-  "Additional expressions to highlight in Perl mode.  Minimal set.")
-(defvar cperl-font-lock-keywords nil
-  "Additional expressions to highlight in Perl mode.  Default set.")
-(defvar cperl-font-lock-keywords-2 nil
-  "Additional expressions to highlight in Perl mode.  Maximal set")
-
 (defun cperl-load-font-lock-keywords ()
   (or cperl-faces-init (cperl-init-faces))
-  cperl-font-lock-keywords)
+  perl-font-lock-keywords)
 
 (defun cperl-load-font-lock-keywords-1 ()
   (or cperl-faces-init (cperl-init-faces))
-  cperl-font-lock-keywords-1)
+  perl-font-lock-keywords-1)
 
 (defun cperl-load-font-lock-keywords-2 ()
   (or cperl-faces-init (cperl-init-faces))
-  cperl-font-lock-keywords-2)
+  perl-font-lock-keywords-2)
 
+(defvar perl-font-lock-keywords-1 nil
+  "Additional expressions to highlight in Perl mode.  Minimal set.")
+(defvar perl-font-lock-keywords nil
+  "Additional expressions to highlight in Perl mode.  Default set.")
+(defvar perl-font-lock-keywords-2 nil
+  "Additional expressions to highlight in Perl mode.  Maximal set.")
+
+(defvar font-lock-background-mode)
+(defvar font-lock-display-type)
 (defun cperl-init-faces-weak ()
   ;; Allow `cperl-find-pods-heres' to run.
   (or (boundp 'font-lock-constant-face)
@@ -5657,23 +7352,16 @@ indentation and initial hashes.  Behaves usually outside of comment."
 	  (setq
 	   t-font-lock-keywords
 	   (list
-	    `("[ \t]+$" 0 ',cperl-invalid-face t)
+	    (list "[ \t]+$" 0 cperl-invalid-face t)
 	    (cons
 	     (concat
 	      "\\(^\\|[^$@%&\\]\\)\\<\\("
 	      (mapconcat
 	       'identity
-	       (append
-                cperl-sub-keywords
-                '("if" "until" "while" "elsif" "else"
-                 "given" "when" "default" "break"
-                 "unless" "for"
+	       '("if" "until" "while" "elsif" "else" "unless" "for"
 		 "foreach" "continue" "exit" "die" "last" "goto" "next"
-		 "redo" "return" "local" "exec"
-                 "do" "dump"
-                 "use" "our"
-		 "require" "package" "eval" "my" "state"
-                 "BEGIN" "END" "CHECK" "INIT" "UNITCHECK"))
+		 "redo" "return" "local" "exec" "sub" "do" "dump" "use" "our"
+		 "require" "package" "eval" "my" "BEGIN" "END" "CHECK" "INIT")
 	       "\\|")			; Flow control
 	      "\\)\\>") 2)		; was "\\)[ \n\t;():,\|&]"
 					; In what follows we use `type' style
@@ -5752,24 +7440,24 @@ indentation and initial hashes.  Behaves usually outside of comment."
 	    (list
 	     (concat
 	      "\\(^\\|[^$@%&\\]\\)\\<\\("
-	      ;; "AUTOLOAD" "BEGIN" "CHECK" "DESTROY" "END" "INIT" "UNITCHECK" "__END__" "chomp"
-	      ;; "break" "chop" "default" "defined" "delete" "do" "each" "else" "elsif"
-	      ;; "eval" "exists" "for" "foreach" "format" "given" "goto"
+	      ;; "AUTOLOAD" "BEGIN" "CHECK" "DESTROY" "END" "INIT" "__END__" "chomp"
+	      ;; "chop" "defined" "delete" "do" "each" "else" "elsif"
+	      ;; "eval" "exists" "for" "foreach" "format" "goto"
 	      ;; "grep" "if" "keys" "last" "local" "map" "my" "next"
 	      ;; "no" "our" "package" "pop" "pos" "print" "printf" "push"
-	      ;; "q" "qq" "qw" "qx" "redo" "return" "say" "scalar" "shift"
-	      ;; "sort" "splice" "split" "state" "study" "sub" "tie" "tr"
+	      ;; "q" "qq" "qw" "qx" "redo" "return" "scalar" "shift"
+	      ;; "sort" "splice" "split" "study" "sub" "tie" "tr"
 	      ;; "undef" "unless" "unshift" "untie" "until" "use"
-	      ;; "when" "while" "y"
-	      "AUTOLOAD\\|BEGIN\\|\\(UNIT\\)?CHECK\\|break\\|cho\\(p\\|mp\\)\\|d\\(e\\(f\\(ault|ined\\)\\|lete\\)\\|"
+	      ;; "while" "y"
+	      "AUTOLOAD\\|BEGIN\\|CHECK\\|cho\\(p\\|mp\\)\\|d\\(e\\(fined\\|lete\\)\\|"
 	      "o\\)\\|DESTROY\\|e\\(ach\\|val\\|xists\\|ls\\(e\\|if\\)\\)\\|"
-	      "END\\|for\\(\\|each\\|mat\\)\\|g\\(iven\\|rep\\|oto\\)\\|INIT\\|if\\|keys\\|"
+	      "END\\|for\\(\\|each\\|mat\\)\\|g\\(rep\\|oto\\)\\|INIT\\|if\\|keys\\|"
 	      "l\\(ast\\|ocal\\)\\|m\\(ap\\|y\\)\\|n\\(ext\\|o\\)\\|our\\|"
 	      "p\\(ackage\\|rint\\(\\|f\\)\\|ush\\|o\\(p\\|s\\)\\)\\|"
-	      "q\\(\\|q\\|w\\|x\\|r\\)\\|re\\(turn\\|do\\)\\|s\\(ay\\|pli\\(ce\\|t\\)\\|"
-	      "calar\\|t\\(ate\\|udy\\)\\|ub\\|hift\\|ort\\)\\|t\\(r\\|ie\\)\\|"
+	      "q\\(\\|q\\|w\\|x\\|r\\)\\|re\\(turn\\|do\\)\\|s\\(pli\\(ce\\|t\\)\\|"
+	      "calar\\|tudy\\|ub\\|hift\\|ort\\)\\|t\\(r\\|ie\\)\\|"
 	      "u\\(se\\|n\\(shift\\|ti\\(l\\|e\\)\\|def\\|less\\)\\)\\|"
-	      "wh\\(en\\|ile\\)\\|y\\|__\\(END\\|DATA\\)__" ;__DATA__ added manually
+	      "while\\|y\\|__\\(END\\|DATA\\)__" ;__DATA__ added manually
 	      "\\|[sm]"			; Added manually
 	      "\\)\\>") 2 'cperl-nonoverridable-face)
 	    ;;		(mapconcat 'identity
@@ -5781,7 +7469,7 @@ indentation and initial hashes.  Behaves usually outside of comment."
 	    ;; This highlights declarations and definitions differenty.
 	    ;; We do not try to highlight in the case of attributes:
 	    ;; it is already done by `cperl-find-pods-heres'
-	    (list (concat "\\<" cperl-sub-regexp
+	    (list (concat "\\<sub"
 			  cperl-white-and-comment-rex ; whitespace/comments
 			  "\\([^ \n\t{;()]+\\)" ; 2=name (assume non-anonymous)
 			  "\\("
@@ -5823,14 +7511,14 @@ indentation and initial hashes.  Behaves usually outside of comment."
 	      font-lock-string-face t)
 	    '("^[ \t]*\\([a-zA-Z0-9_]+[ \t]*:\\)[ \t]*\\($\\|{\\|\\<\\(until\\|while\\|for\\(each\\)?\\|do\\)\\>\\)" 1
 	      font-lock-constant-face)	; labels
-	    '("\\<\\(continue\\|next\\|last\\|redo\\|break\\|goto\\)\\>[ \t]+\\([a-zA-Z0-9_:]+\\)" ; labels as targets
+	    '("\\<\\(continue\\|next\\|last\\|redo\\|goto\\)\\>[ \t]+\\([a-zA-Z0-9_:]+\\)" ; labels as targets
 	      2 font-lock-constant-face)
 	    ;; Uncomment to get perl-mode-like vars
             ;;; '("[$*]{?\\(\\sw+\\)" 1 font-lock-variable-name-face)
             ;;; '("\\([@%]\\|\\$#\\)\\(\\sw+\\)"
             ;;;  (2 (cons font-lock-variable-name-face '(underline))))
 	    (cond ((featurep 'font-lock-extra)
-		   '("^[ \t]*\\(state\\|my\\|local\\|our\\)[ \t]*\\(([ \t]*\\)?\\([$@%*][a-zA-Z0-9_:]+\\)\\([ \t]*,\\)?"
+		   '("^[ \t]*\\(my\\|local\\|our\\)[ \t]*\\(([ \t]*\\)?\\([$@%*][a-zA-Z0-9_:]+\\)\\([ \t]*,\\)?"
 		     (3 font-lock-variable-name-face)
 		     (4 '(another 4 nil
 				  ("\\=[ \t]*,[ \t]*\\([$@%*][a-zA-Z0-9_:]+\\)\\([ \t]*,\\)?"
@@ -5839,25 +7527,25 @@ indentation and initial hashes.  Behaves usually outside of comment."
 			nil t)))	; local variables, multiple
 		  (font-lock-anchored
 		   ;; 1=my_etc, 2=white? 3=(+white? 4=white? 5=var
-		   `(,(concat "\\<\\(state\\|my\\|local\\|our\\)"
+		   (` ((, (concat "\\<\\(my\\|local\\|our\\)"
 				  cperl-maybe-white-and-comment-rex
 				  "\\(("
 				     cperl-maybe-white-and-comment-rex
-				  "\\)?\\([$@%*]\\([a-zA-Z0-9_:]+\\|[^a-zA-Z0-9_]\\)\\)")
-		       (5 ,(if cperl-font-lock-multiline
+				  "\\)?\\([$@%*]\\([a-zA-Z0-9_:]+\\|[^a-zA-Z0-9_]\\)\\)"))
+		       (5 (, (if cperl-font-lock-multiline
 				 'font-lock-variable-name-face
 			       '(progn  (setq cperl-font-lock-multiline-start
 					      (match-beginning 0))
-					'font-lock-variable-name-face)))
-		       (,(concat "\\="
+					'font-lock-variable-name-face))))
+		       ((, (concat "\\="
 				   cperl-maybe-white-and-comment-rex
 				   ","
 				   cperl-maybe-white-and-comment-rex
-				   "\\([$@%*]\\([a-zA-Z0-9_:]+\\|[^a-zA-Z0-9_]\\)\\)")
-			;; Bug in font-lock: limit is used not only to limit
+				   "\\([$@%*]\\([a-zA-Z0-9_:]+\\|[^a-zA-Z0-9_]\\)\\)"))
+			;; Bug in font-lock: limit is used not only to limit 
 			;; searches, but to set the "extend window for
 			;; facification" property.  Thus we need to minimize.
-			,(if cperl-font-lock-multiline
+			(, (if cperl-font-lock-multiline
 			     '(if (match-beginning 3)
 				  (save-excursion
 				    (goto-char (match-beginning 3))
@@ -5871,8 +7559,8 @@ indentation and initial hashes.  Behaves usually outside of comment."
 				(forward-char -2)) ; disable continued expr
 			     '(if (match-beginning 3)
 				  (point-max) ; No limit for continuation
-				(forward-char -2))) ; disable continued expr
-			,(if cperl-font-lock-multiline
+				(forward-char -2)))) ; disable continued expr
+			(, (if cperl-font-lock-multiline
 			       nil
 			     '(progn	; Do at end
 				;; "my" may be already fontified (POD),
@@ -5885,36 +7573,33 @@ indentation and initial hashes.  Behaves usually outside of comment."
 				  (put-text-property
 				   (1+ cperl-font-lock-multiline-start) (point)
 				   'syntax-type 'multiline))
-				(setq cperl-font-lock-multiline-start nil)))
-			(3 font-lock-variable-name-face))))
-		  (t '("^[ \t{}]*\\(state\\|my\\|local\\|our\\)[ \t]*\\(([ \t]*\\)?\\([$@%*][a-zA-Z0-9_:]+\\)"
+				(setq cperl-font-lock-multiline-start nil))))
+			(3 font-lock-variable-name-face)))))
+		  (t '("^[ \t{}]*\\(my\\|local\\|our\\)[ \t]*\\(([ \t]*\\)?\\([$@%*][a-zA-Z0-9_:]+\\)"
 		       3 font-lock-variable-name-face)))
-	    '("\\<for\\(each\\)?\\([ \t]+\\(state\\|my\\|local\\|our\\)\\)?[ \t]*\\(\\$[a-zA-Z_][a-zA-Z_0-9]*\\)[ \t]*("
-	      4 font-lock-variable-name-face)
-	    ;; Avoid $!, and s!!, qq!! etc. when not fontifying syntaxically
-	    '("\\(?:^\\|[^smywqrx$]\\)\\(!\\)" 1 font-lock-negation-char-face)
-	    '("\\[\\(\\^\\)" 1 font-lock-negation-char-face prepend)))
+	    '("\\<for\\(each\\)?\\([ \t]+\\(my\\|local\\|our\\)\\)?[ \t]*\\(\\$[a-zA-Z_][a-zA-Z_0-9]*\\)[ \t]*("
+	      4 font-lock-variable-name-face)))
 	  (setq
 	   t-font-lock-keywords-1
 	   (and (fboundp 'turn-on-font-lock) ; Check for newer font-lock
 		;; not yet as of XEmacs 19.12, works with 21.1.11
 		(or
-		 (not (featurep 'xemacs))
+		 (not cperl-xemacs-p)
 		 (string< "21.1.9" emacs-version)
 		 (and (string< "21.1.10" emacs-version)
 		      (string< emacs-version "21.1.2")))
 		'(
 		  ("\\(\\([@%]\\|\$#\\)[a-zA-Z_:][a-zA-Z0-9_:]*\\)" 1
 		   (if (eq (char-after (match-beginning 2)) ?%)
-		       'cperl-hash-face
-		     'cperl-array-face)
+		       cperl-hash-face
+		     cperl-array-face)
 		   t)			; arrays and hashes
 		  ("\\(\\([$@]+\\)[a-zA-Z_:][a-zA-Z0-9_:]*\\)[ \t]*\\([[{]\\)"
 		   1
 		   (if (= (- (match-end 2) (match-beginning 2)) 1)
 		       (if (eq (char-after (match-beginning 3)) ?{)
-			   'cperl-hash-face
-			 'cperl-array-face) ; arrays and hashes
+			   cperl-hash-face
+			 cperl-array-face) ; arrays and hashes
 		     font-lock-variable-name-face) ; Just to put something
 		   t)
 		  ("\\(@\\|\\$#\\)\\(\\$+\\([a-zA-Z_:][a-zA-Z0-9_:]*\\|[^ \t\n]\\)\\)"
@@ -5936,14 +7621,14 @@ indentation and initial hashes.  Behaves usually outside of comment."
 		    (append t-font-lock-keywords-1
 			    (list '("\\([$*]{?\\sw+\\)" 1
 				    font-lock-variable-name-face)))))
-	  (setq cperl-font-lock-keywords-1
+	  (setq perl-font-lock-keywords-1
 		(if cperl-syntaxify-by-font-lock
 		    (cons 'cperl-fontify-update
 			  t-font-lock-keywords)
 		  t-font-lock-keywords)
-		cperl-font-lock-keywords cperl-font-lock-keywords-1
-		cperl-font-lock-keywords-2 (append
-					   cperl-font-lock-keywords-1
+		perl-font-lock-keywords perl-font-lock-keywords-1
+		perl-font-lock-keywords-2 (append
+					   perl-font-lock-keywords-1
 					   t-font-lock-keywords-1)))
 	(if (fboundp 'ps-print-buffer) (cperl-ps-print-init))
 	(if (or (featurep 'choose-color) (featurep 'font-lock-extra))
@@ -6060,7 +7745,7 @@ indentation and initial hashes.  Behaves usually outside of comment."
 	  ;;    (defconst cperl-nonoverridable-face
 	  ;;	'cperl-nonoverridable-face
 	  ;;	"Face to use for data types from another group."))
-	  ;;(if (not (featurep 'xemacs)) nil
+	  ;;(if (not cperl-xemacs-p) nil
 	  ;;  (or (boundp 'font-lock-comment-face)
 	  ;;	(defconst font-lock-comment-face
 	  ;;	  'font-lock-comment-face
@@ -6080,11 +7765,13 @@ indentation and initial hashes.  Behaves usually outside of comment."
 	  (if (and
 	       (not (cperl-is-face 'cperl-hash-face))
 	       (cperl-is-face 'font-lock-other-emphasized-face))
-	      (copy-face 'font-lock-other-emphasized-face 'cperl-hash-face))
+	      (copy-face 'font-lock-other-emphasized-face
+			 'cperl-hash-face))
 	  (if (and
 	       (not (cperl-is-face 'cperl-nonoverridable-face))
 	       (cperl-is-face 'font-lock-other-type-face))
-	      (copy-face 'font-lock-other-type-face 'cperl-nonoverridable-face))
+	      (copy-face 'font-lock-other-type-face
+			 'cperl-nonoverridable-face))
 	  ;;(or (boundp 'cperl-hash-face)
 	  ;;    (defconst cperl-hash-face
 	  ;;	'cperl-hash-face
@@ -6192,15 +7879,20 @@ indentation and initial hashes.  Behaves usually outside of comment."
     '(setq ps-bold-faces
 	   ;; 			font-lock-variable-name-face
 	   ;;			font-lock-constant-face
-	   (append '(cperl-array-face cperl-hash-face)
+	   (append '(cperl-array-face
+		     cperl-hash-face)
 		   ps-bold-faces)
 	   ps-italic-faces
 	   ;;			font-lock-constant-face
-	   (append '(cperl-nonoverridable-face cperl-hash-face)
+	   (append '(cperl-nonoverridable-face
+		     cperl-hash-face)
 		   ps-italic-faces)
 	   ps-underlined-faces
 	   ;;	     font-lock-type-face
-	   (append '(cperl-array-face cperl-hash-face underline cperl-nonoverridable-face)
+	   (append '(cperl-array-face
+		     cperl-hash-face
+		     underline
+		     cperl-nonoverridable-face)
 		   ps-underlined-faces))))
 
 (defvar ps-print-face-extension-alist)
@@ -6466,7 +8158,7 @@ are CPerl, PerlStyle, GNU, K&R, BSD, C++ and Whitesmith.
 The current value of style is memorized (unless there is a memorized
 data already), may be restored by `cperl-set-style-back'.
 
-Choosing \"Current\" style will not change style, so this may be used for
+Chosing \"Current\" style will not change style, so this may be used for
 side-effect of memorizing only.  Examples in `cperl-style-examples'."
   (interactive
    (let ((list (mapcar (function (lambda (elt) (list (car elt))))
@@ -6484,7 +8176,7 @@ side-effect of memorizing only.  Examples in `cperl-style-examples'."
       (set (car setting) (cdr setting)))))
 
 (defun cperl-set-style-back ()
-  "Restore a style memorized by `cperl-set-style'."
+  "Restore a style memorised by `cperl-set-style'."
   (interactive)
   (or cperl-old-style (error "The style was not changed"))
   (let (setting)
@@ -6611,7 +8303,7 @@ Customized by setting variables `cperl-shrink-wrap-info-frame',
 			 ;; Non-functioning under OS/2:
 			 (if (eq char-height 1) (setq char-height 18))
 			 ;; Title, menubar, + 2 for slack
-			 (- (/ (display-pixel-height) char-height) 4)))
+			 (- (/ (x-display-pixel-height) char-height) 4)))
 		 (if (> height max-height) (setq height max-height))
 		 ;;(message "was %s doing %s" iniheight height)
 		 (if not-loner
@@ -6676,7 +8368,7 @@ partially contained in the region are lined up at the same column.
 MINSHIFT is the minimal amount of space to insert before the construction.
 STEP is the tabwidth to position constructions.
 If STEP is nil, `cperl-lineup-step' will be used
-\(or `cperl-indent-level', if `cperl-lineup-step' is nil).
+\(or `cperl-indent-level', if `cperl-lineup-step' is `nil').
 Will not move the position at the start to the left."
   (interactive "r")
   (let (search col tcol seen b)
@@ -6823,7 +8515,7 @@ construct.  DONE-TO and STATEPOS indicate changes to internal caches maintained
 by CPerl."
   (interactive "P")
   (or arg
-      (setq arg (if (eq cperl-syntaxify-by-font-lock
+      (setq arg (if (eq cperl-syntaxify-by-font-lock 
 			(if backtrace 'backtrace 'message)) 0 1)))
   (setq arg (if (> arg 0) (if backtrace 'backtrace 'message) t))
   (setq cperl-syntaxify-by-font-lock arg)
@@ -6846,15 +8538,21 @@ by CPerl."
 	(set 'parse-sexp-lookup-properties t))))
 
 (defun cperl-xsub-scan ()
+  (require 'cl)
   (require 'imenu)
   (let ((index-alist '())
 	(prev-pos 0) index index1 name package prefix)
     (goto-char (point-min))
+    (if noninteractive
+	(message "Scanning XSUB for index")
+      (imenu-progress-message prev-pos 0))
     ;; Search for the function
     (progn ;;save-match-data
       (while (re-search-forward
 	      "^\\([ \t]*MODULE\\>[^\n]*\\<PACKAGE[ \t]*=[ \t]*\\([a-zA-Z_][a-zA-Z_0-9:]*\\)\\>\\|\\([a-zA-Z_][a-zA-Z_0-9]*\\)(\\|[ \t]*BOOT:\\)"
 	      nil t)
+	(or noninteractive
+	    (imenu-progress-message prev-pos))
 	(cond
 	 ((match-beginning 2)		; SECTION
 	  (setq package (buffer-substring (match-beginning 2) (match-end 2)))
@@ -6882,6 +8580,8 @@ by CPerl."
 	  (setq index (imenu-example--name-and-position))
 	  (setcar index (concat package "::BOOT:"))
 	  (push index index-alist)))))
+    (or noninteractive
+	(imenu-progress-message prev-pos 100))
     index-alist))
 
 (defvar cperl-unreadable-ok nil)
@@ -7009,7 +8709,7 @@ Use as
     (save-excursion
       (cond (inbuffer nil)		; Already there
 	    ((file-exists-p tags-file-name)
-	     (if (featurep 'xemacs)
+	     (if cperl-xemacs-p
 		 (visit-tags-table-buffer)
 	       (visit-tags-table-buffer tags-file-name)))
 	    (t (set-buffer (find-file-noselect tags-file-name))))
@@ -7031,17 +8731,17 @@ Use as
 			(setq cperl-unreadable-ok t
 			      tm nil)	; Return empty list
 		      (error "Aborting: unreadable directory %s" file)))))))
-	  (mapc (function
-		 (lambda (file)
-		   (cond
-		    ((string-match cperl-noscan-files-regexp file)
-		     nil)
-		    ((not (file-directory-p file))
-		     (if (string-match cperl-scan-files-regexp file)
-			 (cperl-write-tags file erase recurse nil t noxs topdir)))
-		    ((not recurse) nil)
-		    (t (cperl-write-tags file erase recurse t t noxs topdir)))))
-		files)))
+	  (mapcar (function
+		   (lambda (file)
+		     (cond
+		      ((string-match cperl-noscan-files-regexp file)
+		       nil)
+		      ((not (file-directory-p file))
+		       (if (string-match cperl-scan-files-regexp file)
+			   (cperl-write-tags file erase recurse nil t noxs topdir)))
+		      ((not recurse) nil)
+		      (t (cperl-write-tags file erase recurse t t noxs topdir)))))
+		  files)))
        (t
 	(setq xs (string-match "\\.xs$" file))
 	(if (not (and xs noxs))
@@ -7129,8 +8829,6 @@ Use as
 			(cons cons1 (car cperl-hierarchy)))))))
       (end-of-line))))
 
-(declare-function x-popup-menu "xmenu.c" (position menu))
-
 (defun cperl-tags-hier-init (&optional update)
   "Show hierarchical menu of classes and methods.
 Finds info about classes by a scan of loaded TAGS files.
@@ -7147,26 +8845,26 @@ One may build such TAGS files from CPerl mode menu."
 	    pack name cons1 to l1 l2 l3 l4 b)
 	;; (setq cperl-hierarchy '(() () ())) ; Would write into '() later!
 	(setq cperl-hierarchy (list l1 l2 l3))
-	(if (featurep 'xemacs)		; Not checked
+	(if cperl-xemacs-p		; Not checked
 	    (progn
 	      (or tags-file-name
 		  ;; Does this work in XEmacs?
-	    (call-interactively 'visit-tags-table))
-	(message "Updating list of classes...")
+		  (call-interactively 'visit-tags-table))
+	      (message "Updating list of classes...")
 	      (set-buffer (get-file-buffer tags-file-name))
 	      (cperl-tags-hier-fill))
 	  (or tags-table-list
 	      (call-interactively 'visit-tags-table))
-	  (mapc
+	  (mapcar
 	   (function
 	    (lambda (tagsfile)
 	      (message "Updating list of classes... %s" tagsfile)
-	    (set-buffer (get-file-buffer tagsfile))
-	    (cperl-tags-hier-fill)))
+	      (set-buffer (get-file-buffer tagsfile))
+	      (cperl-tags-hier-fill)))
 	   tags-table-list)
 	  (message "Updating list of classes... postprocessing..."))
-	(mapc remover (car cperl-hierarchy))
-	(mapc remover (nth 1 cperl-hierarchy))
+	(mapcar remover (car cperl-hierarchy))
+	(mapcar remover (nth 1 cperl-hierarchy))
 	(setq to (list nil (cons "Packages: " (nth 1 cperl-hierarchy))
 		       (cons "Methods: " (car cperl-hierarchy))))
 	(cperl-tags-treeify to 1)
@@ -7230,40 +8928,40 @@ One may build such TAGS files from CPerl mode menu."
     (setcdr to l1)			; Init to dynamic space
     (setq writeto to)
     (setq ord 1)
-    (mapc move-deeper packages)
+    (mapcar move-deeper packages)
     (setq ord 2)
-    (mapc move-deeper methods)
+    (mapcar move-deeper methods)
     (if recurse
-	(mapc (function (lambda (elt)
+	(mapcar (function (lambda (elt)
 			  (cperl-tags-treeify elt (1+ level))))
-	      (cdr to)))
+		(cdr to)))
     ;;Now clean up leaders with one child only
-    (mapc (function (lambda (elt)
-		      (if (not (and (listp (cdr elt))
-				    (eq (length elt) 2))) nil
-			(setcar elt (car (nth 1 elt)))
-			(setcdr elt (cdr (nth 1 elt))))))
-	  (cdr to))
+    (mapcar (function (lambda (elt)
+			(if (not (and (listp (cdr elt))
+				      (eq (length elt) 2))) nil
+			    (setcar elt (car (nth 1 elt)))
+			    (setcdr elt (cdr (nth 1 elt))))))
+	    (cdr to))
     ;; Sort the roots of subtrees
     (if (default-value 'imenu-sort-function)
 	(setcdr to
 		(sort (cdr to) (default-value 'imenu-sort-function))))
     ;; Now add back functions removed from display
-    (mapc (function (lambda (elt)
-		      (setcdr to (cons elt (cdr to)))))
-	  (if (default-value 'imenu-sort-function)
-	      (nreverse
-	       (sort root-functions (default-value 'imenu-sort-function)))
-	    root-functions))
+    (mapcar (function (lambda (elt)
+			(setcdr to (cons elt (cdr to)))))
+	    (if (default-value 'imenu-sort-function)
+		(nreverse
+		 (sort root-functions (default-value 'imenu-sort-function)))
+	      root-functions))
     ;; Now add back packages removed from display
-    (mapc (function (lambda (elt)
-		      (setcdr to (cons (cons (concat "package " (car elt))
-					     (cdr elt))
-				       (cdr to)))))
-	  (if (default-value 'imenu-sort-function)
-	      (nreverse
-	       (sort root-packages (default-value 'imenu-sort-function)))
-	    root-packages))))
+    (mapcar (function (lambda (elt)
+			(setcdr to (cons (cons (concat "package " (car elt))
+					       (cdr elt))
+					 (cdr to)))))
+	    (if (default-value 'imenu-sort-function)
+		(nreverse
+		 (sort root-packages (default-value 'imenu-sort-function)))
+	      root-packages))))
 
 ;;;(x-popup-menu t
 ;;;   '(keymap "Name1"
@@ -7334,7 +9032,6 @@ One may build such TAGS files from CPerl mode menu."
      "\\$."				; $|
      "<<[a-zA-Z_'\"`]"			; <<FOO, <<'FOO'
      "||"
-     "//"
      "&&"
      "[CBIXSLFZ]<\\(\\sw\\|\\s \\|\\s_\\|[\n]\\)*>" ; C<code like text>
      "-[a-zA-Z_0-9]+[ \t]*=>"		; -option => value
@@ -7602,7 +9299,7 @@ $^E     Information about the last system error other than that provided by $!.
 $^F	The highest system file descriptor, ordinarily 2.
 $^H     The current set of syntax checks enabled by `use strict'.
 $^I	The value of the in-place edit extension (perl -i option).
-$^L     What formats output to perform a formfeed.  Default is \\f.
+$^L     What formats output to perform a formfeed.  Default is \f.
 $^M     A buffer for emergency memory allocation when running out of memory.
 $^O     The operating system name under which this copy of Perl was built.
 $^P	Internal debugging flag.
@@ -7675,7 +9372,6 @@ $~	The name of the current report format.
 ... = ...	Assignment.
 ... == ...	Numeric equality.
 ... =~ ...	Search pattern, substitution, or translation
-... ~~ ..       Smart match
 ... > ...	Numeric greater than.
 ... >= ...	Numeric greater than or equal to.
 ... >> ...	Bitwise shift right.
@@ -7685,7 +9381,7 @@ $~	The name of the current report format.
 @ARGV	Command line arguments (not including the command name - see $0).
 @INC	List of places to look for perl scripts during do/include/use.
 @_    Parameter array for subroutines; result of split() unless in list context.
-\\  Creates reference to what follows, like \\$var, or quotes non-\\w in strings.
+\\  Creates reference to what follows, like \$var, or quotes non-\w in strings.
 \\0	Octal char, e.g. \\033.
 \\E	Case modification terminator.  See \\Q, \\L, and \\U.
 \\L	Lowercase until \\E .  See also \\l, lc.
@@ -7713,7 +9409,6 @@ ARGVOUT	Output filehandle with -i flag.
 BEGIN { ... }	Immediately executed (during compilation) piece of code.
 END { ... }	Pseudo-subroutine executed after the script finishes.
 CHECK { ... }	Pseudo-subroutine executed after the script is compiled.
-UNITCHECK { ... }
 INIT { ... }	Pseudo-subroutine executed before the script starts running.
 DATA	Input filehandle for what follows after __END__	or __DATA__.
 accept(NEWSOCKET,GENERICSOCKET)
@@ -7721,7 +9416,6 @@ alarm(SECONDS)
 atan2(X,Y)
 bind(SOCKET,NAME)
 binmode(FILEHANDLE)
-break	Break out of a given/when statement
 caller[(LEVEL)]
 chdir(EXPR)
 chmod(LIST)
@@ -7737,7 +9431,6 @@ cos(EXPR)
 crypt(PLAINTEXT,SALT)
 dbmclose(%HASH)
 dbmopen(%HASH,DBNAME,MODE)
-default { ... } default case for given/when block
 defined(EXPR)
 delete($HASH{KEY})
 die(LIST)
@@ -7790,7 +9483,6 @@ getservbyport(PORT,PROTO)
 getservent
 getsockname(SOCKET)
 getsockopt(SOCKET,LEVEL,OPTNAME)
-given (EXPR) { [ when (EXPR) { ... } ]+ [ default { ... } ]? }
 gmtime(EXPR)
 goto LABEL
 ... gt ...	String greater than.
@@ -7851,7 +9543,6 @@ rewinddir(DIRHANDLE)
 rindex(STR,SUBSTR[,OFFSET])
 rmdir(FILENAME)
 s/PATTERN/REPLACEMENT/gieoxsm
-say [FILEHANDLE] [(LIST)]
 scalar(EXPR)
 seek(FILEHANDLE,POSITION,WHENCE)
 seekdir(DIRHANDLE,POS)
@@ -7886,7 +9577,6 @@ sprintf(FORMAT,LIST)
 sqrt(EXPR)
 srand(EXPR)
 stat(EXPR|FILEHANDLE|VAR)
-state VAR or state (VAR1,...)	Introduces a static lexical variable
 study[(SCALAR)]
 sub [NAME [(format)]] { BODY }	sub NAME [(format)];	sub [(format)] {...}
 substr(EXPR,OFFSET[,LEN])
@@ -7922,7 +9612,6 @@ x= ...	Repetition assignment.
 y/SEARCHLIST/REPLACEMENTLIST/
 ... | ...	Bitwise or.
 ... || ...	Logical or.
-... // ...      Defined-or.
 ~ ...		Unary bitwise complement.
 #!	OS interpreter indicator.  If contains `perl', used for options, and -x.
 AUTOLOAD {...}	Shorthand for `sub AUTOLOAD {...}'.
@@ -7967,7 +9656,7 @@ ucfirst [ EXPR ]	Returns EXPR with upcased first letter.
 untie VAR	Unlink an object from a simple Perl variable.
 use PACKAGE [SYMBOL1, ...]  Compile-time `require' with consequent `import'.
 ... xor ...		Low-precedence synonym for exclusive or.
-prototype \\&SUB	Returns prototype of the function given a reference.
+prototype \&SUB	Returns prototype of the function given a reference.
 =head1		Top-level heading.
 =head2		Second-level heading.
 =head3		Third-level heading (is there such?).
@@ -7978,11 +9667,11 @@ prototype \\&SUB	Returns prototype of the function given a reference.
 =pod		Switch from Perl to POD.
 ")
 
-(defun cperl-switch-to-doc-buffer (&optional interactive)
+(defun cperl-switch-to-doc-buffer ()
   "Go to the perl documentation buffer and insert the documentation."
-  (interactive "p")
+  (interactive)
   (let ((buf (get-buffer-create cperl-doc-buffer)))
-    (if interactive
+    (if (interactive-p)
 	(switch-to-buffer-other-window buf)
       (set-buffer buf))
     (if (= (buffer-size) 0)
@@ -7994,26 +9683,28 @@ prototype \\&SUB	Returns prototype of the function given a reference.
 (defun cperl-beautify-regexp-piece (b e embed level)
   ;; b is before the starting delimiter, e before the ending
   ;; e should be a marker, may be changed, but remains "correct".
-  ;; EMBED is nil if we process the whole REx.
+  ;; EMBED is nil iff we process the whole REx.
   ;; The REx is guaranteed to have //x
   ;; LEVEL shows how many levels deep to go
   ;; position at enter and at leave is not defined
   (let (s c tmp (m (make-marker)) (m1 (make-marker)) c1 spaces inline code pos)
-    (if (not embed)
-	(goto-char (1+ b))
-      (goto-char b)
-      (cond ((looking-at "(\\?\\\\#")	;  (?#) wrongly commented when //x-ing
-	     (forward-char 2)
-	     (delete-char 1)
-	     (forward-char 1))
-	    ((looking-at "(\\?[^a-zA-Z]")
-	     (forward-char 3))
-	    ((looking-at "(\\?")	; (?i)
-	     (forward-char 2))
-	    (t
-	     (forward-char 1))))
-    (setq c (if embed (current-indentation) (1- (current-column)))
-	  c1 (+ c (or cperl-regexp-indent-step cperl-indent-level)))
+    (if embed
+	(progn
+	  (goto-char b)
+	  (setq c (if (eq embed t) (current-indentation) (current-column)))
+	  (cond ((looking-at "(\\?\\\\#") ; (?#) wrongly commented when //x-ing
+		 (forward-char 2)
+		 (delete-char 1)
+		 (forward-char 1))
+		((looking-at "(\\?[^a-zA-Z]")
+		 (forward-char 3))
+		((looking-at "(\\?")	; (?i)
+		 (forward-char 2))
+		(t
+		 (forward-char 1))))
+      (goto-char (1+ b))
+      (setq c (1- (current-column))))
+    (setq c1 (+ c (or cperl-regexp-indent-step cperl-indent-level)))
     (or (looking-at "[ \t]*[\n#]")
 	(progn
 	  (insert "\n")))
@@ -8186,8 +9877,10 @@ prototype \\&SUB	Returns prototype of the function given a reference.
     ;; Find the start
     (if (looking-at "\\s|")
 	nil				; good already
-      (if (looking-at "\\([smy]\\|qr\\)\\s|")
-	  (forward-char 1)
+      (if (or (looking-at "\\([smy]\\|qr\\)\\s|")
+	      (and (eq (preceding-char) ?q)
+		   (looking-at "\\(r\\)\\s|")))
+	  (goto-char (match-end 1))
 	(re-search-backward "\\s|")))	; Assume it is scanned already.
     ;;(forward-char 1)
     (let ((b (point)) (e (make-marker)) have-x delim (c (current-column))
@@ -8290,12 +9983,12 @@ We suppose that the regexp is scanned already."
     (let ((b (point)) (e (make-marker)))
       (forward-sexp 1)
       (set-marker e (1- (point)))
-      (cperl-beautify-regexp-piece b e nil deep))))
+      (cperl-beautify-regexp-piece b e 'level deep))))
 
 (defun cperl-invert-if-unless-modifiers ()
   "Change `B if A;' into `if (A) {B}' etc if possible.
 \(Unfinished.)"
-  (interactive)				;
+  (interactive)				; 
   (let (A B pre-B post-B pre-if post-if pre-A post-A if-string
 	  (w-rex "\\<\\(if\\|unless\\|while\\|until\\|for\\|foreach\\)\\>"))
     (and (= (char-syntax (preceding-char)) ?w)
@@ -8505,14 +10198,15 @@ the appropriate statement modifier."
 				 (documentation-property
 				  'cperl-short-docs
 				  'variable-documentation))))
+	 (Man-switches "")
 	 (manual-program (if is-func "perldoc -f" "perldoc")))
     (cond
-     ((featurep 'xemacs)
+     (cperl-xemacs-p
       (let ((Manual-program "perldoc")
 	    (Manual-switches (if is-func (list "-f"))))
 	(manual-entry word)))
      (t
-      (Man-getpage-in-background word)))))
+      (Man-getpage-in-background word))))) ; uses `Man-switches'
 
 ;;;###autoload
 (defun cperl-perldoc-at-point ()
@@ -8549,11 +10243,12 @@ the appropriate statement modifier."
   (interactive)
   (require 'man)
   (cond
-   ((featurep 'xemacs)
+   (cperl-xemacs-p
     (let ((Manual-program "perldoc"))
       (manual-entry buffer-file-name)))
    (t
-    (let* ((manual-program "perldoc"))
+    (let* ((manual-program "perldoc")
+	   (Man-switches ""))
       (Man-getpage-in-background buffer-file-name)))))
 
 (defun cperl-pod2man-build-command ()
@@ -8745,8 +10440,6 @@ start with default arguments, then refine the slowdown regions."
       (message "to %s:%6s,%7s" l delta tot))
     tot))
 
-(defvar font-lock-cache-position)
-
 (defun cperl-emulate-lazy-lock (&optional window-size)
   "Emulate `lazy-lock' without `condition-case', so `debug-on-error' works.
 Start fontifying the buffer from the start (or end) using the given
@@ -8789,7 +10482,7 @@ may be used to debug problems with delayed incremental fontification."
 	"Switches on Auto-Help on Perl constructs (put in the message area).
 Delay of auto-help controlled by `cperl-lazy-help-time'."
 	(interactive)
-	(make-local-variable 'cperl-help-shown)
+	(make-variable-buffer-local 'cperl-help-shown)
 	(if (and (cperl-val 'cperl-lazy-help-time)
 		 (not cperl-lazy-installed))
 	    (progn
@@ -8936,12 +10629,19 @@ do extra unwind via `cperl-unwind-to-safe'."
 	  (cperl-fontify-syntaxically to)))))
 
 (defvar cperl-version
-  (let ((v  "Revision: 5.23"))
+  (let ((v  "$Revision: 6.2 $"))
     (string-match ":\\s *\\([0-9.]+\\)" v)
     (substring v (match-beginning 1) (match-end 1)))
   "Version of IZ-supported CPerl package this file is based on.")
 
+(if cperl-xemacs-p ;; backwards compatibility for XEmacs old POD spelling stuff
+    (let ((f 'define-obsolete-function-alias))
+      (funcall f 'pod-spell 'cperl-pod-spell)))		; Avoid "not defined"
+
+;; XEmacs additions
+;;;###autoload(add-to-list 'auto-mode-alist '("\\.\\([pP][LlMm]\\|al\\)\\'" . perl-mode))
+;;;###autoload(add-to-list 'interpreter-mode-alist '("perl" . perl-mode))
+
 (provide 'cperl-mode)
 
-;; arch-tag: 42e5b19b-e187-4537-929f-1a7408980ce6
 ;;; cperl-mode.el ends here
