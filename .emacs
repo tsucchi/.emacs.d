@@ -597,6 +597,7 @@
 ;;;navi-2ch: 2ch専用ブラウザ
 ;;;
 (autoload 'navi2ch "navi2ch" "Navigator for 2ch for Emacs" t)
+(setq navi2ch-list-bbstable-url "http://menu.2ch.net/bbsmenu.html")
 
 ;;
 ;;seimei.el: 姓名診断
