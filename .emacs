@@ -235,7 +235,7 @@
 ;;perlモード固有の設定
 (add-hook 'cperl-mode-hook
 		  '(lambda ()
-			 (set-buffer-file-coding-system 'utf-8-unix)
+			 ;;(set-buffer-file-coding-system 'utf-8-unix)
 			 (define-key cperl-mode-map "\C-ci" 'perl-insert-header)
 			 (define-key cperl-mode-map "\C-cc" 'comment-region)
 			 (define-key cperl-mode-map "\C-cu" 'changecase-word)
