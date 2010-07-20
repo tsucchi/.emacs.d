@@ -787,6 +787,7 @@
 (setq twittering-username "tsucchi")
 (setq twittering-status-format "%i %s/%S,  (%C{%Y/%m/%d %H:%M:%S}):%L\n%FILL{  %T //[%f%r%R]}\n ")
 (setq twittering-convert-fix-size 24)
+(setq twittering-auth-method 'xauth)
 (add-hook 'twittering-mode-hook 
 		  (lambda ()
 			(set-face-bold-p 'twittering-username-face t)
