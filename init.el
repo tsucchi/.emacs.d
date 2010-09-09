@@ -254,7 +254,6 @@
 				   cperl-font-lock t)
 			 (setq indent-tabs-mode nil)
 			 (setq tab-width 4)
-			 (setq cperl-font-lock t)
 			 (setq font-lock-background-mode 'dark)
 			 (setq frame-background-mode 'dark)
 			 ;;              (require 'perl-completion nil t)
