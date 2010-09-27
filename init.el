@@ -123,6 +123,7 @@
       ;; 日本語関連(IME の初期化後)
       (global-unset-key "\C-o")
       (global-set-key "\C-o" 'toggle-input-method)
+	  (prefer-coding-system 'utf-8)
 	  (set-buffer-file-coding-system 'utf-8-unix)
 	  ))
 
@@ -297,6 +298,9 @@
 (auto-image-file-mode)
 ;;emacs21以降はコンソールでも色付なのでここでfont-lockをロードして平気
 (global-font-lock-mode t)
+;;スタートアップメッセージを表示しない
+(setq inhibit-startup-screen t)
+
 ;;
 ;;色の設定(コンソールの時)
 ;;
