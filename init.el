@@ -814,8 +814,8 @@
 
 ;;
 ;; undohist
-(when (require 'undohist nil t)
-  (undohist-initialize))
+;;(when (require 'undohist nil t)
+;;  (undohist-initialize))
 
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
 (add-hook 'window-setup-hook
