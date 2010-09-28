@@ -9,7 +9,8 @@
 (add-to-list 'load-path "~/.emacs.d/elisp")
 (require 'install-elisp nil t)
 (require 'auto-install nil t)
-(setq install-elisp-repository-directory "~/.emacs.d/elisp") 
+(setq install-elisp-repository-directory "~/.emacs.d/elisp")
+(setq auto-install-directory "~/.emacs.d/elisp/") 
 
 (set-language-environment "Japanese")
 
@@ -804,6 +805,17 @@
 			(define-key   twittering-mode-map "A" 'twittering-enter)
 			(setq twittering-update-status-function 'twittering-update-status-from-pop-up-buffer)
 			))
+
+;;
+;; color-moccur/moccur-edit(install from emacswiki)
+(require 'color-moccur nil t)
+(setq moccur-split-word t)
+(require 'moccur-edit nil t)
+
+;;
+;; undohist
+(when (require 'undohist nil t)
+  (undohist-initialize))
 
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
 (add-hook 'window-setup-hook
