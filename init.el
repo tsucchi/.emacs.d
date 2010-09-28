@@ -9,7 +9,8 @@
 (add-to-list 'load-path "~/.emacs.d/elisp")
 (require 'install-elisp nil t)
 (require 'auto-install nil t)
-(setq install-elisp-repository-directory "~/.emacs.d/elisp") 
+(setq install-elisp-repository-directory "~/.emacs.d/elisp")
+(setq auto-install-directory "~/.emacs.d/elisp/") 
 
 (set-language-environment "Japanese")
 
@@ -123,6 +124,7 @@
       ;; 日本語関連(IME の初期化後)
       (global-unset-key "\C-o")
       (global-set-key "\C-o" 'toggle-input-method)
+	  (prefer-coding-system 'utf-8)
 	  (set-buffer-file-coding-system 'utf-8-unix)
 	  ))
 
@@ -254,7 +256,6 @@
 				   cperl-font-lock t)
 			 (setq indent-tabs-mode nil)
 			 (setq tab-width 4)
-			 (setq cperl-font-lock t)
 			 (setq font-lock-background-mode 'dark)
 			 (setq frame-background-mode 'dark)
 			 ;;              (require 'perl-completion nil t)
@@ -298,6 +299,9 @@
 (auto-image-file-mode)
 ;;emacs21以降はコンソールでも色付なのでここでfont-lockをロードして平気
 (global-font-lock-mode t)
+;;スタートアップメッセージを表示しない
+(setq inhibit-startup-screen t)
+
 ;;
 ;;色の設定(コンソールの時)
 ;;
@@ -801,6 +805,17 @@
 			(define-key   twittering-mode-map "A" 'twittering-enter)
 			(setq twittering-update-status-function 'twittering-update-status-from-pop-up-buffer)
 			))
+
+;;
+;; color-moccur/moccur-edit(install from emacswiki)
+(require 'color-moccur nil t)
+(setq moccur-split-word t)
+(require 'moccur-edit nil t)
+
+;;
+;; undohist
+;;(when (require 'undohist nil t)
+;;  (undohist-initialize))
 
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
 (add-hook 'window-setup-hook
