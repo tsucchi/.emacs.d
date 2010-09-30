@@ -124,7 +124,7 @@
       ;; 日本語関連(IME の初期化後)
       (global-unset-key "\C-o")
       (global-set-key "\C-o" 'toggle-input-method)
-	  (prefer-coding-system 'utf-8)
+	  (prefer-coding-system 'utf-8-unix)
 	  (set-buffer-file-coding-system 'utf-8-unix)
 	  ))
 
@@ -572,7 +572,8 @@
       (setq indent-tabs-mode nil)
       (setq sql-indent-offset 4)
       (setq default-tab-width 4);;なぜか↑が効かない。最悪...
-      (setq sql-indent-maybe-tab t)))
+      ;;(setq sql-indent-maybe-tab t)
+	  ))
 
 
 (add-hook 'sql-mode-hook
@@ -808,14 +809,34 @@
 
 ;;
 ;; color-moccur/moccur-edit(install from emacswiki)
-(require 'color-moccur nil t)
-(setq moccur-split-word t)
+(when (require 'color-moccur nil t)
+  (setq moccur-split-word t))
 (require 'moccur-edit nil t)
 
 ;;
-;; undohist
+;; undohist(install from http://cx4a.org/pub/undohist.el)
+;; NTEmacs でうまく動かないのでコメントアウト
 ;;(when (require 'undohist nil t)
 ;;  (undohist-initialize))
+
+;;
+;;
+;; undo-tree(install from http://www.dr-qubit.org/undo-tree/undo-tree.el)
+(when (require 'undo-tree nil t)
+  (global-undo-tree-mode))
+
+;;
+;; auto-complete
+;;(http://cx4a.org/software/auto-complete/ よりDL, ファイルを展開し、M-x load-file でインストール)
+(when (require 'auto-complete-config nil t)
+  (add-to-list 'ac-dictionary-directories "~/.emacs.d/elisp/ac-dict")
+  (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
+  (ac-config-default))
+
+;;
+;; auto-async-byte-compile.el (install from emacswiki)
+(when (require 'auto-async-byte-compile nil t)
+  (add-hook 'emacs-lisp-mode-hook 'enable-auto-async-byte-compile-mode))
 
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
 (add-hook 'window-setup-hook
