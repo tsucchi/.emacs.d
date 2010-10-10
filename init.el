@@ -846,6 +846,12 @@
           (lambda ()
             (modify-frame-parameters (selected-frame) initial-frame-alist)))
 
+;;
+;; sticky
+;;(install-elisp-from-emacswiki "sticky.el")
+;; 試すのは SKK も試してからのほうがよさげ
+;;(when (require 'sticky nil t)
+;;  (use-sticky-key ";" stick-alist:ja))
 
 ;;; This was installed by package-install.el.
 ;;; This provides support for the package system and
