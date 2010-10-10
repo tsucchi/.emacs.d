@@ -5,12 +5,15 @@
 
 ;;
 ;; install-elisp
-;;
+;;(install-elisp-from-emacswiki "auto-install.el")
 (add-to-list 'load-path "~/.emacs.d/elisp")
-(require 'install-elisp nil t)
-(require 'auto-install nil t)
-(setq install-elisp-repository-directory "~/.emacs.d/elisp")
-(setq auto-install-directory "~/.emacs.d/elisp/") 
+(when (require 'auto-install nil t)
+  (setq install-elisp-repository-directory "~/.emacs.d/elisp")
+  (setq auto-install-directory "~/.emacs.d/elisp/")
+  (auto-install-update-emacswiki-package-name t)
+  (auto-install-compatibility-setup)
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain))
+
 
 (set-language-environment "Japanese")
 
@@ -835,10 +838,21 @@
 
 ;;
 ;; auto-async-byte-compile.el (install from emacswiki)
-(when (require 'auto-async-byte-compile nil t)
-  (add-hook 'emacs-lisp-mode-hook 'enable-auto-async-byte-compile-mode))
+;;(when (require 'auto-async-byte-compile nil t)
+;;  (add-hook 'emacs-lisp-mode-hook 'enable-auto-async-byte-compile-mode))
 
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
 (add-hook 'window-setup-hook
           (lambda ()
             (modify-frame-parameters (selected-frame) initial-frame-alist)))
+
+
+;;; This was installed by package-install.el.
+;;; This provides support for the package system and
+;;; interfacing with ELPA, the package archive.
+;;; Move this code earlier if you want to reference
+;;; packages in your .emacs.
+(when
+	(load
+	 (expand-file-name "~/.emacs.d/elpa/package.el"))
+  (package-initialize))
