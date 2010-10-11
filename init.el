@@ -885,6 +885,11 @@
 (when (require 'sequential-command-config nil t)
   (sequential-command-setup-keys))
 
+;;
+;; minor-mode-hack
+;;(auto-install-from-emacswiki "minor-mode-hack.el")
+(require 'minor-mode-hack nil t)
+
 ;;; This was installed by package-install.el.
 ;;; This provides support for the package system and
 ;;; interfacing with ELPA, the package archive.
