@@ -900,6 +900,14 @@
 (require 'minor-mode-hack nil t)
 
 
+;;
+;; recentf-ext
+;; (auto-install-from-emacswiki "recentf-ext.el")
+(setq recentf-max-saved-items 1000)
+;;(setq recentf-exclude '("file1" "/tmp"))
+(require 'recentf-ext)
+(global-set-key (kbd "C-x f") 'recentf-open-files)
+
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
 (add-hook 'window-setup-hook
           (lambda ()
