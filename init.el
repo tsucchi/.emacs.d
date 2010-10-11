@@ -908,6 +908,14 @@
 (require 'recentf-ext)
 (global-set-key (kbd "C-x f") 'recentf-open-files)
 
+;;
+;; tempbuf.el : 使わないバッファを自動で削除
+;; (auto-install-from-emacswiki "tempbuf.el")
+(when (require 'tempbuf nil t)
+  (add-hook 'find-file-hook 'turn-on-tempbuf-mode)
+  (add-hook 'dired-mode-hook 'turn-on-tempbuf-mode))
+
+
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
 (add-hook 'window-setup-hook
           (lambda ()
