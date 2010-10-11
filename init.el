@@ -243,7 +243,7 @@
 			 (define-key cperl-mode-map "\C-cu" 'changecase-word)
 			 (define-key cperl-mode-map "\C-j" 'newline)
 			 (define-key cperl-mode-map "\C-m" 'my-perl-return)
-			 ;;(define-key cperl-mode-map "\C-l" 'my-font-lock-recenter)
+			 (define-key cperl-mode-map "\C-l" 'my-font-lock-recenter)
 			 (define-key cperl-mode-map "\C-cg" 'goto-line)
 			 (setq cperl-indent-level 4
 				   cperl-continued-statement-offset 4
