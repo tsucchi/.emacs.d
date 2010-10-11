@@ -415,6 +415,18 @@
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
+;;
+;; iswitchb: バッファ切り替えの強化
+;;
+(iswitchb-mode 1)
+;; バッファ読み取り関数を iswitchb にする
+(setq read-buffer-function 'iswitchb-read-buffer)
+;; 正規表現を使わない
+(setq iswitchb-regexp nil)
+;; 新しいバッファを作成する時にいちいち聞かない
+(setq iswitchb-prompt-newbuffer)
+
+
 ;;;
 ;;;global key map
 ;;;
