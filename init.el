@@ -1,6 +1,6 @@
 ;;; -*- mode: lisp-interaction; syntax: elisp -*-
 ;;;
-;;; .emacs: emacs ÀßÄê¥Õ¥¡¥¤¥ë¡£emacs 21 °Ê¾å¤òÂĞ¾İ¤Ë¤·¤Æ¤¤¤ë¤Ä¤â¤ê(Meadow/NTEmacs ¤â)
+;;; .emacs: emacs è¨­å®šãƒ•ã‚¡ã‚¤ãƒ«ã€‚emacs 21 ä»¥ä¸Šã‚’å¯¾è±¡ã«ã—ã¦ã„ã‚‹ã¤ã‚‚ã‚Š(Meadow/NTEmacs ã‚‚)
 
 
 ;;
@@ -18,11 +18,11 @@
 (set-language-environment "Japanese")
 
 ;;;
-;;; Windows ·Ï¤Î emacs ¤ÎÀßÄê
+;;; Windows ç³»ã® emacs ã®è¨­å®š
 ;;;
 (if (equal system-type 'windows-nt)
     (progn
-      ;; Meadow/NTEmacs ¤Ç¶¦ÄÌ¤ÎÀßÄê(ÆüËÜ¸ìÀßÄê¤Ê¤É)
+      ;; Meadow/NTEmacs ã§å…±é€šã®è¨­å®š(æ—¥æœ¬èªè¨­å®šãªã©)
       (set-default-coding-systems 'sjis)
       (set-keyboard-coding-system 'sjis)
 
@@ -63,21 +63,21 @@
 			   strict
 			   (w32-logfont "MS Gothic" 0 -16 700 0   t nil nil 128 1 3 0)
 			   ((spacing . -1))))))
-		  ;; µ¯Æ°»ş¤ª¤è¤Ónew-frame»ş¤Î¥Õ¥ì¡¼¥à(¥¦¥£¥ó¥É¥¦)¤ÎÀßÄê¡£
+		  ;; èµ·å‹•æ™‚ãŠã‚ˆã³new-frameæ™‚ã®ãƒ•ãƒ¬ãƒ¼ãƒ (ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦)ã®è¨­å®šã€‚
 		  (add-to-list 'default-frame-alist '(font . "MS Gothic 16"))
-		  ;; ¸½ºß¤Î¥Õ¥ì¡¼¥à¤ÎÀßÄê(.emacsÃæ¤Ç¤Ï¾ÊÎ¬²Ä)
+		  ;; ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®è¨­å®š(.emacsä¸­ã§ã¯çœç•¥å¯)
 		  (set-frame-font "MS Gothic 16")
-		  ;; IME¤Î¥Õ¥©¥ó¥È¤òÀßÄê¡£¤³¤¦¤¤¤¦½ñ¼°¤Ç¤Ê¤¤¤È¤À¤á¤é¤·¤¤¡£
+		  ;; IMEã®ãƒ•ã‚©ãƒ³ãƒˆã‚’è¨­å®šã€‚ã“ã†ã„ã†æ›¸å¼ã§ãªã„ã¨ã ã‚ã‚‰ã—ã„ã€‚
 		  (let ((logfont '(w32-logfont "MS Gothic" 0 0 400 0 nil nil nil 128 1 3 0)))
 			(modify-frame-parameters (selected-frame) (list (cons 'ime-font logfont)))
 			(add-to-list 'default-frame-alist (cons 'ime-font logfont)))
 		  (setq default-frame-alist
 				(append (list
-						 '(width . 154)    ;;¥Õ¥ì¡¼¥à¤ÎÉı
-						 '(height . 67)) ;;¥Õ¥ì¡¼¥à¤Î¹â¤µ
+						 '(width . 154)    ;;ãƒ•ãƒ¬ãƒ¼ãƒ ã®å¹…
+						 '(height . 67)) ;;ãƒ•ãƒ¬ãƒ¼ãƒ ã®é«˜ã•
 						default-frame-alist))
 		  
-		  ;; ÆüËÜ¸ì´Ä¶­¤ÎÀßÄê
+		  ;; æ—¥æœ¬èªç’°å¢ƒã®è¨­å®š
 		  (set-terminal-coding-system 'sjis)
 		  (setq file-name-coding-system 'sjis)
 		  (set-clipboard-coding-system 'sjis-dos)
@@ -85,10 +85,10 @@
 		  (set-input-method "MW32-IME")
 		  (toggle-input-method)
 		  (setq-default mw32-ime-mode-line-state-indicator "[--]")
-		  (setq mw32-ime-mode-line-state-indicator-list '("[--]" "[¤¢]" "[--]"))
+		  (setq mw32-ime-mode-line-state-indicator-list '("[--]" "[ã‚]" "[--]"))
 		  (mw32-ime-initialize)
 
-		  ;; dos¤Î¥³¥Ş¥ó¥É´ØÏ¢
+		  ;; dosã®ã‚³ãƒãƒ³ãƒ‰é–¢é€£
 		  (setq explicit-shell-file-name "cmdproxy.exe")
 		  (setq shell-file-name "cmdproxy.exe")
 		  (setq shell-command-switch "-c")       
@@ -96,23 +96,23 @@
        (t
 		(progn
 		  ;;
-		  ;; NTEmacs ¤Î¾ì¹ç
+		  ;; NTEmacs ã®å ´åˆ
 		  ;;
 		  
 		  (setq w32-enable-synthesized-fonts t)
-		  ;;(create-fontset-from-ascii-font "-outline-£Í£Ó ¥´¥·¥Ã¥¯-normal-r-normal-normal-16-*-*-*-*-*-iso8859-1" nil "myfont")
-		  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("£Í£Ó ¥´¥·¥Ã¥¯" . "jisx0208-sjis"))
-		  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("£Í£Ó ¥´¥·¥Ã¥¯" . "jisx0201-katakana"))
-		  (create-fontset-from-ascii-font "-outline-VL ¥´¥·¥Ã¥¯-normal-r-normal-normal-16-*-*-*-*-*-iso8859-1" nil "myfont")
-		  (set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("VL ¥´¥·¥Ã¥¯" . "jisx0208-sjis"))
-		  (set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("VL ¥´¥·¥Ã¥¯" . "jisx0201-katakana"))
+		  ;;(create-fontset-from-ascii-font "-outline-ï¼­ï¼³ ã‚´ã‚·ãƒƒã‚¯-normal-r-normal-normal-16-*-*-*-*-*-iso8859-1" nil "myfont")
+		  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("ï¼­ï¼³ ã‚´ã‚·ãƒƒã‚¯" . "jisx0208-sjis"))
+		  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("ï¼­ï¼³ ã‚´ã‚·ãƒƒã‚¯" . "jisx0201-katakana"))
+		  (create-fontset-from-ascii-font "-outline-VL ã‚´ã‚·ãƒƒã‚¯-normal-r-normal-normal-16-*-*-*-*-*-iso8859-1" nil "myfont")
+		  (set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("VL ã‚´ã‚·ãƒƒã‚¯" . "jisx0208-sjis"))
+		  (set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("VL ã‚´ã‚·ãƒƒã‚¯" . "jisx0201-katakana"))
 
 		  (setq default-frame-alist
 				(append (list
-						 '(width . 155) ;;¥Õ¥ì¡¼¥à¤ÎÉı
-						 '(height . 52) ;;¥Õ¥ì¡¼¥à¤Î¹â¤µ
-						 '(top . 0)     ;; ¥Õ¥ì¡¼¥àº¸¾å³Ñ y ºÂÉ¸
-						 '(left . 0)    ;; ¥Õ¥ì¡¼¥àº¸¾å³Ñ x ºÂÉ¸
+						 '(width . 155) ;;ãƒ•ãƒ¬ãƒ¼ãƒ ã®å¹…
+						 '(height . 52) ;;ãƒ•ãƒ¬ãƒ¼ãƒ ã®é«˜ã•
+						 '(top . 0)     ;; ãƒ•ãƒ¬ãƒ¼ãƒ å·¦ä¸Šè§’ y åº§æ¨™
+						 '(left . 0)    ;; ãƒ•ãƒ¬ãƒ¼ãƒ å·¦ä¸Šè§’ x åº§æ¨™
 						 '(font . "fontset-myfont")
 						 )
 						default-frame-alist))
@@ -121,10 +121,10 @@
 		  (w32-ime-initialize)
 		  (set-input-method "W32-IME")
 		  (setq-default w32-ime-mode-line-state-indicator "[--]")
-		  (setq w32-ime-mode-line-state-indicator-list '("[--]" "[¤¢]" "[--]"))
+		  (setq w32-ime-mode-line-state-indicator-list '("[--]" "[ã‚]" "[--]"))
 		  )))
 
-      ;; ÆüËÜ¸ì´ØÏ¢(IME ¤Î½é´ü²½¸å)
+      ;; æ—¥æœ¬èªé–¢é€£(IME ã®åˆæœŸåŒ–å¾Œ)
       (global-unset-key "\C-o")
       (global-set-key "\C-o" 'toggle-input-method)
 	  (prefer-coding-system 'utf-8-unix)
@@ -133,7 +133,7 @@
 
 
 ;;
-;;¥Õ¥ì¡¼¥à¤È¡¢ÆüËÜ¸ì´ØÏ¢¤ÎÀßÄê(Unix ·Ï)
+;;ãƒ•ãƒ¬ãƒ¼ãƒ ã¨ã€æ—¥æœ¬èªé–¢é€£ã®è¨­å®š(Unix ç³»)
 ;;
 (if (not (equal system-type 'windows-nt))
     (progn
@@ -141,21 +141,21 @@
       (set-terminal-coding-system 'euc-jp-unix)
       (set-buffer-file-coding-system 'euc-jp-unix)
       (set-keyboard-coding-system 'euc-jp-unix)
-	  ;; ¥µ¡¼¥Ğ¥×¥í¥»¥¹¤òµ¯Æ°¤¹¤ë
+	  ;; ã‚µãƒ¼ãƒãƒ—ãƒ­ã‚»ã‚¹ã‚’èµ·å‹•ã™ã‚‹
 	  (server-start)
-	  ;; anthy ¤ò¥í¡¼¥É¤¹¤ë
+	  ;; anthy ã‚’ãƒ­ãƒ¼ãƒ‰ã™ã‚‹
       (load "anthy")
       (setq default-input-method "japanese-anthy")
 	  (global-unset-key "\C-o")
       (global-set-key "\C-o" 'toggle-input-method)
 	  (setq anthy-accept-timeout nil)
       ;;
-      ;;¥Õ¥ì¡¼¥à¤ÎÀßÄê
+      ;;ãƒ•ãƒ¬ãƒ¼ãƒ ã®è¨­å®š
       ;;
       (setq default-frame-alist 
 			(append (list
-					 '(width . 104) ;;¥Õ¥ì¡¼¥à¤ÎÉı 
-					 '(height . 47) ;;¥Õ¥ì¡¼¥à¤Î¹â¤µ
+					 '(width . 104) ;;ãƒ•ãƒ¬ãƒ¼ãƒ ã®å¹… 
+					 '(height . 47) ;;ãƒ•ãƒ¬ãƒ¼ãƒ ã®é«˜ã•
 					 '(font . "fontset-14")
 					 ) 
 					default-frame-alist))))
@@ -164,9 +164,9 @@
 ;;;
 ;;; color-theme
 ;;;
-;; Ì¾Á°¤ÎÄÌ¤ê¡¢¿§ÉÕ¤±¤Î¥Æ¡¼¥Ş¤ò»È¤¨¤Ş¤¹
+;; åå‰ã®é€šã‚Šã€è‰²ä»˜ã‘ã®ãƒ†ãƒ¼ãƒã‚’ä½¿ãˆã¾ã™
 ;; http://www.geocities.com/kensanata/emacs-colors.html
-;; (color-theme.el¤ò/usr/local/share/emacs/site-lisp/¤ËÃÖ¤±¤ĞÎÉ¤¤)
+;; (color-theme.elã‚’/usr/local/share/emacs/site-lisp/ã«ç½®ã‘ã°è‰¯ã„)
 (cond
  (window-system
   (progn
@@ -174,7 +174,7 @@
     (if (featurep 'color-theme)
 		(progn
 		  (defun color-theme-tsucchi ()
-			"color-theme-subtle-hacker¤ò¥Ù¡¼¥¹¤Ë¤¤¤¸¤Ã¤¿¤â¤Î"
+			"color-theme-subtle-hackerã‚’ãƒ™ãƒ¼ã‚¹ã«ã„ã˜ã£ãŸã‚‚ã®"
 			(interactive)
 			(color-theme-subtle-hacker)
 			(let ((color-theme-is-cumulative t))
@@ -197,9 +197,9 @@
 		  (color-theme-tsucchi)
 		  )))))
 ;;;    
-;;;mew¤ÎÀßÄê (¥á¡¼¥é¡¼)
+;;;mewã®è¨­å®š (ãƒ¡ãƒ¼ãƒ©ãƒ¼)
 ;;;
-;;¾ÜºÙÀßÄê¤Ï.mew¤«.mew.el¤Ç
+;;è©³ç´°è¨­å®šã¯.mewã‹.mew.elã§
 (autoload 'mew "mew" nil t)
 (autoload 'mew-send "mew" nil t)
 ;; Optional setup (e.g. C-xm for sending a message):
@@ -226,18 +226,18 @@
 (setq mew-theme-file "~/.mew-theme.el")
 
 ;;;
-;;; cperl-mode : ºÙ¤«¤¤ÀßÄê¤¬¤Ç¤­¤ëperl¥â¡¼¥É
+;;; cperl-mode : ç´°ã‹ã„è¨­å®šãŒã§ãã‚‹perlãƒ¢ãƒ¼ãƒ‰
 ;;;
 (autoload 'cperl-mode "cperl-mode" "Perl editing mode." t)
 (defalias 'perl-mode 'cperl-mode)
-;;¥¤¥ó¥Ç¥ó¥È¤È¿§ÉÕ¤±¤È²ş¹Ô¤ò¤ª¤³¤Ê¤¦
+;;ã‚¤ãƒ³ãƒ‡ãƒ³ãƒˆã¨è‰²ä»˜ã‘ã¨æ”¹è¡Œã‚’ãŠã“ãªã†
 (defun my-perl-return ()
   (interactive)
   ;;(cperl-indent-command)
   (newline)
   (cperl-indent-command)
   (font-lock-fontify-buffer))
-;;perl¥â¡¼¥É¸ÇÍ­¤ÎÀßÄê
+;;perlãƒ¢ãƒ¼ãƒ‰å›ºæœ‰ã®è¨­å®š
 (add-hook 'cperl-mode-hook
 		  '(lambda ()
 			 ;;(set-buffer-file-coding-system 'utf-8-unix)
@@ -276,7 +276,7 @@
 			  interpreter-mode-alist))
 
 ;;
-;; w3m (web¥Ö¥é¥¦¥¸¥ó¥°)
+;; w3m (webãƒ–ãƒ©ã‚¦ã‚¸ãƒ³ã‚°)
 ;;
 (require 'w3m nil t)
 (setq w3m-use-filter t)
@@ -290,48 +290,48 @@
 (add-to-list 'auto-mode-alist '("\\.cls$" . visual-basic-mode))
 
 
-;;¥Ä¡¼¥ë¥Ğ¡¼¤ò¾Ã¤¹
+;;ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‚’æ¶ˆã™
 (tool-bar-mode 0)
-;;¥«¡¼¥½¥ë¤ÎÅÀÌÇ¤ò»ß¤á¤ë
+;;ã‚«ãƒ¼ã‚½ãƒ«ã®ç‚¹æ»…ã‚’æ­¢ã‚ã‚‹
 (blink-cursor-mode 0)
-;;¶õ¥«¡¼¥½¥ë¤ÎÉ½¼¨¤ò¤·¤Ê¤¤
+;;ç©ºã‚«ãƒ¼ã‚½ãƒ«ã®è¡¨ç¤ºã‚’ã—ãªã„
 (setq cursor-in-non-selected-windows nil)
-;;¥Ç¥Ğ¥Ã¥¬¤Î¼«Æ°µ¯Æ°¤ò¤·¤Ê¤¤
+;;ãƒ‡ãƒãƒƒã‚¬ã®è‡ªå‹•èµ·å‹•ã‚’ã—ãªã„
 (setq eval-expression-debug-on-error nil)
-;;¥¤¥á¡¼¥¸¥Õ¥¡¥¤¥ëÂĞ±ş
+;;ã‚¤ãƒ¡ãƒ¼ã‚¸ãƒ•ã‚¡ã‚¤ãƒ«å¯¾å¿œ
 (auto-image-file-mode)
-;;emacs21°Ê¹ß¤Ï¥³¥ó¥½¡¼¥ë¤Ç¤â¿§ÉÕ¤Ê¤Î¤Ç¤³¤³¤Çfont-lock¤ò¥í¡¼¥É¤·¤ÆÊ¿µ¤
+;;emacs21ä»¥é™ã¯ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ã§ã‚‚è‰²ä»˜ãªã®ã§ã“ã“ã§font-lockã‚’ãƒ­ãƒ¼ãƒ‰ã—ã¦å¹³æ°—
 (global-font-lock-mode t)
-;;¥¹¥¿¡¼¥È¥¢¥Ã¥×¥á¥Ã¥»¡¼¥¸¤òÉ½¼¨¤·¤Ê¤¤
+;;ã‚¹ã‚¿ãƒ¼ãƒˆã‚¢ãƒƒãƒ—ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’è¡¨ç¤ºã—ãªã„
 (setq inhibit-startup-screen t)
-;;ÍúÎò¤òÊİÂ¸¤¹¤ë
+;;å±¥æ­´ã‚’ä¿å­˜ã™ã‚‹
 (savehist-mode t)
-;; ¥Õ¥¡¥¤¥ëÆâ¤Î¥«¡¼¥½¥ë°ì¤òµ­Ï¿¤¹¤ë
+;; ãƒ•ã‚¡ã‚¤ãƒ«å†…ã®ã‚«ãƒ¼ã‚½ãƒ«ä¸€ã‚’è¨˜éŒ²ã™ã‚‹
 (setq-default save-place t)
-;; GC ¤ò¸º¤é¤·¤Æ·Ú¤¯¤¹¤ë
+;; GC ã‚’æ¸›ã‚‰ã—ã¦è»½ãã™ã‚‹
 (setq gc-cons-threshold (* 10 gc-cons-threshold))
-;; ¥í¥°¤Îµ­Ï¿¹Ô¿ô¤òÁı¤ä¤¹
+;; ãƒ­ã‚°ã®è¨˜éŒ²è¡Œæ•°ã‚’å¢—ã‚„ã™
 (setq message-log-max 1000)
-;; ¥ß¥Ë¥Ğ¥Ã¥Õ¥¡¤òºÆµ¢Åª¤Ë¸Æ¤Ó½Ğ¤»¤ë¤è¤¦¤Ë¤¹¤ë
+;; ãƒŸãƒ‹ãƒãƒƒãƒ•ã‚¡ã‚’å†å¸°çš„ã«å‘¼ã³å‡ºã›ã‚‹ã‚ˆã†ã«ã™ã‚‹
 (setq enable-recursive-minibuffers t)
-;; ¥À¥¤¥¢¥í¥°¥Ü¥Ã¥¯¥¹¤ò»È¤ï¤Ê¤¤¤è¤¦¤Ë¤¹¤ë
+;; ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ãƒœãƒƒã‚¯ã‚¹ã‚’ä½¿ã‚ãªã„ã‚ˆã†ã«ã™ã‚‹
 (setq use-dialog-box nil)
 (defalias 'message-box 'message)
-;; ÍúÎò¤ò¤¿¤¯¤µ¤óÊİÂ¸¤¹¤ë
+;; å±¥æ­´ã‚’ãŸãã•ã‚“ä¿å­˜ã™ã‚‹
 (setq history-length 1000)
-;; ¥­¡¼¥¹¥È¥í¡¼¥¯¤ò¥¨¥³¡¼¥¨¥ê¥¢¤ËÂ®¤¯É½¼¨¤¹¤ë
+;; ã‚­ãƒ¼ã‚¹ãƒˆãƒ­ãƒ¼ã‚¯ã‚’ã‚¨ã‚³ãƒ¼ã‚¨ãƒªã‚¢ã«é€Ÿãè¡¨ç¤ºã™ã‚‹
 (setq echo-keystrokes 0.1)
-;; Âç¤­¤¤¥Õ¥¡¥¤¥ë¤ò³«¤¤¤¿¤È¤­¤Ë·Ù¹ğ¤¹¤ë¤·¤­¤¤ÃÍ¤òÁı¤ä¤¹(25MB)
+;; å¤§ãã„ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã„ãŸã¨ãã«è­¦å‘Šã™ã‚‹ã—ãã„å€¤ã‚’å¢—ã‚„ã™(25MB)
 (setq large-file-warning-threshold (* 25 1024 102))
-;;¥ß¥Ë¥Ğ¥Ã¥Õ¥¡¤ÇÆşÎÏ¤ò¼è¤ê¾Ã¤·¤Æ¤âÍúÎò¤Ë»Ä¤¹
+;;ãƒŸãƒ‹ãƒãƒƒãƒ•ã‚¡ã§å…¥åŠ›ã‚’å–ã‚Šæ¶ˆã—ã¦ã‚‚å±¥æ­´ã«æ®‹ã™
 (defadvice abort-recursive-edit (before minibuffer-save activate)
-  (when (eq (selected-window) (activate-minibuffer-window))
+  (when (eq (selected-window) (active-minibuffer-window))
 	(add-to-history minibuffer-history-variable (minibuffer-contents))))
-;; yes/no ¤ÎÂå¤ï¤ê¤Ë y/n ¤Ë¤¹¤ë
+;; yes/no ã®ä»£ã‚ã‚Šã« y/n ã«ã™ã‚‹
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;;
-;;¿§¤ÎÀßÄê(¥³¥ó¥½¡¼¥ë¤Î»ş)
+;;è‰²ã®è¨­å®š(ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ã®æ™‚)
 ;;
 (cond
  ((not window-system)
@@ -366,39 +366,39 @@
 
 
 ;;;
-;;; »¨Â¿¤ÊÀßÄê
+;;; é›‘å¤šãªè¨­å®š
 ;;;
 
-;;¥Û¡¼¥à¥Ç¥£¥ì¥¯¥È¥ê¤«¤é¥¹¥¿¡¼¥È
+;;ãƒ›ãƒ¼ãƒ ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‹ã‚‰ã‚¹ã‚¿ãƒ¼ãƒˆ
 (cd "~")
-;;¿·¤·¤¤¹Ô¤ò¾¡¼ê¤Ëºî¤é¤Ê¤¤
+;;æ–°ã—ã„è¡Œã‚’å‹æ‰‹ã«ä½œã‚‰ãªã„
 (setq next-line-add-newlines nil)
-;;¥â¡¼¥É¥é¥¤¥ó¤Ë»ş¹ï¤òÉ½¼¨
+;;ãƒ¢ãƒ¼ãƒ‰ãƒ©ã‚¤ãƒ³ã«æ™‚åˆ»ã‚’è¡¨ç¤º
 (setq display-time-24hr-format t) ;;24h
 (display-time)
-;;¥Ğ¥Ã¥¯¥¢¥Ã¥×¥Õ¥¡¥¤¥ë¤òºî¤ë
+;;ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ä½œã‚‹
 (setq make-backup-files t)
-;;ÆşÎÏ¥¨¥é¡¼»ş¤Îbeep²»¤ò¸÷¤Ë
+;;å…¥åŠ›ã‚¨ãƒ©ãƒ¼æ™‚ã®beepéŸ³ã‚’å…‰ã«
 (setq visible-bell t)
-;;emacsÆâ¤Ç¤Ï¡¢¤³¤¦¤·¤¿Êı¤¬ÎÉ¤¤¤é¤·¤¤
+;;emacså†…ã§ã¯ã€ã“ã†ã—ãŸæ–¹ãŒè‰¯ã„ã‚‰ã—ã„
 (setenv "LC_TIME" "C")
-;;¥ß¥Ë¥Ğ¥Ã¥Õ¥¡¤Î¥á¥Ã¥»¡¼¥¸¤òÉ¬Í×¤Ë±ş¤¸¤Æ³ÈÄ¥¤¹¤ë(¤Á¤È¥¦¥¶¤¤)
+;;ãƒŸãƒ‹ãƒãƒƒãƒ•ã‚¡ã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’å¿…è¦ã«å¿œã˜ã¦æ‹¡å¼µã™ã‚‹(ã¡ã¨ã‚¦ã‚¶ã„)
 ;;(resize-minibuffer-mode)
-;;Î¬¸ìÅ¸³«¥Õ¥¡¥¤¥ë¤òÆÉ¤ß¹ş¤à
+;;ç•¥èªå±•é–‹ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿è¾¼ã‚€
 ;;(read-abbrev-file "~/.abbrev_defs")
-;;region¤òÌÜÎ©¤Ä¤è¤¦¤Ë¤¹¤ë
+;;regionã‚’ç›®ç«‹ã¤ã‚ˆã†ã«ã™ã‚‹
 (transient-mark-mode t)
-;;¹ÔÈÖ¹æ¤òÉ½¼¨
+;;è¡Œç•ªå·ã‚’è¡¨ç¤º
 (line-number-mode t)
-;;ÎóÈÖ¹æ¤òÉ½¼¨
+;;åˆ—ç•ªå·ã‚’è¡¨ç¤º
 (column-number-mode t)
-;; ¥Ç¥Õ¥©¥ë¥È¤Î¥¿¥ÖÄ¹¤ò 4 ¤Ë
+;; ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚¿ãƒ–é•·ã‚’ 4 ã«
 (setq default-tab-width 4)
-;; ¥¿¥Ö¤Ç¥¤¥ó¥Ç¥ó¥È¤·¤Ê¤¤
+;; ã‚¿ãƒ–ã§ã‚¤ãƒ³ãƒ‡ãƒ³ãƒˆã—ãªã„
 (setq indent-tabs-mode nil)
 
-;;ºÇ½ª¹¹¿·Æü¤ò¼«Æ°¤Ç¤Ä¤±¤ë¡£
-;; last updated : yyyy/mm/dd¤Î½ñ¼°¤ËÈ¿±ş¤¹¤ë
+;;æœ€çµ‚æ›´æ–°æ—¥ã‚’è‡ªå‹•ã§ã¤ã‘ã‚‹ã€‚
+;; last updated : yyyy/mm/ddã®æ›¸å¼ã«åå¿œã™ã‚‹
 (require 'time-stamp)
 (add-hook 'write-file-hooks 'time-stamp)
 (setq time-stamp-active t)
@@ -408,7 +408,7 @@
 (setq time-stamp-line-limit 20)
 
 ;;;
-;;; uniquify : ¥Ğ¥Ã¥Õ¥¡¤ÎÌ¾Á°¤ò°ì°Õ¤Ë¤¹¤ë
+;;; uniquify : ãƒãƒƒãƒ•ã‚¡ã®åå‰ã‚’ä¸€æ„ã«ã™ã‚‹
 ;;;
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
@@ -416,11 +416,11 @@
 ;;;
 ;;;global key map
 ;;;
-;;C-h¥Ø¥ë¥×¤òÉõ°õ¤·¤ÆÊÑ¤ï¤ê¤Ë¥Ğ¥Ã¥¯¥¹¥Ú¡¼¥¹¤È¤·¤Æ»È¤¦
-;;¥Ø¥ë¥×¤ÏM-x help-command¤Ç¡£
+;;C-hãƒ˜ãƒ«ãƒ—ã‚’å°å°ã—ã¦å¤‰ã‚ã‚Šã«ãƒãƒƒã‚¯ã‚¹ãƒšãƒ¼ã‚¹ã¨ã—ã¦ä½¿ã†
+;;ãƒ˜ãƒ«ãƒ—ã¯M-x help-commandã§ã€‚
 (global-unset-key "\C-h")
 (global-set-key "\C-h" 'backward-delete-char-untabify)
-;;C-t¤ÇµÕ¥¹¥¯¥í¡¼¥ë
+;;C-tã§é€†ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«
 (global-unset-key "\C-t")
 (global-set-key "\C-t" 'scroll-down)
 
@@ -442,7 +442,7 @@
 		  '(lambda ()
 			 (define-key fundamental-mode-map "\C-cu" 'changecase-word)
 			 (jaspace-mode t)
-			 (modify-frame-parameters nil default-frame-alist)			 ;; emacs23.1 ¤Ç¤Ï color-theme ¸Æ¤Ö¤È¥Õ¥ì¡¼¥à¥µ¥¤¥º¤¬¾¡¼ê¤ËÊÑ¹¹¤µ¤ì¤ë¤Î¤Ç¤³¤³¤Ç¼Â»Ü
+			 (modify-frame-parameters nil default-frame-alist)			 ;; emacs23.1 ã§ã¯ color-theme å‘¼ã¶ã¨ãƒ•ãƒ¬ãƒ¼ãƒ ã‚µã‚¤ã‚ºãŒå‹æ‰‹ã«å¤‰æ›´ã•ã‚Œã‚‹ã®ã§ã“ã“ã§å®Ÿæ–½
 			 (font-lock-mode t)))
 
 
@@ -458,7 +458,7 @@
 			 (font-lock-fontify-buffer)))
 
 ;;;
-;;;trr19 : ¥¿¥¤¥Ô¥ó¥°Îı½¬
+;;;trr19 : ã‚¿ã‚¤ãƒ”ãƒ³ã‚°ç·´ç¿’
 ;;;
 ;; http://web.yl.is.s.u-tokyo.ac.jp/~ymmt/mydist.shtml
 (autoload 'trr "/usr/local/share/emacs/site-lisp/trr/trr" nil t)
@@ -466,9 +466,9 @@
 
 
 
-;;¾®Ê¸»úÂçÊ¸»úÊÑ´¹(¤ª¤â¤ËC-c u¤Ë¥Ş¥Ã¥Ô¥ó¥°)
+;;å°æ–‡å­—å¤§æ–‡å­—å¤‰æ›(ãŠã‚‚ã«C-c uã«ãƒãƒƒãƒ”ãƒ³ã‚°)
 (defun changecase-word(cnt)
-  "Ã±¸ì¤ÎÂçÊ¸»ú¾®Ê¸»úÊÑ´¹"
+  "å˜èªã®å¤§æ–‡å­—å°æ–‡å­—å¤‰æ›"
   (interactive "p")
   (if (not (eq last-command 'changecase-word))
       (setq changecase-word-type 0))
@@ -482,7 +482,7 @@
 		 (downcase-word (- cnt))
 		 (setq changecase-word-type 0))))
 ;;;
-;;; font-lock¤Î¿§¤Ä¤±¤òºÆ¤Ó¹Ô¤¦¤¿¤á¤Î´Ø¿ô(C-l¤Ë³ä¤êÉÕ¤±¤ë¤ÈÊØÍø)
+;;; font-lockã®è‰²ã¤ã‘ã‚’å†ã³è¡Œã†ãŸã‚ã®é–¢æ•°(C-lã«å‰²ã‚Šä»˜ã‘ã‚‹ã¨ä¾¿åˆ©)
 ;;;
 (defun my-font-lock-recenter ()
   (interactive)
@@ -492,7 +492,7 @@
     (progn
       (font-lock-fontify-buffer)))))
 ;;;
-;;; ²ş¹Ô¸å¤Ë¿§¤Ä¤±¤¹¤ë´Ø¿ô
+;;; æ”¹è¡Œå¾Œã«è‰²ã¤ã‘ã™ã‚‹é–¢æ•°
 ;;;
 (defun my-font-lock-return ()
   (interactive)
@@ -503,9 +503,9 @@
       (font-lock-fontify-buffer)
       (newline-and-indent)))))
 ;;;
-;;; perl¥â¡¼¥É, cperl¥â¡¼¥É¤Ç»È¤¦´Ø¿ô
+;;; perlãƒ¢ãƒ¼ãƒ‰, cperlãƒ¢ãƒ¼ãƒ‰ã§ä½¿ã†é–¢æ•°
 ;;;
-;;ÀèÆ¬¹Ô¤Ë#!/usr/bin/perl¤òÆşÎÏ
+;;å…ˆé ­è¡Œã«#!/usr/bin/perlã‚’å…¥åŠ›
 (defun perl-insert-header ()
   (interactive)
   (goto-char 1)
@@ -516,15 +516,15 @@
 
 
 ;;;
-;;;Ruby¥â¡¼¥É
+;;;Rubyãƒ¢ãƒ¼ãƒ‰
 ;;;
 (autoload 'ruby-mode "ruby-mode" "Ruby editing mode." t)
-;;ÀèÆ¬¹Ô¤Ë#!/usr/local/bin/ruby¤òÆşÎÏ
+;;å…ˆé ­è¡Œã«#!/usr/local/bin/rubyã‚’å…¥åŠ›
 (defun ruby-insert-header ()
   (interactive)
   (goto-char 1)
   (insert "#!/usr/local/bin/ruby \n"))
-;;²ş¹Ô¤ÈÆ±»ş¤Ë¿§¤Ä¤±
+;;æ”¹è¡Œã¨åŒæ™‚ã«è‰²ã¤ã‘
 (defun my-ruby-return ()
   (interactive)
   (cond
@@ -532,7 +532,7 @@
     (progn
       (font-lock-fontify-buffer))))
   (ruby-reindent-then-newline-and-indent))
-;;ruby¥â¡¼¥É¸ÇÍ­¤ÎÀßÄê
+;;rubyãƒ¢ãƒ¼ãƒ‰å›ºæœ‰ã®è¨­å®š
 (add-hook 'ruby-mode-hook
 		  '(lambda () 
 			 (define-key ruby-mode-map "\C-ci" 'ruby-insert-header)
@@ -548,24 +548,24 @@
 
 
 ;;;
-;;;emacs-lisp-mode¤È
-;;;lisp-interaction-modeÍÑ¤ÎÀßÄê
+;;;emacs-lisp-modeã¨
+;;;lisp-interaction-modeç”¨ã®è¨­å®š
 ;;;
-;;ÀèÆ¬¹Ô¤Ë;;; -*- mode: lisp-interaction; syntax: elisp -*-¤òÆşÎÏ
+;;å…ˆé ­è¡Œã«;;; -*- mode: lisp-interaction; syntax: elisp -*-ã‚’å…¥åŠ›
 (defun lisp-insert-header ()
   (interactive)
   (goto-char 1)
   (insert ";;; -*- mode: lisp-interaction; syntax: elisp -*-\n"))
-;;ÀèÆ¬¹Ô¤Ë;;; -*- Emacs-Lisp -*-¤òÆşÎÏ
+;;å…ˆé ­è¡Œã«;;; -*- Emacs-Lisp -*-ã‚’å…¥åŠ›
 (defun elisp-insert-header ()
   (interactive)
   (goto-char 1)
   (insert ";;; -*- Emacs-Lisp -*-\n"))
-;;.emacs¤ò¥ê¥í¡¼¥É¤¹¤ë´Ø¿ô
+;;.emacsã‚’ãƒªãƒ­ãƒ¼ãƒ‰ã™ã‚‹é–¢æ•°
 (defun my-load-dot-emacs ()
   (interactive)
   (load "~/.emacs"))
-;;lisp-interaction-mode¸ÇÍ­¤ÎÀßÄê
+;;lisp-interaction-modeå›ºæœ‰ã®è¨­å®š
 (add-hook 'lisp-interaction-mode-hook
 		  '(lambda ()
 			 (define-key lisp-interaction-mode-map "\C-ci" 'lisp-insert-header)
@@ -576,7 +576,7 @@
 			 (define-key lisp-interaction-mode-map "\C-l" 'my-font-lock-recenter)
 			 (define-key lisp-interaction-mode-map "\C-m" 'my-font-lock-return)
 			 (define-key lisp-interaction-mode-map "\C-cc" 'comment-region)))
-;;emacs-lisp-mode¤Ç¤âÆ±¤¸Êª¤ò»È¤¦
+;;emacs-lisp-modeã§ã‚‚åŒã˜ç‰©ã‚’ä½¿ã†
 (add-hook 'emacs-lisp-mode-hook
 		  '(lambda ()
 			 (define-key emacs-lisp-mode-map "\C-ci" 'elisp-insert-header)
@@ -599,7 +599,7 @@
       (setq sql-product 'mysql)
       (setq indent-tabs-mode nil)
       (setq sql-indent-offset 4)
-      (setq default-tab-width 4);;¤Ê¤¼¤«¢¬¤¬¸ú¤«¤Ê¤¤¡£ºÇ°­...
+      (setq default-tab-width 4);;ãªãœã‹â†‘ãŒåŠ¹ã‹ãªã„ã€‚æœ€æ‚ª...
       ;;(setq sql-indent-maybe-tab t)
 	  ))
 
@@ -617,7 +617,7 @@
 
 
 ;;;
-;;; ¥Ş¥¦¥¹¥¯¥ê¥Ã¥¯¤Ë¤è¤ë¥Ö¥é¥¦¥¸¥ó¥°ÀßÄê
+;;; ãƒã‚¦ã‚¹ã‚¯ãƒªãƒƒã‚¯ã«ã‚ˆã‚‹ãƒ–ãƒ©ã‚¦ã‚¸ãƒ³ã‚°è¨­å®š
 ;;;
 (autoload 'browse-url-at-point "browse-url" nil t)
 (autoload 'browse-url-at-mouse "browse-url" nil t)
@@ -627,20 +627,20 @@
 (setq browse-url-netscape-program "/usr/local/bin/firefox")
 
 ;;;
-;;;navi-2ch: 2chÀìÍÑ¥Ö¥é¥¦¥¶
+;;;navi-2ch: 2chå°‚ç”¨ãƒ–ãƒ©ã‚¦ã‚¶
 ;;;
 (autoload 'navi2ch "navi2ch" "Navigator for 2ch for Emacs" t)
 (setq navi2ch-list-bbstable-url "http://menu.2ch.net/bbsmenu.html")
 
 ;;
-;;seimei.el: À«Ì¾¿ÇÃÇ
+;;seimei.el: å§“åè¨ºæ–­
 ;;
 ;;http://kakugawa.aial.hiroshima-u.ac.jp/~kakugawa/Hacks/
 (autoload 'seimei "seimei" "seimei" t)
 
 
 ;;
-;; ChangeLog (²şÄêÍúÎò)
+;; ChangeLog (æ”¹å®šå±¥æ­´)
 ;;
 (add-hook 'change-log-mode-hook
 		  '(lambda ()
@@ -648,7 +648,7 @@
 			 (font-lock-mode t)
 			 (font-lock-fontify-buffer)))
 
-;; C-x M ¤Ç ChangeLog ¥á¥â¤òµ¯Æ°¤·¤Ş¤¹¡£
+;; C-x M ã§ ChangeLog ãƒ¡ãƒ¢ã‚’èµ·å‹•ã—ã¾ã™ã€‚
 (defun memo ()
   (interactive)
   (let ((add-log-current-defun-function 'ignore)
@@ -658,8 +658,8 @@
      nil
      (expand-file-name memo-file))))
 (define-key ctl-x-map "M" 'memo)
-;; M-x expand-image ¤Ç ChangeLog ¥á¥âÃæ¤Î URL¤«²èÁü¤òÉ½¼¨
-;; M-x insert-image-file ¤Ç¥Õ¥¡¥¤¥ëÌ¾¤òÊä´°¤·¤Ä¤Ä²èÁü¤òÁŞÆş
+;; M-x expand-image ã§ ChangeLog ãƒ¡ãƒ¢ä¸­ã® URLã‹ç”»åƒã‚’è¡¨ç¤º
+;; M-x insert-image-file ã§ãƒ•ã‚¡ã‚¤ãƒ«åã‚’è£œå®Œã—ã¤ã¤ç”»åƒã‚’æŒ¿å…¥
 (defun image-file-name-completion (file predicate flag)
   "Completion function for image files."
   (let ((regexp "\\(jpg\\|png\\|gif\\)$"))
@@ -713,14 +713,14 @@
     (goto-char pos)))
 
 ;;
-;; jaspace.el : Á´³Ñ¶õÇò¤ÎÉ½¼¨
+;; jaspace.el : å…¨è§’ç©ºç™½ã®è¡¨ç¤º
 ;;
 (require 'jaspace nil t)
-;;;; ¥¿¥Ö¤òÉ½¼¨¤¹¤ë¾ì¹ç
+;;;; ã‚¿ãƒ–ã‚’è¡¨ç¤ºã™ã‚‹å ´åˆ
 										;(setq jaspace-highlight-tabs t)
-;; ²ş¹ÔÊ¸»ú¤ÎÉ½¼¨
-;;(setq jaspace-alternate-eol-string "¢­\n")
-;;;; È¾³Ñ¥¹¥Ú¡¼¥¹¤ÎÉ½¼¨
+;; æ”¹è¡Œæ–‡å­—ã®è¡¨ç¤º
+;;(setq jaspace-alternate-eol-string "â†“\n")
+;;;; åŠè§’ã‚¹ãƒšãƒ¼ã‚¹ã®è¡¨ç¤º
 ;;;;<http://homepage1.nifty.com/blankspace/emacs/color.html>
 ;; (defface my-face-u-1 '((t (:foreground "SteelBlue" :underline t))) nil)
 ;; (defvar my-face-u-1 'my-face-u-1)
@@ -733,16 +733,16 @@
 ;; (ad-activate 'font-lock-mode)
 (if (featurep 'jaspace)
     (progn
-      ;; ¶õÇòÊ¸»ú¤òÉ½¼¨¤¹¤ë´Ø¿ô
+      ;; ç©ºç™½æ–‡å­—ã‚’è¡¨ç¤ºã™ã‚‹é–¢æ•°
       (defun my-show-spaces ()
 		(interactive)
 		(font-lock-mode t)
 		(setq jaspace-highlight-tabs t)
-		(setq jaspace-alternate-eol-string "¢­\n")
+		(setq jaspace-alternate-eol-string "â†“\n")
 		(jaspace-mode-off)
 		(jaspace-mode-on)
 		(font-lock-fontify-buffer))
-      ;; ¶õÇòÊ¸»ú¤ÎÉ½¼¨¤ò¤ä¤á¤ë´Ø¿ô
+      ;; ç©ºç™½æ–‡å­—ã®è¡¨ç¤ºã‚’ã‚„ã‚ã‚‹é–¢æ•°
       (defun my-hide-spaces ()
 		(interactive)
 		(font-lock-mode t)
@@ -750,7 +750,7 @@
 		(font-lock-fontify-buffer))))
 
 ;;
-;; izonmoji-mode : µ¡¼ï°ÍÂ¸Ê¸»ú¤ÎÉ½¼¨
+;; izonmoji-mode : æ©Ÿç¨®ä¾å­˜æ–‡å­—ã®è¡¨ç¤º
 ;;
 (require 'izonmoji-mode nil t)
 
@@ -783,7 +783,7 @@
 
 (global-set-key (kbd "C-x C-b") 'anything) 
 
-;; PerlySense : Êä´°µ¡Ç½(¼Â¸³Ãæ -> ¤¤¤Ş¤¤¤Á¤¦¤Ş¤¯Æ°¤«¤Ê¤¤ orz)
+;; PerlySense : è£œå®Œæ©Ÿèƒ½(å®Ÿé¨“ä¸­ -> ã„ã¾ã„ã¡ã†ã¾ãå‹•ã‹ãªã„ orz)
 ;;(global-unset-key "\C-\\")
 ;;(setq perly-sense-key-prefix "\C-\\")
 ;;(setq perly-sense-load-flymake nil)
@@ -810,7 +810,7 @@
 (add-hook 'haskell-mode-hook 'turn-on-font-lock)
 
 ;;
-;; speedbar(ºÇ¶á¤Ç¤ÏÉ¸½à¤ÇÆş¤Ã¤Æ¤ë¤ß¤¿¤¤¤Ç¤¹)
+;; speedbar(æœ€è¿‘ã§ã¯æ¨™æº–ã§å…¥ã£ã¦ã‚‹ã¿ãŸã„ã§ã™)
 (setq speedbar-supported-extension-expressions
 	  (append '(".t" ".c" ".h")))
 
@@ -829,7 +829,7 @@
 			(set-face-foreground 'twittering-uri-face "LightSalmon")
 			(twittering-icon-mode t)
 			(twittering-scroll-mode t)
-			(setq twittering-reverse-mode t); #µÕ½ç
+			(setq twittering-reverse-mode t); #é€†é †
 			(define-key  twittering-mode-map "\C-m" 'twittering-scroll-up)
 			(define-key   twittering-mode-map "A" 'twittering-enter)
 			(setq twittering-update-status-function 'twittering-update-status-from-pop-up-buffer)
@@ -843,7 +843,7 @@
 
 ;;
 ;; undohist(install from http://cx4a.org/pub/undohist.el)
-;; NTEmacs ¤Ç¤¦¤Ş¤¯Æ°¤«¤Ê¤¤¤Î¤Ç¥³¥á¥ó¥È¥¢¥¦¥È
+;; NTEmacs ã§ã†ã¾ãå‹•ã‹ãªã„ã®ã§ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆ
 ;;(when (require 'undohist nil t)
 ;;  (undohist-initialize))
 
@@ -855,7 +855,7 @@
 
 ;;
 ;; auto-complete
-;;(http://cx4a.org/software/auto-complete/ ¤è¤êDL, ¥Õ¥¡¥¤¥ë¤òÅ¸³«¤·¡¢M-x load-file ¤Ç¥¤¥ó¥¹¥È¡¼¥ë)
+;;(http://cx4a.org/software/auto-complete/ ã‚ˆã‚ŠDL, ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å±•é–‹ã—ã€M-x load-file ã§ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«)
 (when (require 'auto-complete-config nil t)
   (add-to-list 'ac-dictionary-directories "~/.emacs.d/elisp/ac-dict")
   (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
@@ -866,7 +866,7 @@
 ;;(when (require 'auto-async-byte-compile nil t)
 ;;  (add-hook 'emacs-lisp-mode-hook 'enable-auto-async-byte-compile-mode))
 
-;; emacs23.2 (°Ê¹ß?)¤Ç¤Ï color-theme »È¤¦¤È¥Õ¥ì¡¼¥à¥µ¥¤¥º¤¬¾¡¼ê¤ËÊÑ¹¹¤µ¤ì¤ë¤Î¤Ç¤³¤³¤Ç¼Â»Ü
+;; emacs23.2 (ä»¥é™?)ã§ã¯ color-theme ä½¿ã†ã¨ãƒ•ãƒ¬ãƒ¼ãƒ ã‚µã‚¤ã‚ºãŒå‹æ‰‹ã«å¤‰æ›´ã•ã‚Œã‚‹ã®ã§ã“ã“ã§å®Ÿæ–½
 (add-hook 'window-setup-hook
           (lambda ()
             (modify-frame-parameters (selected-frame) initial-frame-alist)))
@@ -874,9 +874,16 @@
 ;;
 ;; sticky
 ;;(install-elisp-from-emacswiki "sticky.el")
-;; »î¤¹¤Î¤Ï SKK ¤â»î¤·¤Æ¤«¤é¤Î¤Û¤¦¤¬¤è¤µ¤²
+;; è©¦ã™ã®ã¯ SKK ã‚‚è©¦ã—ã¦ã‹ã‚‰ã®ã»ã†ãŒã‚ˆã•ã’
 ;;(when (require 'sticky nil t)
 ;;  (use-sticky-key ";" stick-alist:ja))
+
+;;
+;; sequential-command
+;;(auto-install-from-emacswiki "sequential-command.el")
+;;(auto-install-from-emacswiki "sequential-command-config.el")
+(when (require 'sequential-command-config nil t)
+  (sequential-command-setup-keys))
 
 ;;; This was installed by package-install.el.
 ;;; This provides support for the package system and
