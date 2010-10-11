@@ -329,6 +329,8 @@
 	(add-to-history minibuffer-history-variable (minibuffer-contents))))
 ;; yes/no の代わりに y/n にする
 (defalias 'yes-or-no-p 'y-or-n-p)
+;; ファイルを開くのを強化
+(ffap-bindings)
 
 ;;
 ;;色の設定(コンソールの時)
@@ -866,11 +868,6 @@
 ;;(when (require 'auto-async-byte-compile nil t)
 ;;  (add-hook 'emacs-lisp-mode-hook 'enable-auto-async-byte-compile-mode))
 
-;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
-(add-hook 'window-setup-hook
-          (lambda ()
-            (modify-frame-parameters (selected-frame) initial-frame-alist)))
-
 ;;
 ;; sticky
 ;;(install-elisp-from-emacswiki "sticky.el")
@@ -889,6 +886,12 @@
 ;; minor-mode-hack
 ;;(auto-install-from-emacswiki "minor-mode-hack.el")
 (require 'minor-mode-hack nil t)
+
+
+;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
+(add-hook 'window-setup-hook
+          (lambda ()
+            (modify-frame-parameters (selected-frame) initial-frame-alist)))
 
 ;;; This was installed by package-install.el.
 ;;; This provides support for the package system and
