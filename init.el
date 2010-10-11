@@ -915,6 +915,12 @@
   (add-hook 'find-file-hook 'turn-on-tempbuf-mode)
   (add-hook 'dired-mode-hook 'turn-on-tempbuf-mode))
 
+;; auto-save-buffers.el : 自動保存
+;; (install-elisp "http://homepage3.nifty.com/oatu/emacs/archives/auto-save-buffers.el")
+(when (require 'auto-save-buffers nil t)
+  ;;2秒アイドルで保存する
+  (run-with-idle-timer 2 t 'auto-save-buffers))
+  
 
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
 (add-hook 'window-setup-hook
