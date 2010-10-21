@@ -912,6 +912,7 @@
 ;; tempbuf.el : 使わないバッファを自動で削除
 ;; (auto-install-from-emacswiki "tempbuf.el")
 (when (require 'tempbuf nil t)
+  (setq tempbuf-minimum-timeout 600);;[sec] デフォルトだと早すぎるので長くする
   (add-hook 'find-file-hook 'turn-on-tempbuf-mode)
   (add-hook 'dired-mode-hook 'turn-on-tempbuf-mode))
 
@@ -920,8 +921,11 @@
 (when (require 'auto-save-buffers nil t)
   ;;2秒アイドルで保存する
   (run-with-idle-timer 2 t 'auto-save-buffers))
-  
 
+;; wdired.el
+(define-key dired-mode-map "r" 'wdired-change-towdired-mode)
+
+;; ---------------------------- 以下は原則として変更しない ------------------------------------
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
 (add-hook 'window-setup-hook
           (lambda ()
