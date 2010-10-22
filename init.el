@@ -925,6 +925,15 @@
 ;; wdired.el
 (define-key dired-mode-map "r" 'wdired-change-towdired-mode)
 
+;;
+;; redo+.el
+;; (auto-install-from-emacswiki "redo+.el")
+(when (require 'redo+)
+  (global-set-key (kbd "C-M-/") 'redo)
+  (setq undo-no-redo t); undo で redo しないようにする
+  (setq undo-limit 65536)
+  (setq undo-strong-limit 131072))
+
 ;; ---------------------------- 以下は原則として変更しない ------------------------------------
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
 (add-hook 'window-setup-hook
