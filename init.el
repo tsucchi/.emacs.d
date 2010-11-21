@@ -5,11 +5,15 @@
 
 ;;
 ;; install-elisp
-;;
+;;(install-elisp-from-emacswiki "auto-install.el")
 (add-to-list 'load-path "~/.emacs.d/elisp")
-(require 'install-elisp nil t)
-(require 'auto-install nil t)
-(setq install-elisp-repository-directory "~/.emacs.d/elisp") 
+(when (require 'auto-install nil t)
+  (setq install-elisp-repository-directory "~/.emacs.d/elisp")
+  (setq auto-install-directory "~/.emacs.d/elisp/")
+  (auto-install-update-emacswiki-package-name t)
+  (auto-install-compatibility-setup)
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain))
+
 
 (set-language-environment "Japanese")
 
@@ -123,6 +127,7 @@
       ;; 日本語関連(IME の初期化後)
       (global-unset-key "\C-o")
       (global-set-key "\C-o" 'toggle-input-method)
+	  (prefer-coding-system 'utf-8-unix)
 	  (set-buffer-file-coding-system 'utf-8-unix)
 	  ))
 
@@ -254,7 +259,6 @@
 				   cperl-font-lock t)
 			 (setq indent-tabs-mode nil)
 			 (setq tab-width 4)
-			 (setq cperl-font-lock t)
 			 (setq font-lock-background-mode 'dark)
 			 (setq frame-background-mode 'dark)
 			 ;;              (require 'perl-completion nil t)
@@ -298,6 +302,36 @@
 (auto-image-file-mode)
 ;;emacs21以降はコンソールでも色付なのでここでfont-lockをロードして平気
 (global-font-lock-mode t)
+;;スタートアップメッセージを表示しない
+(setq inhibit-startup-screen t)
+;;履歴を保存する
+(savehist-mode t)
+;; ファイル内のカーソル一を記録する
+(setq-default save-place t)
+;; GC を減らして軽くする
+(setq gc-cons-threshold (* 10 gc-cons-threshold))
+;; ログの記録行数を増やす
+(setq message-log-max 1000)
+;; ミニバッファを再帰的に呼び出せるようにする
+(setq enable-recursive-minibuffers t)
+;; ダイアログボックスを使わないようにする
+(setq use-dialog-box nil)
+(defalias 'message-box 'message)
+;; 履歴をたくさん保存する
+(setq history-length 1000)
+;; キーストロークをエコーエリアに速く表示する
+(setq echo-keystrokes 0.1)
+;; 大きいファイルを開いたときに警告するしきい値を増やす(25MB)
+(setq large-file-warning-threshold (* 25 1024 102))
+;;ミニバッファで入力を取り消しても履歴に残す
+(defadvice abort-recursive-edit (before minibuffer-save activate)
+  (when (eq (selected-window) (active-minibuffer-window))
+	(add-to-history minibuffer-history-variable (minibuffer-contents))))
+;; yes/no の代わりに y/n にする
+(defalias 'yes-or-no-p 'y-or-n-p)
+;; ファイルを開くのを強化
+(ffap-bindings)
+
 ;;
 ;;色の設定(コンソールの時)
 ;;
@@ -380,6 +414,18 @@
 ;;;
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
+
+;;
+;; iswitchb: バッファ切り替えの強化
+;;
+(iswitchb-mode 1)
+;; バッファ読み取り関数を iswitchb にする
+(setq read-buffer-function 'iswitchb-read-buffer)
+;; 正規表現を使わない
+(setq iswitchb-regexp nil)
+;; 新しいバッファを作成する時にいちいち聞かない
+(setq iswitchb-prompt-newbuffer)
+
 
 ;;;
 ;;;global key map
@@ -568,7 +614,8 @@
       (setq indent-tabs-mode nil)
       (setq sql-indent-offset 4)
       (setq default-tab-width 4);;なぜか↑が効かない。最悪...
-      (setq sql-indent-maybe-tab t)))
+      ;;(setq sql-indent-maybe-tab t)
+	  ))
 
 
 (add-hook 'sql-mode-hook
@@ -802,7 +849,103 @@
 			(setq twittering-update-status-function 'twittering-update-status-from-pop-up-buffer)
 			))
 
+;;
+;; color-moccur/moccur-edit(install from emacswiki)
+(when (require 'color-moccur nil t)
+  (setq moccur-split-word t))
+(require 'moccur-edit nil t)
+
+;;
+;; undohist(install from http://cx4a.org/pub/undohist.el)
+;; NTEmacs でうまく動かないのでコメントアウト
+;;(when (require 'undohist nil t)
+;;  (undohist-initialize))
+
+;;
+;;
+;; undo-tree(install from http://www.dr-qubit.org/undo-tree/undo-tree.el)
+(when (require 'undo-tree nil t)
+  (global-undo-tree-mode))
+
+;;
+;; auto-complete
+;;(http://cx4a.org/software/auto-complete/ よりDL, ファイルを展開し、M-x load-file でインストール)
+(when (require 'auto-complete-config nil t)
+  (add-to-list 'ac-dictionary-directories "~/.emacs.d/elisp/ac-dict")
+  (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
+  (ac-config-default))
+
+;;
+;; auto-async-byte-compile.el (install from emacswiki)
+;;(when (require 'auto-async-byte-compile nil t)
+;;  (add-hook 'emacs-lisp-mode-hook 'enable-auto-async-byte-compile-mode))
+
+;;
+;; sticky
+;;(install-elisp-from-emacswiki "sticky.el")
+;; 試すのは SKK も試してからのほうがよさげ
+;;(when (require 'sticky nil t)
+;;  (use-sticky-key ";" stick-alist:ja))
+
+;;
+;; sequential-command
+;;(auto-install-from-emacswiki "sequential-command.el")
+;;(auto-install-from-emacswiki "sequential-command-config.el")
+(when (require 'sequential-command-config nil t)
+  (sequential-command-setup-keys))
+
+;;
+;; minor-mode-hack
+;;(auto-install-from-emacswiki "minor-mode-hack.el")
+(require 'minor-mode-hack nil t)
+
+
+;;
+;; recentf-ext
+;; (auto-install-from-emacswiki "recentf-ext.el")
+(setq recentf-max-saved-items 1000)
+;;(setq recentf-exclude '("file1" "/tmp"))
+(require 'recentf-ext)
+(global-set-key (kbd "C-x f") 'recentf-open-files)
+
+;;
+;; tempbuf.el : 使わないバッファを自動で削除
+;; (auto-install-from-emacswiki "tempbuf.el")
+(when (require 'tempbuf nil t)
+  (setq tempbuf-minimum-timeout 600);;[sec] デフォルトだと早すぎるので長くする
+  (add-hook 'find-file-hook 'turn-on-tempbuf-mode)
+  (add-hook 'dired-mode-hook 'turn-on-tempbuf-mode))
+
+;; auto-save-buffers.el : 自動保存
+;; (install-elisp "http://homepage3.nifty.com/oatu/emacs/archives/auto-save-buffers.el")
+(when (require 'auto-save-buffers nil t)
+  ;;2秒アイドルで保存する
+  (run-with-idle-timer 2 t 'auto-save-buffers))
+
+;; wdired.el
+(define-key dired-mode-map "r" 'wdired-change-towdired-mode)
+
+;;
+;; redo+.el
+;; (auto-install-from-emacswiki "redo+.el")
+(when (require 'redo+)
+  (global-set-key (kbd "C-M-/") 'redo)
+  (setq undo-no-redo t); undo で redo しないようにする
+  (setq undo-limit 65536)
+  (setq undo-strong-limit 131072))
+
+;; ---------------------------- 以下は原則として変更しない ------------------------------------
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
 (add-hook 'window-setup-hook
           (lambda ()
             (modify-frame-parameters (selected-frame) initial-frame-alist)))
+
+;;; This was installed by package-install.el.
+;;; This provides support for the package system and
+;;; interfacing with ELPA, the package archive.
+;;; Move this code earlier if you want to reference
+;;; packages in your .emacs.
+(when
+	(load
+	 (expand-file-name "~/.emacs.d/elpa/package.el"))
+  (package-initialize))
