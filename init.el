@@ -306,7 +306,7 @@
 (setq inhibit-startup-screen t)
 ;;履歴を保存する
 (savehist-mode t)
-;; ファイル内のカーソル一を記録する
+;; ファイル内のカーソルを記録する
 (setq-default save-place t)
 ;; GC を減らして軽くする
 (setq gc-cons-threshold (* 10 gc-cons-threshold))
@@ -330,7 +330,7 @@
 ;; yes/no の代わりに y/n にする
 (defalias 'yes-or-no-p 'y-or-n-p)
 ;; ファイルを開くのを強化
-(ffap-bindings)
+;;(ffap-bindings)
 
 ;;
 ;;色の設定(コンソールの時)
