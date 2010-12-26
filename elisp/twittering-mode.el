@@ -10,7 +10,7 @@
 ;;         Alberto Garcia  <agarcia@igalia.com>
 ;; Created: Sep 4, 2007
 ;; Version: HEAD
-;; Identity: $Id: 470d0ae0832c0508fd2c4fe67383108488ef6840 $
+;; Identity: $Id: 8fc2ef4cea0d099bc539c2cd07419517cc00239f $
 ;; Keywords: twitter web
 ;; URL: http://twmode.sf.net/
 
@@ -65,7 +65,7 @@
 (require 'url)
 
 (defconst twittering-mode-version "HEAD")
-(defconst twittering-mode-identity "$Id: 470d0ae0832c0508fd2c4fe67383108488ef6840 $")
+(defconst twittering-mode-identity "$Id: 8fc2ef4cea0d099bc539c2cd07419517cc00239f $")
 (defvar twittering-api-host "api.twitter.com")
 (defvar twittering-api-search-host "search.twitter.com")
 (defvar twittering-web-host "twitter.com")
@@ -6824,6 +6824,10 @@ been initialized yet."
 
 (defun twittering-organic-retweet ()
   (interactive)
+  (let* ((id (twittering-get-id-at))
+	 (status (twittering-find-status (twittering-get-id-at))))
+    (when (equal "true" (cdr (assoc 'user-protected status)))
+      (error "Cannot retweet protected tweets.")))
   (let ((username (get-text-property (point) 'username))
 	(text (get-text-property (point) 'text))
 	(id (get-text-property (point) 'id))
