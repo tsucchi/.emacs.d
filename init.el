@@ -133,9 +133,9 @@
 
 
 ;;
-;;フレームと、日本語関連の設定(Unix 系)
+;;フレームと、日本語関連の設定(FreeBSD)
 ;;
-(if (not (equal system-type 'windows-nt))
+(if (equal system-type 'berkley-unix)
     (progn
       (set-default-coding-systems 'euc-jp-unix)
       (set-terminal-coding-system 'euc-jp-unix)
@@ -159,6 +159,13 @@
 					 '(font . "fontset-14")
 					 )
 					default-frame-alist))))
+;;
+;; mac
+(when (eq window-system 'mac)
+  (add-hook 'window-setup-hook
+            (lambda ()
+              (set-frame-parameter nil 'fullscreen 'fullboth)
+              )))
 
 
 ;;;
