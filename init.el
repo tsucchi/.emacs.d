@@ -135,7 +135,7 @@
 ;;
 ;;フレームと、日本語関連の設定(FreeBSD)
 ;;
-(if (equal system-type 'berkley-unix)
+(if (equal system-type 'berkeley-unix)
     (progn
       (set-default-coding-systems 'euc-jp-unix)
       (set-terminal-coding-system 'euc-jp-unix)
