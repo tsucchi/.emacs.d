@@ -137,10 +137,11 @@
 ;;
 (if (equal system-type 'berkeley-unix)
     (progn
-      (set-default-coding-systems 'euc-jp-unix)
+      ;;(set-default-coding-systems 'euc-jp-unix)
       (set-terminal-coding-system 'euc-jp-unix)
       (set-buffer-file-coding-system 'euc-jp-unix)
       (set-keyboard-coding-system 'euc-jp-unix)
+	  (prefer-coding-system 'utf-8-unix)
 	  ;; サーバプロセスを起動する
 	  (server-start)
 	  ;; anthy をロードする
