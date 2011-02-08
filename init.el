@@ -224,6 +224,7 @@
 (add-hook 'mew-init-hook
 		  (lambda ()
 			(require 'mew-fancy-summary nil t)))
+(setq mew-use-highlight-summary t)
 
 ;; Optional setup (Read Mail menu for Emacs 21):
 (if (boundp 'read-mail-command)
@@ -873,8 +874,8 @@
 ;;
 ;;
 ;; undo-tree(install from http://www.dr-qubit.org/undo-tree/undo-tree.el)
-(when (require 'undo-tree nil t)
-  (global-undo-tree-mode))
+;;(when (require 'undo-tree nil t)
+;;  (global-undo-tree-mode))
 
 ;;
 ;; auto-complete
