@@ -142,7 +142,8 @@
       (set-buffer-file-coding-system 'euc-jp-unix)
       (set-keyboard-coding-system 'euc-jp-unix)
 	  ;; サーバプロセスを起動する
-	  (server-start)
+	  (unless (server-running-p)
+		(server-start))
 	  ;; anthy をロードする
       (load "anthy")
       (setq default-input-method "japanese-anthy")
@@ -332,7 +333,7 @@
 ;; ファイルを開くのを強化
 ;;(ffap-bindings)
 ;; ファイル保存前に不要な末尾空白を削除する
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
+;;(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;;
 ;;色の設定(コンソールの時)
@@ -914,7 +915,7 @@
 ;; tempbuf.el : 使わないバッファを自動で削除
 ;; (auto-install-from-emacswiki "tempbuf.el")
 (when (require 'tempbuf nil t)
-  (setq tempbuf-minimum-timeout 600);;[sec] デフォルトだと早すぎるので長くする
+  (setq tempbuf-minimum-timeout 6000);;[sec] デフォルトだと早すぎるので長くする
   (add-hook 'find-file-hook 'turn-on-tempbuf-mode)
   (add-hook 'dired-mode-hook 'turn-on-tempbuf-mode))
 
