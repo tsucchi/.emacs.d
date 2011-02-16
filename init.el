@@ -133,14 +133,15 @@
 
 
 ;;
-;;フレームと、日本語関連の設定(Unix 系)
+;;フレームと、日本語関連の設定(FreeBSD)
 ;;
-(if (not (equal system-type 'windows-nt))
+(if (equal system-type 'berkeley-unix)
     (progn
-      (set-default-coding-systems 'euc-jp-unix)
+      ;;(set-default-coding-systems 'euc-jp-unix)
       (set-terminal-coding-system 'euc-jp-unix)
       (set-buffer-file-coding-system 'euc-jp-unix)
       (set-keyboard-coding-system 'euc-jp-unix)
+	  (prefer-coding-system 'utf-8-unix)
 	  ;; サーバプロセスを起動する
 	  (unless (server-running-p)
 		(server-start))
@@ -160,6 +161,13 @@
 					 '(font . "fontset-14")
 					 )
 					default-frame-alist))))
+;;
+;; mac
+(when (eq window-system 'mac)
+  (add-hook 'window-setup-hook
+            (lambda ()
+              (set-frame-parameter nil 'fullscreen 'fullboth)
+              )))
 
 
 ;;;
@@ -218,6 +226,7 @@
 (add-hook 'mew-init-hook
 		  (lambda ()
 			(require 'mew-fancy-summary nil t)))
+(setq mew-use-highlight-summary t)
 
 ;; Optional setup (Read Mail menu for Emacs 21):
 (if (boundp 'read-mail-command)
@@ -325,9 +334,9 @@
 ;; 大きいファイルを開いたときに警告するしきい値を増やす(25MB)
 (setq large-file-warning-threshold (* 25 1024 102))
 ;;ミニバッファで入力を取り消しても履歴に残す
-(defadvice abort-recursive-edit (before minibuffer-save activate)
-  (when (eq (selected-window) (active-minibuffer-window))
-	(add-to-history minibuffer-history-variable (minibuffer-contents))))
+;; (defadvice abort-recursive-edit (before minibuffer-save activate)
+;;   (when (eq (selected-window) (active-minibuffer-window))
+;; 	(add-to-history minibuffer-history-variable (minibuffer-contents))))
 ;; yes/no の代わりに y/n にする
 (defalias 'yes-or-no-p 'y-or-n-p)
 ;; ファイルを開くのを強化
@@ -867,8 +876,8 @@
 ;;
 ;;
 ;; undo-tree(install from http://www.dr-qubit.org/undo-tree/undo-tree.el)
-(when (require 'undo-tree nil t)
-  (global-undo-tree-mode))
+;;(when (require 'undo-tree nil t)
+;;  (global-undo-tree-mode))
 
 ;;
 ;; auto-complete
