@@ -143,6 +143,7 @@
       (set-keyboard-coding-system 'euc-jp-unix)
 	  (prefer-coding-system 'utf-8-unix)
 	  ;; サーバプロセスを起動する
+	  (require 'server)
 	  (unless (server-running-p)
 		(server-start))
 	  ;; anthy をロードする
@@ -903,8 +904,8 @@
 ;; sequential-command
 ;;(auto-install-from-emacswiki "sequential-command.el")
 ;;(auto-install-from-emacswiki "sequential-command-config.el")
-(when (require 'sequential-command-config nil t)
-  (sequential-command-setup-keys))
+;;(when (require 'sequential-command-config nil t)
+;;  (sequential-command-setup-keys))
 
 ;;
 ;; minor-mode-hack
@@ -917,8 +918,8 @@
 ;; (auto-install-from-emacswiki "recentf-ext.el")
 (setq recentf-max-saved-items 1000)
 ;;(setq recentf-exclude '("file1" "/tmp"))
-(require 'recentf-ext)
-(global-set-key (kbd "C-x f") 'recentf-open-files)
+;;(require 'recentf-ext)
+;;(global-set-key (kbd "C-x f") 'recentf-open-files)
 
 ;;
 ;; tempbuf.el : 使わないバッファを自動で削除
