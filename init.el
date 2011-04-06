@@ -344,6 +344,8 @@
 ;;(ffap-bindings)
 ;; ファイル保存前に不要な末尾空白を削除する
 ;;(add-hook 'before-save-hook 'delete-trailing-whitespace)
+;; conf 系のハイライトをするらしい
+(require 'generic-x nil t)
 
 ;;
 ;;色の設定(コンソールの時)
@@ -788,7 +790,7 @@
 
 ;;
 ;; anything.el
-;;
+;;(install-elisp-from-emacswiki "anything.el")
 (require 'anything nil t)
 (require 'anything-config nil t)
 
