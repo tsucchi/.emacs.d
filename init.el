@@ -143,7 +143,7 @@
       (set-keyboard-coding-system 'euc-jp-unix)
 	  (prefer-coding-system 'utf-8-unix)
 	  ;; サーバプロセスを起動する
-	  (require 'server)
+	  (require 'server nil t)
 	  (unless (server-running-p)
 		(server-start))
 	  ;; anthy をロードする
@@ -157,18 +157,16 @@
       ;;
       (setq default-frame-alist
 			(append (list
-					 '(width . 104) ;;フレームの幅
-					 '(height . 47) ;;フレームの高さ
+					 ;;'(width . 104) ;;フレームの幅
+					 ;;'(height . 47) ;;フレームの高さ
 					 '(font . "fontset-14")
 					 )
 					default-frame-alist))))
-;;
-;; mac
-(when (eq window-system 'mac)
-  (add-hook 'window-setup-hook
-            (lambda ()
-              (set-frame-parameter nil 'fullscreen 'fullboth)
-              )))
+
+(add-hook 'window-setup-hook
+		  (lambda ()
+			(set-frame-parameter nil 'fullscreen 'maximized)))
+
 
 
 ;;;
