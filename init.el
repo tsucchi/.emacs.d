@@ -103,10 +103,13 @@
 		  ;;(create-fontset-from-ascii-font "-outline-ＭＳ ゴシック-normal-r-normal-normal-16-*-*-*-*-*-iso8859-1" nil "myfont")
 		  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("ＭＳ ゴシック" . "jisx0208-sjis"))
 		  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("ＭＳ ゴシック" . "jisx0201-katakana"))
-		  (create-fontset-from-ascii-font "-outline-VL ゴシック-normal-r-normal-normal-16-*-*-*-*-*-iso8859-1" nil "myfont")
-		  (set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("VL ゴシック" . "jisx0208-sjis"))
-		  (set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("VL ゴシック" . "jisx0201-katakana"))
-
+		  ;;(create-fontset-from-ascii-font "-outline-VL ゴシック-normal-r-normal-normal-16-*-*-*-*-*-iso8859-1" nil "myfont")
+		  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("VL ゴシック" . "jisx0208-sjis"))
+		  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("VL ゴシック" . "jisx0201-katakana"))
+		  (create-fontset-from-ascii-font "-outline-Ricty-normal-r-normal-normal-18-*-*-*-*-*-iso8859-1" nil "myfont")
+		  (set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("Ricty" . "jisx0208-sjis"))
+		  (set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("Ricty" . "jisx0201-katakana"))
+		  
 		  (setq default-frame-alist
 				(append (list
 						 '(width . 155) ;;フレームの幅
