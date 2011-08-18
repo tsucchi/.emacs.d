@@ -434,13 +434,13 @@
 ;;
 ;; iswitchb: バッファ切り替えの強化
 ;;
-(iswitchb-mode 1)
-;; バッファ読み取り関数を iswitchb にする
-(setq read-buffer-function 'iswitchb-read-buffer)
-;; 正規表現を使わない
-(setq iswitchb-regexp nil)
-;; 新しいバッファを作成する時にいちいち聞かない
-(setq iswitchb-prompt-newbuffer)
+;; (iswitchb-mode 1)
+;; ;; バッファ読み取り関数を iswitchb にする
+;; (setq read-buffer-function 'iswitchb-read-buffer)
+;; ;; 正規表現を使わない
+;; (setq iswitchb-regexp nil)
+;; ;; 新しいバッファを作成する時にいちいち聞かない
+;; (setq iswitchb-prompt-newbuffer)
 
 
 ;;;
@@ -886,7 +886,9 @@
 ;;
 ;; auto-complete
 ;;(http://cx4a.org/software/auto-complete/ よりDL, ファイルを展開し、M-x load-file でインストール)
+(require 'auto-complete nil t)
 (when (require 'auto-complete-config nil t)
+  (global-auto-complete-mode t)
   (add-to-list 'ac-dictionary-directories "~/.emacs.d/elisp/ac-dict")
   (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
   (ac-config-default))
@@ -949,6 +951,13 @@
   (setq undo-no-redo t); undo で redo しないようにする
   (setq undo-limit 65536)
   (setq undo-strong-limit 131072))
+
+;;
+;; calfw
+;;(auto-install-from-url "https://github.com/kiwanami/emacs-calfw/raw/master/calfw.el")
+(when (require 'calfw nil t)
+  (cfw:open-calendar-buffer))
+
 
 ;; ---------------------------- 以下は原則として変更しない ------------------------------------
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
