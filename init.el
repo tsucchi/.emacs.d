@@ -934,6 +934,22 @@
   (setq undo-limit 65536)
   (setq undo-strong-limit 131072))
 
+;;
+;; cygwin-mount
+(when (require 'cygwin-mount nil t)
+  (cygwin-mount-activate))
+
+;;
+;; evernote mode
+(require 'evernote-mode nil t)
+(setq evernote-username "tsucchi1022")
+(global-set-key "\C-cec" 'evernote-create-note)
+(global-set-key "\C-ceo" 'evernote-open-note)
+(global-set-key "\C-ces" 'evernote-search-notes)
+(global-set-key "\C-ceS" 'evernote-do-saved-search)
+(global-set-key "\C-cew" 'evernote-write-note)
+(add-to-list 'anything-sources anything-c-source-evernote-title)
+
 ;; ---------------------------- 以下は原則として変更しない ------------------------------------
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
 (add-hook 'window-setup-hook
