@@ -973,7 +973,10 @@
 (when (require 'calfw nil t)
   (cfw:open-calendar-buffer))
 
-
+;; sense-region.el
+;;;(install-elisp "http://taiyaki.org/elisp/sense-region/src/sense-region.el")
+(when (require 'sense-region nil t)
+  (sense-region-on))
 
 ;; ---------------------------- 以下は原則として変更しない ------------------------------------
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
