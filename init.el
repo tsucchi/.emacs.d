@@ -76,7 +76,7 @@
 						 '(width . 154)    ;;フレームの幅
 						 '(height . 67)) ;;フレームの高さ
 						default-frame-alist))
-		  
+
 		  ;; 日本語環境の設定
 		  (set-terminal-coding-system 'sjis)
 		  (setq file-name-coding-system 'sjis)
@@ -91,22 +91,25 @@
 		  ;; dosのコマンド関連
 		  (setq explicit-shell-file-name "cmdproxy.exe")
 		  (setq shell-file-name "cmdproxy.exe")
-		  (setq shell-command-switch "-c")       
+		  (setq shell-command-switch "-c")
 		  ))
        (t
 		(progn
 		  ;;
 		  ;; NTEmacs の場合
 		  ;;
-		  
+
 		  (setq w32-enable-synthesized-fonts t)
 		  ;;(create-fontset-from-ascii-font "-outline-ＭＳ ゴシック-normal-r-normal-normal-16-*-*-*-*-*-iso8859-1" nil "myfont")
 		  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("ＭＳ ゴシック" . "jisx0208-sjis"))
 		  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("ＭＳ ゴシック" . "jisx0201-katakana"))
-		  (create-fontset-from-ascii-font "-outline-VL ゴシック-normal-r-normal-normal-16-*-*-*-*-*-iso8859-1" nil "myfont")
-		  (set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("VL ゴシック" . "jisx0208-sjis"))
-		  (set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("VL ゴシック" . "jisx0201-katakana"))
-
+		  ;;(create-fontset-from-ascii-font "-outline-VL ゴシック-normal-r-normal-normal-16-*-*-*-*-*-iso8859-1" nil "myfont")
+		  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("VL ゴシック" . "jisx0208-sjis"))
+		  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("VL ゴシック" . "jisx0201-katakana"))
+		  (create-fontset-from-ascii-font "-outline-Ricty-normal-r-normal-normal-18-*-*-*-*-*-iso8859-1" nil "myfont")
+		  (set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("Ricty" . "jisx0208-sjis"))
+		  (set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("Ricty" . "jisx0201-katakana"))
+		  
 		  (setq default-frame-alist
 				(append (list
 						 '(width . 155) ;;フレームの幅
@@ -133,16 +136,19 @@
 
 
 ;;
-;;フレームと、日本語関連の設定(Unix 系)
+;;フレームと、日本語関連の設定(FreeBSD)
 ;;
-(if (not (equal system-type 'windows-nt))
+(if (equal system-type 'berkeley-unix)
     (progn
-      (set-default-coding-systems 'euc-jp-unix)
+      ;;(set-default-coding-systems 'euc-jp-unix)
       (set-terminal-coding-system 'euc-jp-unix)
       (set-buffer-file-coding-system 'euc-jp-unix)
       (set-keyboard-coding-system 'euc-jp-unix)
+	  (prefer-coding-system 'utf-8-unix)
 	  ;; サーバプロセスを起動する
-	  (server-start)
+	  (require 'server nil t)
+	  (unless (server-running-p)
+		(server-start))
 	  ;; anthy をロードする
       (load "anthy")
       (setq default-input-method "japanese-anthy")
@@ -152,13 +158,18 @@
       ;;
       ;;フレームの設定
       ;;
-      (setq default-frame-alist 
+      (setq default-frame-alist
 			(append (list
-					 '(width . 104) ;;フレームの幅 
-					 '(height . 47) ;;フレームの高さ
+					 ;;'(width . 104) ;;フレームの幅
+					 ;;'(height . 47) ;;フレームの高さ
 					 '(font . "fontset-14")
-					 ) 
+					 )
 					default-frame-alist))))
+
+(add-hook 'window-setup-hook
+		  (lambda ()
+			(set-frame-parameter nil 'fullscreen 'maximized)))
+
 
 
 ;;;
@@ -196,7 +207,7 @@
 		  (add-to-list 'color-themes '(color-theme-tsucchi "customized subtle-hacker" "tsucchi"))
 		  (color-theme-tsucchi)
 		  )))))
-;;;    
+;;;
 ;;;mewの設定 (メーラー)
 ;;;
 ;;詳細設定は.mewか.mew.elで
@@ -214,9 +225,10 @@
       'mew-draft-kill
       'mew-send-hook))
 ;;mew-fancy-summary
-(add-hook 'mew-init-hook 
-		  (lambda () 
+(add-hook 'mew-init-hook
+		  (lambda ()
 			(require 'mew-fancy-summary nil t)))
+(setq mew-use-highlight-summary t)
 
 ;; Optional setup (Read Mail menu for Emacs 21):
 (if (boundp 'read-mail-command)
@@ -271,7 +283,7 @@
 (add-to-list 'auto-mode-alist '("\\.pm$" . cperl-mode))
 (add-to-list 'auto-mode-alist '("\\.cgi$" . cperl-mode))
 (add-to-list 'auto-mode-alist '("\\.t$" . cperl-mode))
-(setq interpreter-mode-alist 
+(setq interpreter-mode-alist
       (append '(("^#!.*perl" . cperl-mode))
 			  interpreter-mode-alist))
 
@@ -306,7 +318,7 @@
 (setq inhibit-startup-screen t)
 ;;履歴を保存する
 (savehist-mode t)
-;; ファイル内のカーソル一を記録する
+;; ファイル内のカーソルを記録する
 (setq-default save-place t)
 ;; GC を減らして軽くする
 (setq gc-cons-threshold (* 10 gc-cons-threshold))
@@ -324,13 +336,17 @@
 ;; 大きいファイルを開いたときに警告するしきい値を増やす(25MB)
 (setq large-file-warning-threshold (* 25 1024 102))
 ;;ミニバッファで入力を取り消しても履歴に残す
-(defadvice abort-recursive-edit (before minibuffer-save activate)
-  (when (eq (selected-window) (active-minibuffer-window))
-	(add-to-history minibuffer-history-variable (minibuffer-contents))))
+;; (defadvice abort-recursive-edit (before minibuffer-save activate)
+;;   (when (eq (selected-window) (active-minibuffer-window))
+;; 	(add-to-history minibuffer-history-variable (minibuffer-contents))))
 ;; yes/no の代わりに y/n にする
 (defalias 'yes-or-no-p 'y-or-n-p)
 ;; ファイルを開くのを強化
-(ffap-bindings)
+;;(ffap-bindings)
+;; ファイル保存前に不要な末尾空白を削除する
+;;(add-hook 'before-save-hook 'delete-trailing-whitespace)
+;; conf 系のハイライトをするらしい
+(require 'generic-x nil t)
 
 ;;
 ;;色の設定(コンソールの時)
@@ -338,7 +354,7 @@
 (cond
  ((not window-system)
   (progn
-    (make-face 'font-lock-keyword-face)     
+    (make-face 'font-lock-keyword-face)
     (set-face-foreground 'font-lock-keyword-face "cornflower blue")
     (setq font-lock-keyword-face 'font-lock-keyword-face)
     (make-face 'font-lock-comment-face)
@@ -352,7 +368,7 @@
     (setq font-lock-function-name-face 'font-lock-function-name-face)
     (make-face 'font-lock-type-face)
     (set-face-foreground 'font-lock-type-face "white")
-    (setq font-lock-type-face 'font-lock-type-face)  
+    (setq font-lock-type-face 'font-lock-type-face)
     (make-face 'font-lock-variable-name-face)
     (set-face-foreground 'font-lock-variable-name-face "pink")
     (setq font-lock-variable-name-face 'font-lock-variable-name-face)
@@ -418,13 +434,13 @@
 ;;
 ;; iswitchb: バッファ切り替えの強化
 ;;
-(iswitchb-mode 1)
-;; バッファ読み取り関数を iswitchb にする
-(setq read-buffer-function 'iswitchb-read-buffer)
-;; 正規表現を使わない
-(setq iswitchb-regexp nil)
-;; 新しいバッファを作成する時にいちいち聞かない
-(setq iswitchb-prompt-newbuffer)
+;; (iswitchb-mode 1)
+;; ;; バッファ読み取り関数を iswitchb にする
+;; (setq read-buffer-function 'iswitchb-read-buffer)
+;; ;; 正規表現を使わない
+;; (setq iswitchb-regexp nil)
+;; ;; 新しいバッファを作成する時にいちいち聞かない
+;; (setq iswitchb-prompt-newbuffer)
 
 
 ;;;
@@ -467,7 +483,7 @@
 (add-to-list 'auto-mode-alist '(".aliases" . shell-script-mode))
 (add-to-list 'auto-mode-alist '(".complete" . shell-script-mode))
 (add-hook 'shell-script-mode-hook
-		  '(lambda () 
+		  '(lambda ()
 			 (font-lock-mode t)
 			 (font-lock-fontify-buffer)))
 
@@ -548,7 +564,7 @@
   (ruby-reindent-then-newline-and-indent))
 ;;rubyモード固有の設定
 (add-hook 'ruby-mode-hook
-		  '(lambda () 
+		  '(lambda ()
 			 (define-key ruby-mode-map "\C-ci" 'ruby-insert-header)
 			 (define-key ruby-mode-map "\C-cu" 'changecase-word)
 			 (define-key ruby-mode-map "\C-j" 'newline)
@@ -556,7 +572,7 @@
 			 (define-key ruby-mode-map "\C-l" 'my-font-lock-recenter)))
 
 (add-to-list 'auto-mode-alist '("\\.rb$" . ruby-mode))
-(setq interpreter-mode-alist 
+(setq interpreter-mode-alist
       (append '(("^#!.*ruby" . ruby-mode))
 			  interpreter-mode-alist))
 
@@ -702,7 +718,7 @@
 		  (all-completions file collection predicate)))))))
 
 (defun insert-image-file (filename)
-  (interactive 
+  (interactive
    (list (completing-read "Image file: " 'image-file-name-completion
 						  nil t (file-name-as-directory default-directory))))
   (let* ((filename (expand-file-name filename))
@@ -771,11 +787,11 @@
 ;;
 ;; grep-edit
 ;;
-(require 'grep-edit nil t) 
+(require 'grep-edit nil t)
 
 ;;
 ;; anything.el
-;;
+;;(install-elisp-from-emacswiki "anything.el")
 (require 'anything nil t)
 (require 'anything-config nil t)
 
@@ -795,7 +811,7 @@
 (define-key anything-map "\C-v" 'anything-next-page)
 (define-key anything-map "\M-v" 'anything-previous-page)
 
-(global-set-key (kbd "C-x C-b") 'anything) 
+(global-set-key (kbd "C-x C-b") 'anything)
 
 ;; PerlySense : 補完機能(実験中 -> いまいちうまく動かない orz)
 ;;(global-unset-key "\C-\\")
@@ -836,7 +852,7 @@
 (setq twittering-convert-fix-size 24)
 (setq twittering-auth-method 'xauth)
 (setq twittering-allow-insecure-server-cert t)
-(add-hook 'twittering-mode-hook 
+(add-hook 'twittering-mode-hook
 		  (lambda ()
 			(set-face-bold-p 'twittering-username-face t)
 			(set-face-foreground 'twittering-username-face "DeepSkyBlue3")
@@ -864,13 +880,15 @@
 ;;
 ;;
 ;; undo-tree(install from http://www.dr-qubit.org/undo-tree/undo-tree.el)
-(when (require 'undo-tree nil t)
-  (global-undo-tree-mode))
+;;(when (require 'undo-tree nil t)
+;;  (global-undo-tree-mode))
 
 ;;
 ;; auto-complete
 ;;(http://cx4a.org/software/auto-complete/ よりDL, ファイルを展開し、M-x load-file でインストール)
+(require 'auto-complete nil t)
 (when (require 'auto-complete-config nil t)
+  (global-auto-complete-mode t)
   (add-to-list 'ac-dictionary-directories "~/.emacs.d/elisp/ac-dict")
   (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
   (ac-config-default))
@@ -891,8 +909,8 @@
 ;; sequential-command
 ;;(auto-install-from-emacswiki "sequential-command.el")
 ;;(auto-install-from-emacswiki "sequential-command-config.el")
-(when (require 'sequential-command-config nil t)
-  (sequential-command-setup-keys))
+;;(when (require 'sequential-command-config nil t)
+;;  (sequential-command-setup-keys))
 
 ;;
 ;; minor-mode-hack
@@ -905,14 +923,14 @@
 ;; (auto-install-from-emacswiki "recentf-ext.el")
 (setq recentf-max-saved-items 1000)
 ;;(setq recentf-exclude '("file1" "/tmp"))
-(require 'recentf-ext)
-(global-set-key (kbd "C-x f") 'recentf-open-files)
+;;(require 'recentf-ext)
+;;(global-set-key (kbd "C-x f") 'recentf-open-files)
 
 ;;
 ;; tempbuf.el : 使わないバッファを自動で削除
 ;; (auto-install-from-emacswiki "tempbuf.el")
 (when (require 'tempbuf nil t)
-  (setq tempbuf-minimum-timeout 600);;[sec] デフォルトだと早すぎるので長くする
+  (setq tempbuf-minimum-timeout 6000);;[sec] デフォルトだと早すぎるので長くする
   (add-hook 'find-file-hook 'turn-on-tempbuf-mode)
   (add-hook 'dired-mode-hook 'turn-on-tempbuf-mode))
 
@@ -949,6 +967,13 @@
 (global-set-key "\C-ceS" 'evernote-do-saved-search)
 (global-set-key "\C-cew" 'evernote-write-note)
 (add-to-list 'anything-sources anything-c-source-evernote-title)
+
+;; calfw
+;;(auto-install-from-url "https://github.com/kiwanami/emacs-calfw/raw/master/calfw.el")
+(when (require 'calfw nil t)
+  (cfw:open-calendar-buffer))
+
+
 
 ;; ---------------------------- 以下は原則として変更しない ------------------------------------
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
