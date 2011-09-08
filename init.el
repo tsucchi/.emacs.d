@@ -100,15 +100,18 @@
 		  ;;
 
 		  (setq w32-enable-synthesized-fonts t)
-		  ;;(create-fontset-from-ascii-font "-outline-ＭＳ ゴシック-normal-r-normal-normal-16-*-*-*-*-*-iso8859-1" nil "myfont")
+		  ;;(create-fontset-from-ascii-font "-outline-ＭＳ ゴシック-normal-r-normal-normal-14-*-*-*-*-*-iso8859-1" nil "myfont")
 		  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("ＭＳ ゴシック" . "jisx0208-sjis"))
 		  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("ＭＳ ゴシック" . "jisx0201-katakana"))
-		  ;;(create-fontset-from-ascii-font "-outline-VL ゴシック-normal-r-normal-normal-16-*-*-*-*-*-iso8859-1" nil "myfont")
+		  (create-fontset-from-ascii-font "-outline-VL ゴシック-normal-r-normal-normal-14-*-*-*-*-*-iso8859-1" nil "myfont")
+		  (set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("ＭＳ ゴシック" . "jisx0208-sjis"))
+		  (set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("ＭＳ ゴシック" . "jisx0201-katakana"))
+
 		  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("VL ゴシック" . "jisx0208-sjis"))
 		  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("VL ゴシック" . "jisx0201-katakana"))
-		  (create-fontset-from-ascii-font "-outline-Ricty-normal-r-normal-normal-18-*-*-*-*-*-iso8859-1" nil "myfont")
-		  (set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("Ricty" . "jisx0208-sjis"))
-		  (set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("Ricty" . "jisx0201-katakana"))
+		  ;;(create-fontset-from-ascii-font "-outline-Ricty-normal-r-normal-normal-18-*-*-*-*-*-iso8859-1" nil "myfont")
+		  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("Ricty" . "jisx0208-sjis"))
+		  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("Ricty" . "jisx0201-katakana"))
 		  
 		  (setq default-frame-alist
 				(append (list
@@ -970,8 +973,8 @@
 
 ;; calfw
 ;;(auto-install-from-url "https://github.com/kiwanami/emacs-calfw/raw/master/calfw.el")
-(when (require 'calfw nil t)
-  (cfw:open-calendar-buffer))
+;;(when (require 'calfw nil t)
+;;  (cfw:open-calendar-buffer))
 
 
 
@@ -990,3 +993,4 @@
 	(load
 	 (expand-file-name "~/.emacs.d/elpa/package.el"))
   (package-initialize))
+
