@@ -26,116 +26,47 @@
       (set-default-coding-systems 'sjis)
       (set-keyboard-coding-system 'sjis)
 
-      (cond
-       ((featurep 'meadow)
-		(progn
-		  ;;
-		  ;; meadow
-		  ;;
-		  (w32-add-font
-		   "MS Gothic 16"
-		   '((spec
-			  ((:char-spec ascii :height any)
-			   strict
-			   (w32-logfont "MS Gothic" 0 -16 400 0 nil nil nil 0 1 3 0))
-			  ((:char-spec ascii :height any :weight bold)
-			   strict
-			   (w32-logfont "MS Gothic" 0 -16 700 0 nil nil nil 0 1 3 0)
-			   ((spacing . -1)))
-			  ((:char-spec ascii :height any :slant italic)
-			   strict
-			   (w32-logfont "MS Gothic" 0 -16 400 0   t nil nil 0 1 3 0))
-			  ((:char-spec ascii :height any :weight bold :slant italic)
-			   strict
-			   (w32-logfont "MS Gothic" 0 -16 700 0   t nil nil 0 1 3 0)
-			   ((spacing . -1)))
-			  ((:char-spec japanese-jisx0208 :height any)
-			   strict
-			   (w32-logfont "MS Gothic" 0 -16 400 0 nil nil nil 128 1 3 0))
-			  ((:char-spec japanese-jisx0208 :height any :weight bold)
-			   strict
-			   (w32-logfont "MS Gothic" 0 -16 700 0 nil nil nil 128 1 3 0)
-			   ((spacing . -1)))
-			  ((:char-spec japanese-jisx0208 :height any :slant italic)
-			   strict
-			   (w32-logfont "MS Gothic" 0 -16 400 0   t nil nil 128 1 3 0))
-			  ((:char-spec japanese-jisx0208 :height any :weight bold :slant italic)
-			   strict
-			   (w32-logfont "MS Gothic" 0 -16 700 0   t nil nil 128 1 3 0)
-			   ((spacing . -1))))))
-		  ;; 起動時およびnew-frame時のフレーム(ウィンドウ)の設定。
-		  (add-to-list 'default-frame-alist '(font . "MS Gothic 16"))
-		  ;; 現在のフレームの設定(.emacs中では省略可)
-		  (set-frame-font "MS Gothic 16")
-		  ;; IMEのフォントを設定。こういう書式でないとだめらしい。
-		  (let ((logfont '(w32-logfont "MS Gothic" 0 0 400 0 nil nil nil 128 1 3 0)))
-			(modify-frame-parameters (selected-frame) (list (cons 'ime-font logfont)))
-			(add-to-list 'default-frame-alist (cons 'ime-font logfont)))
-		  (setq default-frame-alist
-				(append (list
-						 '(width . 154)    ;;フレームの幅
-						 '(height . 67)) ;;フレームの高さ
-						default-frame-alist))
 
-		  ;; 日本語環境の設定
-		  (set-terminal-coding-system 'sjis)
-		  (setq file-name-coding-system 'sjis)
-		  (set-clipboard-coding-system 'sjis-dos)
-		  (set-w32-system-coding-system 'sjis-dos)
-		  (set-input-method "MW32-IME")
-		  (toggle-input-method)
-		  (setq-default mw32-ime-mode-line-state-indicator "[--]")
-		  (setq mw32-ime-mode-line-state-indicator-list '("[--]" "[あ]" "[--]"))
-		  (mw32-ime-initialize)
+	  ;;
+	  ;; NTEmacs の場合
+	  ;;
 
-		  ;; dosのコマンド関連
-		  (setq explicit-shell-file-name "cmdproxy.exe")
-		  (setq shell-file-name "cmdproxy.exe")
-		  (setq shell-command-switch "-c")
-		  ))
-       (t
-		(progn
-		  ;;
-		  ;; NTEmacs の場合
-		  ;;
+	  (setq w32-enable-synthesized-fonts t)
+	  ;;(create-fontset-from-ascii-font "-outline-ＭＳ ゴシック-normal-r-normal-normal-14-*-*-*-*-*-iso8859-1" nil "myfont")
+	  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("ＭＳ ゴシック" . "jisx0208-sjis"))
+	  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("ＭＳ ゴシック" . "jisx0201-katakana"))
+	  (create-fontset-from-ascii-font "-outline-VL ゴシック-normal-r-normal-normal-14-*-*-*-*-*-iso8859-1" nil "myfont")
+	  (set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("ＭＳ ゴシック" . "jisx0208-sjis"))
+	  (set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("ＭＳ ゴシック" . "jisx0201-katakana"))
 
-		  (setq w32-enable-synthesized-fonts t)
-		  ;;(create-fontset-from-ascii-font "-outline-ＭＳ ゴシック-normal-r-normal-normal-14-*-*-*-*-*-iso8859-1" nil "myfont")
-		  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("ＭＳ ゴシック" . "jisx0208-sjis"))
-		  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("ＭＳ ゴシック" . "jisx0201-katakana"))
-		  (create-fontset-from-ascii-font "-outline-VL ゴシック-normal-r-normal-normal-14-*-*-*-*-*-iso8859-1" nil "myfont")
-		  (set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("ＭＳ ゴシック" . "jisx0208-sjis"))
-		  (set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("ＭＳ ゴシック" . "jisx0201-katakana"))
+	  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("VL ゴシック" . "jisx0208-sjis"))
+	  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("VL ゴシック" . "jisx0201-katakana"))
+	  ;;(create-fontset-from-ascii-font "-outline-Ricty-normal-r-normal-normal-18-*-*-*-*-*-iso8859-1" nil "myfont")
+	  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("Ricty" . "jisx0208-sjis"))
+	  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("Ricty" . "jisx0201-katakana"))
+	  
+	  (setq default-frame-alist
+			(append (list
+					 '(width . 155) ;;フレームの幅
+					 '(height . 52) ;;フレームの高さ
+					 '(top . 0)     ;; フレーム左上角 y 座標
+					 '(left . 0)    ;; フレーム左上角 x 座標
+					 '(font . "fontset-myfont")
+					 )
+					default-frame-alist))
 
-		  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("VL ゴシック" . "jisx0208-sjis"))
-		  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("VL ゴシック" . "jisx0201-katakana"))
-		  ;;(create-fontset-from-ascii-font "-outline-Ricty-normal-r-normal-normal-18-*-*-*-*-*-iso8859-1" nil "myfont")
-		  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("Ricty" . "jisx0208-sjis"))
-		  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("Ricty" . "jisx0201-katakana"))
-		  
-		  (setq default-frame-alist
-				(append (list
-						 '(width . 155) ;;フレームの幅
-						 '(height . 52) ;;フレームの高さ
-						 '(top . 0)     ;; フレーム左上角 y 座標
-						 '(left . 0)    ;; フレーム左上角 x 座標
-						 '(font . "fontset-myfont")
-						 )
-						default-frame-alist))
-
-		  (setq initial-frame-alist default-frame-alist)
-		  (w32-ime-initialize)
-		  (set-input-method "W32-IME")
-		  (setq-default w32-ime-mode-line-state-indicator "[--]")
-		  (setq w32-ime-mode-line-state-indicator-list '("[--]" "[あ]" "[--]"))
-		  )))
+	  (setq initial-frame-alist default-frame-alist)
+	  (w32-ime-initialize)
+	  (set-input-method "W32-IME")
+	  (setq-default w32-ime-mode-line-state-indicator "[--]")
+	  (setq w32-ime-mode-line-state-indicator-list '("[--]" "[あ]" "[--]"))
 
       ;; 日本語関連(IME の初期化後)
       (global-unset-key "\C-o")
       (global-set-key "\C-o" 'toggle-input-method)
 	  (prefer-coding-system 'utf-8-unix)
 	  (set-buffer-file-coding-system 'utf-8-unix)
-	  ))
+))
 
 
 ;;
