@@ -976,7 +976,19 @@
 ;;(when (require 'calfw nil t)
 ;;  (cfw:open-calendar-buffer))
 
+;; sense-region.el
+;;;(install-elisp "http://taiyaki.org/elisp/sense-region/src/sense-region.el")
+(when (require 'sense-region nil t)
+  (sense-region-on))
 
+;;
+;; yasnippet
+;; yasnippet-x.x.x.tar.bz2 を展開したものを yasnippet にリネーム
+;; ~/.emacs.d/plugins 以下に置いたうえで、
+;; yasnippet.el を ~/.emacs.d/elisp に置いて、下記を実行
+;; (install-elisp-from-emacswiki "yasnippet-config.el")
+(when (require 'yasnippet-config)
+  (yas/setup "~/.emacs.d/plugins/yasnippet"))
 
 ;; ---------------------------- 以下は原則として変更しない ------------------------------------
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
