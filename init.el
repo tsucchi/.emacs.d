@@ -72,23 +72,27 @@
 ;;
 ;;フレームと、日本語関連の設定(FreeBSD)
 ;;
-(if (equal system-type 'berkeley-unix)
+(if (or (equal system-type 'berkeley-unix)
+		(equal system-type 'gnu/linux))
     (progn
       ;;(set-default-coding-systems 'euc-jp-unix)
-      (set-terminal-coding-system 'euc-jp-unix)
-      (set-buffer-file-coding-system 'euc-jp-unix)
-      (set-keyboard-coding-system 'euc-jp-unix)
+      ;;(set-terminal-coding-system 'euc-jp-unix)
+      ;;(set-buffer-file-coding-system 'euc-jp-unix)
+      ;;(set-keyboard-coding-system 'euc-jp-unix)
 	  (prefer-coding-system 'utf-8-unix)
 	  ;; サーバプロセスを起動する
 	  (require 'server nil t)
 	  (unless (server-running-p)
 		(server-start))
-	  ;; anthy をロードする
-      (load "anthy")
-      (setq default-input-method "japanese-anthy")
+	  (if (equal system-type 'berkeley-unix)
+		  ;; anthy をロードする(FreeBSD だけ)
+		  (progn
+			(load "anthy")
+			(setq default-input-method "japanese-anthy")
+			(setq anthy-accept-timeout nil)))
+
 	  (global-unset-key "\C-o")
       (global-set-key "\C-o" 'toggle-input-method)
-	  (setq anthy-accept-timeout nil)
       ;;
       ;;フレームの設定
       ;;
