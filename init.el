@@ -84,12 +84,10 @@
 	  (require 'server nil t)
 	  (unless (server-running-p)
 		(server-start))
-	  (if (equal system-type 'berkeley-unix)
-		  ;; anthy をロードする(FreeBSD だけ)
-		  (progn
-			(load "anthy")
-			(setq default-input-method "japanese-anthy")
-			(setq anthy-accept-timeout nil)))
+	  ;; anthy をロードする
+	  (load "anthy")
+	  (setq default-input-method "japanese-anthy")
+	  (setq anthy-accept-timeout nil)
 
 	  (global-unset-key "\C-o")
       (global-set-key "\C-o" 'toggle-input-method)
