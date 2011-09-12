@@ -132,6 +132,10 @@
       (global-set-key "\C-o" 'toggle-input-method)
 	  (prefer-coding-system 'utf-8-unix)
 	  (set-buffer-file-coding-system 'utf-8-unix)
+	  ;;
+	  ;; cygwin-mount
+	  (when (require 'cygwin-mount nil t)
+	    (cygwin-mount-activate))
 	  ))
 
 
@@ -952,10 +956,6 @@
   (setq undo-limit 65536)
   (setq undo-strong-limit 131072))
 
-;;
-;; cygwin-mount
-(when (require 'cygwin-mount nil t)
-  (cygwin-mount-activate))
 
 ;;
 ;; evernote mode
@@ -975,8 +975,8 @@
 
 ;; sense-region.el
 ;;;(install-elisp "http://taiyaki.org/elisp/sense-region/src/sense-region.el")
-(when (require 'sense-region nil t)
-  (sense-region-on))
+;;(when (require 'sense-region nil t)
+;;  (sense-region-on))
 
 ;;
 ;; yasnippet
