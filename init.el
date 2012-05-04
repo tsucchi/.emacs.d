@@ -103,7 +103,8 @@
 			(append (list
 					 ;;'(width . 104) ;;フレームの幅
 					 ;;'(height . 47) ;;フレームの高さ
-					 '(font . "fontset-14")
+					 ;;'(font . "fontset-14")
+					 '(font . "-unknown-VL ゴシック-normal-normal-normal-*-13-*-*-*-*-0-iso10646-1")
 					 )
 					default-frame-alist))))
 
