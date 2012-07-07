@@ -491,29 +491,15 @@
 ;;;Rubyモード
 ;;;
 (autoload 'ruby-mode "ruby-mode" "Ruby editing mode." t)
-;;先頭行に#!/usr/local/bin/rubyを入力
-(defun ruby-insert-header ()
-  (interactive)
-  (goto-char 1)
-  (insert "#!/usr/local/bin/ruby \n"))
-;;改行と同時に色つけ
-(defun my-ruby-return ()
-  (interactive)
-  (cond
-   (window-system
-    (progn
-      (font-lock-fontify-buffer))))
-  (ruby-reindent-then-newline-and-indent))
 ;;rubyモード固有の設定
 (add-hook 'ruby-mode-hook
 		  '(lambda ()
 			 (define-key ruby-mode-map "\C-ci" 'ruby-insert-header)
 			 (define-key ruby-mode-map "\C-cu" 'changecase-word)
-			 (define-key ruby-mode-map "\C-j" 'newline)
-			 (define-key ruby-mode-map "\C-m" 'my-ruby-return)
 			 (define-key ruby-mode-map "\C-l" 'my-font-lock-recenter)))
 
 (add-to-list 'auto-mode-alist '("\\.rb$" . ruby-mode))
+(add-to-list 'auto-mode-alist '("Rakefile" . ruby-mode))
 (setq interpreter-mode-alist
       (append '(("^#!.*ruby" . ruby-mode))
 			  interpreter-mode-alist))
