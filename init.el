@@ -17,6 +17,12 @@
 
 (set-language-environment "Japanese")
 
+(require 'package nil t)
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/")) ; ついでにmarmaladeも追加
+(package-initialize)
+(require 'melpa nil t)
+
 ;;;
 ;;; Windows 系の emacs の設定
 ;;;
