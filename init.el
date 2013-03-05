@@ -103,7 +103,8 @@
 			(append (list
 					 ;;'(width . 104) ;;フレームの幅
 					 ;;'(height . 47) ;;フレームの高さ
-					 '(font . "fontset-14")
+					 ;;'(font . "fontset-14")
+					 '(font . "-unknown-VL ゴシック-normal-normal-normal-*-13-*-*-*-*-0-iso10646-1")
 					 )
 					default-frame-alist))))
 
@@ -490,29 +491,15 @@
 ;;;Rubyモード
 ;;;
 (autoload 'ruby-mode "ruby-mode" "Ruby editing mode." t)
-;;先頭行に#!/usr/local/bin/rubyを入力
-(defun ruby-insert-header ()
-  (interactive)
-  (goto-char 1)
-  (insert "#!/usr/local/bin/ruby \n"))
-;;改行と同時に色つけ
-(defun my-ruby-return ()
-  (interactive)
-  (cond
-   (window-system
-    (progn
-      (font-lock-fontify-buffer))))
-  (ruby-reindent-then-newline-and-indent))
 ;;rubyモード固有の設定
 (add-hook 'ruby-mode-hook
 		  '(lambda ()
 			 (define-key ruby-mode-map "\C-ci" 'ruby-insert-header)
 			 (define-key ruby-mode-map "\C-cu" 'changecase-word)
-			 (define-key ruby-mode-map "\C-j" 'newline)
-			 (define-key ruby-mode-map "\C-m" 'my-ruby-return)
 			 (define-key ruby-mode-map "\C-l" 'my-font-lock-recenter)))
 
 (add-to-list 'auto-mode-alist '("\\.rb$" . ruby-mode))
+(add-to-list 'auto-mode-alist '("Rakefile" . ruby-mode))
 (setq interpreter-mode-alist
       (append '(("^#!.*ruby" . ruby-mode))
 			  interpreter-mode-alist))
@@ -924,11 +911,33 @@
 (when (require 'yasnippet-config)
   (yas/setup "~/.emacs.d/plugins/yasnippet"))
 
+
 ;; html-mode
 (add-to-list 'auto-mode-alist '("\\.html$" . html-mode))
 (add-to-list 'auto-mode-alist '("\\.tt$" . html-mode)) ; for TemplateToolkit
 (add-to-list 'auto-mode-alist '("\\.mt$" . html-mode)) ; for T::MT
 (add-to-list 'auto-mode-alist '("\\.xt$" . html-mode)) ; for Xslate
+
+;;
+;; markdown-mode
+;; http://jblevins.org/projects/markdown-mode/markdown-mode.el
+(autoload 'markdown-mode "markdown-mode.el" "Major mode for editing Markdown files" t)
+(setq auto-mode-alist (cons '("\\.md" . markdown-mode) auto-mode-alist))
+;;先頭行にヘッダを入れる(日記専用)
+(defun md-insert-header ()
+  (interactive)
+  (goto-char 1)
+  (insert "---\n")
+  (insert "layout: post\n")
+  (insert "category: \n")
+  (insert "tags: \n")
+  (insert "title: \n")
+  (insert "---\n")
+  (insert "{% include JB/setup %}\n"))
+(add-hook 'markdown-mode-hook
+		  '(lambda ()
+			 (define-key markdown-mode-map "\C-ci" 'md-insert-header)))
+
 
 ;; ---------------------------- 以下は原則として変更しない ------------------------------------
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
