@@ -69,7 +69,7 @@
 	  ;;
 	  ;; cygwin-mount
 	  (when (require 'cygwin-mount nil t)
-	    (cygwin-mount-activate))
+	    (cygwin-mount-deactivate))
 ))
 
 
@@ -581,7 +581,7 @@
 			 (define-key sql-mode-map "\C-cu" 'changecase-word)
 			 (define-key sql-mode-map "\C-l" 'my-font-lock-recenter)
 			 ))
-(add-to-list 'auto-mode-alist '("\\.sql$" . sql-mode))
+(add-to-list 'auto-mode-alist '("\\.sql" . sql-mode))
 (add-to-list 'auto-mode-alist '("\\.tag$" . sql-mode))
 
 
@@ -877,9 +877,9 @@
 
 ;; auto-save-buffers.el : 自動保存
 ;; (install-elisp "http://homepage3.nifty.com/oatu/emacs/archives/auto-save-buffers.el")
-(when (require 'auto-save-buffers nil t)
-  ;;2秒アイドルで保存する
-  (run-with-idle-timer 2 t 'auto-save-buffers))
+;; (when (require 'auto-save-buffers nil t)
+;;   ;;2秒アイドルで保存する
+;;   (run-with-idle-timer 2 t 'auto-save-buffers))
 
 ;; wdired.el
 (define-key dired-mode-map "r" 'wdired-change-towdired-mode)
@@ -923,6 +923,12 @@
 ;; (install-elisp-from-emacswiki "yasnippet-config.el")
 (when (require 'yasnippet-config)
   (yas/setup "~/.emacs.d/plugins/yasnippet"))
+
+;; html-mode
+(add-to-list 'auto-mode-alist '("\\.html$" . html-mode))
+(add-to-list 'auto-mode-alist '("\\.tt$" . html-mode)) ; for TemplateToolkit
+(add-to-list 'auto-mode-alist '("\\.mt$" . html-mode)) ; for T::MT
+(add-to-list 'auto-mode-alist '("\\.xt$" . html-mode)) ; for Xslate
 
 ;; ---------------------------- 以下は原則として変更しない ------------------------------------
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
