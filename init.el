@@ -786,7 +786,7 @@
 			(set-face-foreground 'twittering-username-face "DeepSkyBlue3")
 			(set-face-foreground 'twittering-uri-face "LightSalmon")
 			(twittering-icon-mode t)
-			(twittering-scroll-mode t)
+			;;(twittering-scroll-mode t)
 			(setq twittering-reverse-mode t); #逆順
 			(define-key  twittering-mode-map "\C-m" 'twittering-scroll-up)
 			(define-key   twittering-mode-map "A" 'twittering-enter)
