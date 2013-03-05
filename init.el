@@ -221,6 +221,7 @@
 			 (setq tab-width 4)
 			 (setq font-lock-background-mode 'dark)
 			 (setq frame-background-mode 'dark)
+			 (setq cperl-indent-subs-specially nil)
 			 ;;              (require 'perl-completion nil t)
 			 ;;              (if (featurep 'perl-completion)
 			 ;;                  (progn
