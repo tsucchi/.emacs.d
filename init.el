@@ -946,6 +946,16 @@
 			 (define-key markdown-mode-map "\C-ci" 'md-insert-header)))
 
 
+
+(autoload 'scss-mode "scss-mode")
+(setq scss-compile-at-save nil) ;; 自動コンパイルをオフにする
+(add-to-list 'auto-mode-alist '("\\.scss\\'" . scss-mode))
+
+
+(require 'yaml-mode nil t)
+(add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
+
+
 ;; ---------------------------- 以下は原則として変更しない ------------------------------------
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
 (add-hook 'window-setup-hook
