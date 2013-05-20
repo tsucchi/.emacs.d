@@ -890,14 +890,14 @@
 
 ;;
 ;; evernote mode
-(require 'evernote-mode nil t)
-(setq evernote-username "tsucchi1022")
-(global-set-key "\C-cec" 'evernote-create-note)
-(global-set-key "\C-ceo" 'evernote-open-note)
-(global-set-key "\C-ces" 'evernote-search-notes)
-(global-set-key "\C-ceS" 'evernote-do-saved-search)
-(global-set-key "\C-cew" 'evernote-write-note)
-(add-to-list 'anything-sources anything-c-source-evernote-title)
+;; (require 'evernote-mode nil t)
+;; (setq evernote-username "tsucchi1022")
+;; (global-set-key "\C-cec" 'evernote-create-note)
+;; (global-set-key "\C-ceo" 'evernote-open-note)
+;; (global-set-key "\C-ces" 'evernote-search-notes)
+;; (global-set-key "\C-ceS" 'evernote-do-saved-search)
+;; (global-set-key "\C-cew" 'evernote-write-note)
+;; (add-to-list 'anything-sources anything-c-source-evernote-title)
 
 ;; calfw
 ;;(auto-install-from-url "https://github.com/kiwanami/emacs-calfw/raw/master/calfw.el")
