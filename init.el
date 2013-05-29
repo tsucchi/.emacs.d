@@ -232,6 +232,7 @@
 (add-to-list 'auto-mode-alist '("\\.pm$" . cperl-mode))
 (add-to-list 'auto-mode-alist '("\\.cgi$" . cperl-mode))
 (add-to-list 'auto-mode-alist '("\\.t$" . cperl-mode))
+(add-to-list 'auto-mode-alist '("cpanfile" . cperl-mode))
 (setq interpreter-mode-alist
       (append '(("^#!.*perl" . cperl-mode))
 			  interpreter-mode-alist))
