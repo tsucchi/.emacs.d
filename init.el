@@ -869,10 +869,10 @@
 ;;
 ;; tempbuf.el : 使わないバッファを自動で削除
 ;; (auto-install-from-emacswiki "tempbuf.el")
-(when (require 'tempbuf nil t)
-  (setq tempbuf-minimum-timeout 6000);;[sec] デフォルトだと早すぎるので長くする
-  (add-hook 'find-file-hook 'turn-on-tempbuf-mode)
-  (add-hook 'dired-mode-hook 'turn-on-tempbuf-mode))
+;; (when (require 'tempbuf nil t)
+;;   (setq tempbuf-minimum-timeout 6000);;[sec] デフォルトだと早すぎるので長くする
+;;   (add-hook 'find-file-hook 'turn-on-tempbuf-mode)
+;;   (add-hook 'dired-mode-hook 'turn-on-tempbuf-mode))
 
 ;; auto-save-buffers.el : 自動保存
 ;; (install-elisp "http://homepage3.nifty.com/oatu/emacs/archives/auto-save-buffers.el")
