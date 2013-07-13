@@ -3,6 +3,17 @@
 ;;; .emacs: emacs 設定ファイル。emacs 21 以上を対象にしているつもり(Meadow/NTEmacs も)
 
 
+(defun plist-to-alist (the-plist)
+  (defun get-tuple-from-plist (the-plist)
+    (when the-plist
+      (cons (car the-plist) (cadr the-plist))))
+
+  (let ((alist '()))
+    (while the-plist
+      (add-to-list 'alist (get-tuple-from-plist the-plist))
+      (setq the-plist (cddr the-plist)))
+  alist))
+
 ;;
 ;; install-elisp
 ;;(install-elisp-from-emacswiki "auto-install.el")
@@ -17,11 +28,11 @@
 
 (set-language-environment "Japanese")
 
-(require 'package nil t)
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/")) ; ついでにmarmaladeも追加
-(package-initialize)
-(require 'melpa nil t)
+;;(require 'package nil t)
+;;(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+;;(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/")) ; ついでにmarmaladeも追加
+;;(package-initialize)
+;;(require 'melpa nil t)
 
 ;;;
 ;;; Windows 系の emacs の設定
@@ -886,11 +897,11 @@
 ;;
 ;; redo+.el
 ;; (auto-install-from-emacswiki "redo+.el")
-(when (require 'redo+)
-  (global-set-key (kbd "C-M-/") 'redo)
-  (setq undo-no-redo t); undo で redo しないようにする
-  (setq undo-limit 65536)
-  (setq undo-strong-limit 131072))
+;;(when (require 'redo+)
+;;  (global-set-key (kbd "C-M-/") 'redo)
+;;  (setq undo-no-redo t); undo で redo しないようにする
+;;  (setq undo-limit 65536)
+;;  (setq undo-strong-limit 131072))
 
 
 ;;
