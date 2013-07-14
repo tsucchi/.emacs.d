@@ -81,7 +81,6 @@
       ;; 日本語関連(IME の初期化後)
       (global-unset-key "\C-o")
       (global-set-key "\C-o" 'toggle-input-method)
-	  (prefer-coding-system 'utf-8-unix)
 	  (set-buffer-file-coding-system 'utf-8-unix)
 	  ;;
 	  ;; cygwin-mount
@@ -101,7 +100,6 @@
       ;;(set-terminal-coding-system 'euc-jp-unix)
       ;;(set-buffer-file-coding-system 'euc-jp-unix)
       ;;(set-keyboard-coding-system 'euc-jp-unix)
-	  (prefer-coding-system 'utf-8-unix)
 	  ;; サーバプロセスを起動する
 	  (require 'server nil t)
 	  (unless (server-running-p)
@@ -125,6 +123,7 @@
 					 )
 					default-frame-alist))))
 
+(prefer-coding-system 'utf-8-unix)
 (add-hook 'window-setup-hook
 		  (lambda ()
 			(set-frame-parameter nil 'fullscreen 'maximized)))
@@ -818,6 +817,7 @@
 
 ;;
 ;; color-moccur/moccur-edit(install from emacswiki)
+;; (install-elisp-from-emacswiki "color-moccur.el")
 (when (require 'color-moccur nil t)
   (setq moccur-split-word t))
 (require 'moccur-edit nil t)
