@@ -34,6 +34,21 @@
 ;;(package-initialize)
 ;;(require 'melpa nil t)
 
+;;
+;; mac
+;;
+(if (equal system-type 'darwin)
+	(progn
+	  ;; font (http://tex-numerics.blogspot.jp/2012/08/install-and-seup-emacs-24.html)
+	  (create-fontset-from-ascii-font "Menlo-12:weight=normal:slant=normal" nil "menlokakugo")
+	  (set-fontset-font "fontset-menlokakugo"
+						'unicode
+						(font-spec :family "Hiragino Kaku Gothic ProN" :size 13)
+						nil
+						'append)
+	  (add-to-list 'default-frame-alist '(font . "fontset-menlokakugo"))
+))
+
 ;;;
 ;;; Windows 系の emacs の設定
 ;;;
