@@ -384,6 +384,7 @@
 ;;;
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
+(setq uniquify-strip-common-suffix nil)
 
 ;;
 ;; iswitchb: バッファ切り替えの強化
