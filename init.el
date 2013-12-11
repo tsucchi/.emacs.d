@@ -3,6 +3,17 @@
 ;;; .emacs: emacs 設定ファイル。emacs 21 以上を対象にしているつもり(Meadow/NTEmacs も)
 
 
+(defun plist-to-alist (the-plist)
+  (defun get-tuple-from-plist (the-plist)
+    (when the-plist
+      (cons (car the-plist) (cadr the-plist))))
+
+  (let ((alist '()))
+    (while the-plist
+      (add-to-list 'alist (get-tuple-from-plist the-plist))
+      (setq the-plist (cddr the-plist)))
+  alist))
+
 ;;
 ;; install-elisp
 ;;(install-elisp-from-emacswiki "auto-install.el")
@@ -17,11 +28,26 @@
 
 (set-language-environment "Japanese")
 
-(require 'package nil t)
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/")) ; ついでにmarmaladeも追加
-(package-initialize)
-(require 'melpa nil t)
+;;(require 'package nil t)
+;;(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+;;(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/")) ; ついでにmarmaladeも追加
+;;(package-initialize)
+;;(require 'melpa nil t)
+
+;;
+;; mac
+;;
+(if (equal system-type 'darwin)
+	(progn
+	  ;; font (http://tex-numerics.blogspot.jp/2012/08/install-and-seup-emacs-24.html)
+	  (create-fontset-from-ascii-font "Menlo-12:weight=normal:slant=normal" nil "menlokakugo")
+	  (set-fontset-font "fontset-menlokakugo"
+						'unicode
+						(font-spec :family "Hiragino Kaku Gothic ProN" :size 13)
+						nil
+						'append)
+	  (add-to-list 'default-frame-alist '(font . "fontset-menlokakugo"))
+))
 
 ;;;
 ;;; Windows 系の emacs の設定
@@ -70,7 +96,6 @@
       ;; 日本語関連(IME の初期化後)
       (global-unset-key "\C-o")
       (global-set-key "\C-o" 'toggle-input-method)
-	  (prefer-coding-system 'utf-8-unix)
 	  (set-buffer-file-coding-system 'utf-8-unix)
 	  ;;
 	  ;; cygwin-mount
@@ -90,7 +115,6 @@
       ;;(set-terminal-coding-system 'euc-jp-unix)
       ;;(set-buffer-file-coding-system 'euc-jp-unix)
       ;;(set-keyboard-coding-system 'euc-jp-unix)
-	  (prefer-coding-system 'utf-8-unix)
 	  ;; サーバプロセスを起動する
 	  (require 'server nil t)
 	  (unless (server-running-p)
@@ -114,6 +138,7 @@
 					 )
 					default-frame-alist))))
 
+(prefer-coding-system 'utf-8-unix)
 (add-hook 'window-setup-hook
 		  (lambda ()
 			(set-frame-parameter nil 'fullscreen 'maximized)))
@@ -808,6 +833,7 @@
 
 ;;
 ;; color-moccur/moccur-edit(install from emacswiki)
+;; (install-elisp-from-emacswiki "color-moccur.el")
 (when (require 'color-moccur nil t)
   (setq moccur-split-word t))
 (require 'moccur-edit nil t)
@@ -887,11 +913,11 @@
 ;;
 ;; redo+.el
 ;; (auto-install-from-emacswiki "redo+.el")
-(when (require 'redo+)
-  (global-set-key (kbd "C-M-/") 'redo)
-  (setq undo-no-redo t); undo で redo しないようにする
-  (setq undo-limit 65536)
-  (setq undo-strong-limit 131072))
+;;(when (require 'redo+)
+;;  (global-set-key (kbd "C-M-/") 'redo)
+;;  (setq undo-no-redo t); undo で redo しないようにする
+;;  (setq undo-limit 65536)
+;;  (setq undo-strong-limit 131072))
 
 
 ;;
