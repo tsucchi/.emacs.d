@@ -28,11 +28,14 @@
 
 (set-language-environment "Japanese")
 
-;;(require 'package nil t)
-;;(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-;;(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/")) ; ついでにmarmaladeも追加
-;;(package-initialize)
-;;(require 'melpa nil t)
+;;
+;; package
+;;
+(require 'package)
+(package-initialize)
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/#/") t)
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(require 'melpa)
 
 ;;
 ;; mac
@@ -592,7 +595,7 @@
 (if (featurep 'sql-indent)
     (progn
       ;;(setq sql-product 'oracle)
-      (setq sql-product 'mysql)
+	  (sql-set-product "mysql") ; mysql, postgres, oracle, sqlite...
       (setq indent-tabs-mode nil)
       (setq sql-indent-offset 4)
       (setq default-tab-width 4);;なぜか↑が効かない。最悪...
@@ -993,14 +996,4 @@
 (add-hook 'window-setup-hook
           (lambda ()
             (modify-frame-parameters (selected-frame) initial-frame-alist)))
-
-;;; This was installed by package-install.el.
-;;; This provides support for the package system and
-;;; interfacing with ELPA, the package archive.
-;;; Move this code earlier if you want to reference
-;;; packages in your .emacs.
-(when
-	(load
-	 (expand-file-name "~/.emacs.d/elpa/package.el"))
-  (package-initialize))
 
