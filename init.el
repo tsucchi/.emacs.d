@@ -216,6 +216,11 @@
 ;;;
 ;;; cperl-mode : 細かい設定ができるperlモード
 ;;;
+(require 'jpl-reformat nil t)
+(defun ensure-mark()
+  "Deprecated function that is needed by jpl-reformat"
+  (and (not mark-active) (set-mark-command nil)))
+
 (autoload 'cperl-mode "cperl-mode" "Perl editing mode." t)
 (defalias 'perl-mode 'cperl-mode)
 ;;インデントと色付けと改行をおこなう
