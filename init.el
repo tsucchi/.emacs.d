@@ -213,6 +213,7 @@
 ;; theme file
 (setq mew-theme-file "~/.mew-theme.el")
 
+(require 'perl6-mode nil t)
 ;;;
 ;;; cperl-mode : 細かい設定ができるperlモード
 ;;;
