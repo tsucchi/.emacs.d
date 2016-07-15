@@ -33,8 +33,7 @@
 ;;
 (require 'package)
 (package-initialize)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/#/") t)
-;;(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (require 'melpa)
 
 ;;
@@ -1000,6 +999,7 @@
 (require 'yaml-mode nil t)
 (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
 
+(require 'scala-mode2 nil t)
 
 ;; ---------------------------- 以下は原則として変更しない ------------------------------------
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
