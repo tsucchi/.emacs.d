@@ -108,15 +108,11 @@
 
 
 ;;
-;;フレームと、日本語関連の設定(FreeBSD)
+;;フレームと、日本語関連の設定(FreeBSD/Linux)
 ;;
 (if (or (equal system-type 'berkeley-unix)
 		(equal system-type 'gnu/linux))
     (progn
-      ;;(set-default-coding-systems 'euc-jp-unix)
-      ;;(set-terminal-coding-system 'euc-jp-unix)
-      ;;(set-buffer-file-coding-system 'euc-jp-unix)
-      ;;(set-keyboard-coding-system 'euc-jp-unix)
 	  ;; サーバプロセスを起動する
 	  (require 'server nil t)
 	  (unless (server-running-p)
@@ -182,36 +178,10 @@
 		  (add-to-list 'color-themes '(color-theme-tsucchi "customized subtle-hacker" "tsucchi"))
 		  (color-theme-tsucchi)
 		  )))))
+
 ;;;
-;;;mewの設定 (メーラー)
+;;; perl6-mode
 ;;;
-;;詳細設定は.mewか.mew.elで
-(autoload 'mew "mew" nil t)
-(autoload 'mew-send "mew" nil t)
-;; Optional setup (e.g. C-xm for sending a message):
-(autoload 'mew-user-agent-compose "mew" nil t)
-(if (boundp 'mail-user-agent)
-    (setq mail-user-agent 'mew-user-agent))
-(if (fboundp 'define-mail-user-agent)
-    (define-mail-user-agent
-      'mew-user-agent
-      'mew-user-agent-compose
-      'mew-draft-send-message
-      'mew-draft-kill
-      'mew-send-hook))
-;;mew-fancy-summary
-(add-hook 'mew-init-hook
-		  (lambda ()
-			(require 'mew-fancy-summary nil t)))
-(setq mew-use-highlight-summary t)
-
-;; Optional setup (Read Mail menu for Emacs 21):
-(if (boundp 'read-mail-command)
-    (setq read-mail-command 'mew))
-
-;; theme file
-(setq mew-theme-file "~/.mew-theme.el")
-
 (require 'perl6-mode nil t)
 ;;;
 ;;; cperl-mode : 細かい設定ができるperlモード
@@ -271,13 +241,6 @@
       (append '(("^#!.*perl" . cperl-mode))
 			  interpreter-mode-alist))
 
-;;
-;; w3m (webブラウジング)
-;;
-(require 'w3m nil t)
-(setq w3m-use-filter t)
-(setq w3m-display-inline-image t)
-(setq mime-setup-enable-inline-html t)
 ;;;
 ;;; Visual Basic mode
 ;;;
@@ -319,16 +282,8 @@
 (setq echo-keystrokes 0.1)
 ;; 大きいファイルを開いたときに警告するしきい値を増やす(25MB)
 (setq large-file-warning-threshold (* 25 1024 102))
-;;ミニバッファで入力を取り消しても履歴に残す
-;; (defadvice abort-recursive-edit (before minibuffer-save activate)
-;;   (when (eq (selected-window) (active-minibuffer-window))
-;; 	(add-to-history minibuffer-history-variable (minibuffer-contents))))
 ;; yes/no の代わりに y/n にする
 (defalias 'yes-or-no-p 'y-or-n-p)
-;; ファイルを開くのを強化
-;;(ffap-bindings)
-;; ファイル保存前に不要な末尾空白を削除する
-;;(add-hook 'before-save-hook 'delete-trailing-whitespace)
 ;; conf 系のハイライトをするらしい
 (require 'generic-x nil t)
 
@@ -388,10 +343,6 @@
 (setq visible-bell t)
 ;;emacs内では、こうした方が良いらしい
 (setenv "LC_TIME" "C")
-;;ミニバッファのメッセージを必要に応じて拡張する(ちとウザい)
-;;(resize-minibuffer-mode)
-;;略語展開ファイルを読み込む
-;;(read-abbrev-file "~/.abbrev_defs")
 ;;regionを目立つようにする
 (transient-mark-mode t)
 ;;行番号を表示
@@ -419,18 +370,6 @@
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 (setq uniquify-strip-common-suffix nil)
-
-;;
-;; iswitchb: バッファ切り替えの強化
-;;
-;; (iswitchb-mode 1)
-;; ;; バッファ読み取り関数を iswitchb にする
-;; (setq read-buffer-function 'iswitchb-read-buffer)
-;; ;; 正規表現を使わない
-;; (setq iswitchb-regexp nil)
-;; ;; 新しいバッファを作成する時にいちいち聞かない
-;; (setq iswitchb-prompt-newbuffer)
-
 
 ;;;
 ;;;global key map
@@ -469,6 +408,7 @@
 ;;; shell-script-mode
 ;;;
 (add-to-list 'auto-mode-alist '(".cshrc" . shell-script-mode))
+(add-to-list 'auto-mode-alist '(".bashrc" . shell-script-mode))
 (add-to-list 'auto-mode-alist '(".aliases" . shell-script-mode))
 (add-to-list 'auto-mode-alist '(".complete" . shell-script-mode))
 (add-hook 'shell-script-mode-hook
@@ -618,111 +558,12 @@
 (add-to-list 'auto-mode-alist '("\\.sql" . sql-mode))
 (add-to-list 'auto-mode-alist '("\\.tag$" . sql-mode))
 
-
-
-
-;;;
-;;; マウスクリックによるブラウジング設定
-;;;
-(autoload 'browse-url-at-point "browse-url" nil t)
-(autoload 'browse-url-at-mouse "browse-url" nil t)
-(autoload 'browse-url-of-buffer "browse-url" nil t)
-(autoload 'browse-url-of-file "browse-url" nil t)
-(autoload 'browse-url-of-dired-file "browse-url" nil t)
-(setq browse-url-netscape-program "/usr/local/bin/firefox")
-
-;;;
-;;;navi-2ch: 2ch専用ブラウザ
-;;;
-(autoload 'navi2ch "navi2ch" "Navigator for 2ch for Emacs" t)
-(setq navi2ch-list-bbstable-url "http://menu.2ch.net/bbsmenu.html")
-
-;;
-;;seimei.el: 姓名診断
-;;
-;;http://kakugawa.aial.hiroshima-u.ac.jp/~kakugawa/Hacks/
-(autoload 'seimei "seimei" "seimei" t)
-
-
-;;
-;; ChangeLog (改定履歴)
-;;
-(add-hook 'change-log-mode-hook
-		  '(lambda ()
-			 (font-lock-mode nil)
-			 (font-lock-mode t)
-			 (font-lock-fontify-buffer)))
-
-;; C-x M で ChangeLog メモを起動します。
-(defun memo ()
-  (interactive)
-  (let ((add-log-current-defun-function 'ignore)
-		(memo-file "~/documents/ChangeLog"))
-    (set-buffer (find-file-noselect memo-file))
-    (add-change-log-entry
-     nil
-     (expand-file-name memo-file))))
-(define-key ctl-x-map "M" 'memo)
-;; M-x expand-image で ChangeLog メモ中の URLか画像を表示
-;; M-x insert-image-file でファイル名を補完しつつ画像を挿入
-(defun image-file-name-completion (file predicate flag)
-  "Completion function for image files."
-  (let ((regexp "\\(jpg\\|png\\|gif\\)$"))
-    (if (eq flag 'lambda)
-		(and (string-match regexp file)
-			 (file-exists-p file)
-			 (not (file-directory-p file)))
-      (let* ((dir (file-name-as-directory
-				   (or (file-name-directory file)
-					   default-directory)))
-			 (collection
-			  (delq nil
-					(mapcar
-					 (lambda (f)
-					   (unless (string-match "^\\.\\.?$" f)
-						 (cond
-						  ((file-directory-p (setq f (concat dir f)))
-						   (list (file-name-as-directory f)))
-						  ((string-match regexp f)
-						   (list f)))))
-					 (directory-files dir)))))
-		(cond
-		 ((not flag)
-		  (try-completion file collection predicate))
-		 ((eq flag t)
-		  (all-completions file collection predicate)))))))
-
-(defun insert-image-file (filename)
-  (interactive
-   (list (completing-read "Image file: " 'image-file-name-completion
-						  nil t (file-name-as-directory default-directory))))
-  (let* ((filename (expand-file-name filename))
-		 (image (create-image filename))
-		 (url (concat "<" filename ">")))
-    (insert-image image url)))
-
-(defun expand-images ()
-  (interactive)
-  (let* ((pos (point))
-		 (home (getenv "HOME"))
-		 (regexp (format "<\\(%s/.*\\.\\(jpg\\|png\\|gif\\)\\)>" home)))
-    (while (re-search-forward regexp nil t)
-      (let* ((start (match-beginning 0))
-			 (end (match-end 0))
-			 (filename (match-string 1))
-			 (image (cons 'image (cdr (create-image filename)))))
-		(add-text-properties start end
-							 (list 'display image
-								   'intangible image
-								   'rear-nonsticky (list 'display)))))
-    (goto-char pos)))
-
 ;;
 ;; jaspace.el : 全角空白の表示
 ;;
 (require 'jaspace nil t)
 ;;;; タブを表示する場合
-										;(setq jaspace-highlight-tabs t)
+;;(setq jaspace-highlight-tabs t)
 ;; 改行文字の表示
 ;;(setq jaspace-alternate-eol-string "↓\n")
 ;;;; 半角スペースの表示
@@ -788,12 +629,6 @@
 
 (global-set-key (kbd "C-x C-b") 'anything)
 
-;; PerlySense : 補完機能(実験中 -> いまいちうまく動かない orz)
-;;(global-unset-key "\C-\\")
-;;(setq perly-sense-key-prefix "\C-\\")
-;;(setq perly-sense-load-flymake nil)
-;;(require 'perly-sense nil t)
-
 ;;
 ;; Haskell mode
 ;;
@@ -820,44 +655,11 @@
 	  (append '(".t" ".c" ".h")))
 
 ;;
-;; twitterling-mode
-(require 'twittering-mode nil t)
-(setq twittering-username "tsucchi")
-(setq twittering-status-format "%i %s/%S,  (%C{%Y/%m/%d %H:%M:%S}):%L\n%FILL{  %T //[%f%r%R]}\n ")
-(setq twittering-convert-fix-size 24)
-(setq twittering-auth-method 'xauth)
-(setq twittering-allow-insecure-server-cert t)
-(add-hook 'twittering-mode-hook
-		  (lambda ()
-			(set-face-bold-p 'twittering-username-face t)
-			(set-face-foreground 'twittering-username-face "DeepSkyBlue3")
-			(set-face-foreground 'twittering-uri-face "LightSalmon")
-			(twittering-icon-mode t)
-			;;(twittering-scroll-mode t)
-			(setq twittering-reverse-mode t); #逆順
-			(define-key  twittering-mode-map "\C-m" 'twittering-scroll-up)
-			(define-key   twittering-mode-map "A" 'twittering-enter)
-			(setq twittering-update-status-function 'twittering-update-status-from-pop-up-buffer)
-			))
-
-;;
 ;; color-moccur/moccur-edit(install from emacswiki)
 ;; (install-elisp-from-emacswiki "color-moccur.el")
 (when (require 'color-moccur nil t)
   (setq moccur-split-word t))
 (require 'moccur-edit nil t)
-
-;;
-;; undohist(install from http://cx4a.org/pub/undohist.el)
-;; NTEmacs でうまく動かないのでコメントアウト
-;;(when (require 'undohist nil t)
-;;  (undohist-initialize))
-
-;;
-;;
-;; undo-tree(install from http://www.dr-qubit.org/undo-tree/undo-tree.el)
-;;(when (require 'undo-tree nil t)
-;;  (global-undo-tree-mode))
 
 ;;
 ;; auto-complete
@@ -870,25 +672,6 @@
   (ac-config-default))
 
 ;;
-;; auto-async-byte-compile.el (install from emacswiki)
-;;(when (require 'auto-async-byte-compile nil t)
-;;  (add-hook 'emacs-lisp-mode-hook 'enable-auto-async-byte-compile-mode))
-
-;;
-;; sticky
-;;(install-elisp-from-emacswiki "sticky.el")
-;; 試すのは SKK も試してからのほうがよさげ
-;;(when (require 'sticky nil t)
-;;  (use-sticky-key ";" stick-alist:ja))
-
-;;
-;; sequential-command
-;;(auto-install-from-emacswiki "sequential-command.el")
-;;(auto-install-from-emacswiki "sequential-command-config.el")
-;;(when (require 'sequential-command-config nil t)
-;;  (sequential-command-setup-keys))
-
-;;
 ;; minor-mode-hack
 ;;(auto-install-from-emacswiki "minor-mode-hack.el")
 (require 'minor-mode-hack nil t)
@@ -898,57 +681,9 @@
 ;; recentf-ext
 ;; (auto-install-from-emacswiki "recentf-ext.el")
 (setq recentf-max-saved-items 1000)
-;;(setq recentf-exclude '("file1" "/tmp"))
-;;(require 'recentf-ext)
-;;(global-set-key (kbd "C-x f") 'recentf-open-files)
-
-;;
-;; tempbuf.el : 使わないバッファを自動で削除
-;; (auto-install-from-emacswiki "tempbuf.el")
-;; (when (require 'tempbuf nil t)
-;;   (setq tempbuf-minimum-timeout 6000);;[sec] デフォルトだと早すぎるので長くする
-;;   (add-hook 'find-file-hook 'turn-on-tempbuf-mode)
-;;   (add-hook 'dired-mode-hook 'turn-on-tempbuf-mode))
-
-;; auto-save-buffers.el : 自動保存
-;; (install-elisp "http://homepage3.nifty.com/oatu/emacs/archives/auto-save-buffers.el")
-;; (when (require 'auto-save-buffers nil t)
-;;   ;;2秒アイドルで保存する
-;;   (run-with-idle-timer 2 t 'auto-save-buffers))
 
 ;; wdired.el
 (define-key dired-mode-map "r" 'wdired-change-towdired-mode)
-
-;;
-;; redo+.el
-;; (auto-install-from-emacswiki "redo+.el")
-;;(when (require 'redo+)
-;;  (global-set-key (kbd "C-M-/") 'redo)
-;;  (setq undo-no-redo t); undo で redo しないようにする
-;;  (setq undo-limit 65536)
-;;  (setq undo-strong-limit 131072))
-
-
-;;
-;; evernote mode
-;; (require 'evernote-mode nil t)
-;; (setq evernote-username "tsucchi1022")
-;; (global-set-key "\C-cec" 'evernote-create-note)
-;; (global-set-key "\C-ceo" 'evernote-open-note)
-;; (global-set-key "\C-ces" 'evernote-search-notes)
-;; (global-set-key "\C-ceS" 'evernote-do-saved-search)
-;; (global-set-key "\C-cew" 'evernote-write-note)
-;; (add-to-list 'anything-sources anything-c-source-evernote-title)
-
-;; calfw
-;;(auto-install-from-url "https://github.com/kiwanami/emacs-calfw/raw/master/calfw.el")
-;;(when (require 'calfw nil t)
-;;  (cfw:open-calendar-buffer))
-
-;; sense-region.el
-;;;(install-elisp "http://taiyaki.org/elisp/sense-region/src/sense-region.el")
-;;(when (require 'sense-region nil t)
-;;  (sense-region-on))
 
 ;;
 ;; yasnippet
