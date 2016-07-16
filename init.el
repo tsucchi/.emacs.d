@@ -376,16 +376,6 @@
 ;; タブでインデントしない
 (setq indent-tabs-mode nil)
 
-;;最終更新日を自動でつける。
-;; last updated : yyyy/mm/ddの書式に反応する
-(require 'time-stamp)
-(add-hook 'write-file-hooks 'time-stamp)
-(setq time-stamp-active t)
-(setq time-stamp-start "last updated : ")
-(setq time-stamp-format "%04y/%02m/%02d")
-(setq time-stamp-end " \\|$")
-(setq time-stamp-line-limit 20)
-
 ;;;
 ;;; uniquify : バッファの名前を一意にする
 ;;;
