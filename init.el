@@ -15,10 +15,50 @@
   alist))
 
 ;;
+;; mac
+;;
+(if (equal system-type 'darwin)
+	(progn
+	  ;; PATH をシェルから引き継ぐ
+	  ;; https://github.com/purcell/exec-path-from-shell
+	  (require 'exec-path-from-shell nil t) 
+	  (if (featurep 'exec-path-from-shell)
+		  (progn
+			(exec-path-from-shell-initialize)))
+	  ;;
+	  ;; http://d.hatena.ne.jp/kazu-yamamoto/20140625/1403674172
+	  (global-set-key [s-mouse-1] 'browse-url-at-mouse)
+	  (cond
+	   (window-system
+		(let* ((size 14)
+			   (jpfont "Hiragino Maru Gothic ProN")
+			   (asciifont "Monaco")
+			   (h (* size 10)))
+		  (set-face-attribute 'default nil :family asciifont :height h)
+		  (set-fontset-font t 'katakana-jisx0201 jpfont)
+		  (set-fontset-font t 'japanese-jisx0208 jpfont)
+		  (set-fontset-font t 'japanese-jisx0212 jpfont)
+		  (set-fontset-font t 'japanese-jisx0213-1 jpfont)
+		  (set-fontset-font t 'japanese-jisx0213-2 jpfont)
+		  (set-fontset-font t '(#x0080 . #x024F) asciifont))
+		(setq face-font-rescale-alist
+			  '(("^-apple-hiragino.*" . 1.2)
+				(".*-Hiragino Maru Gothic ProN-.*" . 1.2)
+				(".*osaka-bold.*" . 1.2)
+				(".*osaka-medium.*" . 1.2)
+				(".*courier-bold-.*-mac-roman" . 1.0)
+				(".*monaco cy-bold-.*-mac-cyrillic" . 0.9)
+				(".*monaco-bold-.*-mac-roman" . 0.9)
+				("-cdac$" . 1.3)))))))
+
+
+;;
 ;; install-elisp
 ;;(install-elisp-from-emacswiki "auto-install.el")
 (add-to-list 'load-path "~/.emacs.d/elisp")
 (when (require 'auto-install nil t)
+  (setq auto-install-use-wget t)
+  (setq auto-install-wget-command "/usr/local/bin/wget --no-check-certificate")
   (setq install-elisp-repository-directory "~/.emacs.d/elisp")
   (setq auto-install-directory "~/.emacs.d/elisp/")
   (auto-install-update-emacswiki-package-name t)
@@ -37,33 +77,6 @@
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 (require 'melpa)
 
-;;
-;; mac
-;;
-(if (equal system-type 'darwin)
-	(progn
-	  ;; http://d.hatena.ne.jp/kazu-yamamoto/20140625/1403674172
-	  (global-set-key [s-mouse-1] 'browse-url-at-mouse)
-	  (let* ((size 14)
-			 (jpfont "Hiragino Maru Gothic ProN")
-			 (asciifont "Monaco")
-			 (h (* size 10)))
-		(set-face-attribute 'default nil :family asciifont :height h)
-		(set-fontset-font t 'katakana-jisx0201 jpfont)
-		(set-fontset-font t 'japanese-jisx0208 jpfont)
-		(set-fontset-font t 'japanese-jisx0212 jpfont)
-		(set-fontset-font t 'japanese-jisx0213-1 jpfont)
-		(set-fontset-font t 'japanese-jisx0213-2 jpfont)
-		(set-fontset-font t '(#x0080 . #x024F) asciifont))
-	  (setq face-font-rescale-alist
-			'(("^-apple-hiragino.*" . 1.2)
-			  (".*-Hiragino Maru Gothic ProN-.*" . 1.2)
-			  (".*osaka-bold.*" . 1.2)
-			  (".*osaka-medium.*" . 1.2)
-			  (".*courier-bold-.*-mac-roman" . 1.0)
-			  (".*monaco cy-bold-.*-mac-cyrillic" . 0.9)
-			  (".*monaco-bold-.*-mac-roman" . 0.9)
-			  ("-cdac$" . 1.3)))))
 
 ;;;
 ;;; Windows 系の emacs の設定
@@ -112,12 +125,7 @@
       ;; 日本語関連(IME の初期化後)
       (global-unset-key "\C-o")
       (global-set-key "\C-o" 'toggle-input-method)
-	  (set-buffer-file-coding-system 'utf-8-unix)
-	  ;;
-	  ;; cygwin-mount
-	  (when (require 'cygwin-mount nil t)
-	    (cygwin-mount-deactivate))
-))
+	  (set-buffer-file-coding-system 'utf-8-unix)))
 
 
 
