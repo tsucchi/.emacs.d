@@ -666,7 +666,7 @@
 
 ;;
 ;; auto-complete
-;;(http://cx4a.org/software/auto-complete/ よりDL, ファイルを展開し、M-x load-file でインストール)
+;; package-install で入る
 (require 'auto-complete nil t)
 (when (require 'auto-complete-config nil t)
   (global-auto-complete-mode t)
@@ -690,12 +690,9 @@
 
 ;;
 ;; yasnippet
-;; yasnippet-x.x.x.tar.bz2 を展開したものを yasnippet にリネーム
-;; ~/.emacs.d/plugins 以下に置いたうえで、
-;; yasnippet.el を ~/.emacs.d/elisp に置いて、下記を実行
-;; (install-elisp-from-emacswiki "yasnippet-config.el")
-(when (require 'yasnippet-config)
-  (yas/setup "~/.emacs.d/plugins/yasnippet"))
+;; package-install で入る
+(when (require 'yasnippet)
+  (yas-global-mode 1))
 
 
 ;; html-mode
