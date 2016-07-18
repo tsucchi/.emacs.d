@@ -58,7 +58,8 @@
 (add-to-list 'load-path "~/.emacs.d/elisp")
 (when (require 'auto-install nil t)
   (setq auto-install-use-wget t)
-  (setq auto-install-wget-command "/usr/local/bin/wget --no-check-certificate")
+  ;;(setq auto-install-wget-command "/usr/local/bin/wget --no-check-certificate")
+  (setq auto-install-wget-command "/usr/local/bin/wget")
   (setq install-elisp-repository-directory "~/.emacs.d/elisp")
   (setq auto-install-directory "~/.emacs.d/elisp/")
   (auto-install-update-emacswiki-package-name t)
@@ -72,11 +73,11 @@
 ;; package
 ;;
 (fset 'package-desc-vers 'package--ac-desc-version)
-(require 'package)
-(package-initialize)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-(require 'melpa)
+(when (require 'package nil t)
+  (package-initialize)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+  (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+  (require 'melpa))
 
 
 ;;;
