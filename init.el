@@ -70,7 +70,7 @@
   (setq auto-install-wget-command "/usr/local/bin/wget")
   (setq install-elisp-repository-directory "~/.emacs.d/elisp")
   (setq auto-install-directory "~/.emacs.d/elisp/")
-  (auto-install-update-emacswiki-package-name t)
+  ;;(auto-install-update-emacswiki-package-name t)
   (auto-install-compatibility-setup)
   (setq ediff-window-setup-function 'ediff-setup-windows-plain))
 
