@@ -30,7 +30,7 @@
 	  (global-set-key [s-mouse-1] 'browse-url-at-mouse)
 	  (cond
 	   (window-system
-		(let* ((size 14)
+		(let* ((size 12)
 			   (jpfont "Hiragino Maru Gothic ProN")
 			   (asciifont "Monaco")
 			   (h (* size 10)))
@@ -87,12 +87,9 @@
       ;; Meadow/NTEmacs で共通の設定(日本語設定など)
       (set-default-coding-systems 'sjis)
       (set-keyboard-coding-system 'sjis)
-
-
 	  ;;
 	  ;; NTEmacs の場合
 	  ;;
-
 	  (setq w32-enable-synthesized-fonts t)
 	  ;;(create-fontset-from-ascii-font "-outline-ＭＳ ゴシック-normal-r-normal-normal-14-*-*-*-*-*-iso8859-1" nil "myfont")
 	  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("ＭＳ ゴシック" . "jisx0208-sjis"))
@@ -100,13 +97,11 @@
 	  (create-fontset-from-ascii-font "-outline-VL ゴシック-normal-r-normal-normal-14-*-*-*-*-*-iso8859-1" nil "myfont")
 	  (set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("ＭＳ ゴシック" . "jisx0208-sjis"))
 	  (set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("ＭＳ ゴシック" . "jisx0201-katakana"))
-
 	  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("VL ゴシック" . "jisx0208-sjis"))
 	  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("VL ゴシック" . "jisx0201-katakana"))
 	  ;;(create-fontset-from-ascii-font "-outline-Ricty-normal-r-normal-normal-18-*-*-*-*-*-iso8859-1" nil "myfont")
 	  ;;(set-fontset-font "fontset-myfont" 'japanese-jisx0208  '("Ricty" . "jisx0208-sjis"))
 	  ;;(set-fontset-font "fontset-myfont" 'katakana-jisx0201 '("Ricty" . "jisx0201-katakana"))
-	  
 	  (setq default-frame-alist
 			(append (list
 					 '(width . 155) ;;フレームの幅
@@ -122,7 +117,6 @@
 	  (set-input-method "W32-IME")
 	  (setq-default w32-ime-mode-line-state-indicator "[--]")
 	  (setq w32-ime-mode-line-state-indicator-list '("[--]" "[あ]" "[--]"))
-
       ;; 日本語関連(IME の初期化後)
       (global-unset-key "\C-o")
       (global-set-key "\C-o" 'toggle-input-method)
@@ -168,15 +162,15 @@
 
 
 
-;;;
-;;; color-theme
-;;;
-;; 名前の通り、色付けのテーマを使えます
-;; http://www.geocities.com/kensanata/emacs-colors.html
-;; (color-theme.elを/usr/local/share/emacs/site-lisp/に置けば良い)
 (cond
  (window-system
+  ;; Window system が有効な場合(-nwじゃない場合)
   (progn
+	;;
+	;; color-theme
+	;;
+	;; 名前の通り、色付けのテーマを使えます
+	;; http://www.geocities.com/kensanata/emacs-colors.html
     (require 'color-theme nil t)
     (if (featurep 'color-theme)
 		(progn
@@ -202,7 +196,38 @@
 				 ))))
 		  (add-to-list 'color-themes '(color-theme-tsucchi "customized subtle-hacker" "tsucchi"))
 		  (color-theme-tsucchi)
-		  )))))
+		  ;;ツールバーを消す
+		  (tool-bar-mode 0)))))
+ (t ; Window system が有効でない場合(-nwで起動した場合)
+  (progn
+	;;
+	;;色の設定(コンソールの時)
+	;;
+	(make-face 'font-lock-keyword-face)
+	(set-face-foreground 'font-lock-keyword-face "cornflower blue")
+	(setq font-lock-keyword-face 'font-lock-keyword-face)
+	(make-face 'font-lock-comment-face)
+	(set-face-foreground 'font-lock-comment-face "lime green")
+	(setq font-lock-comment-face 'font-lock-comment-face)
+	(make-face 'font-lock-string-face)
+	(set-face-foreground 'font-lock-string-face "deep pink")
+	(setq font-lock-string-face 'font-lock-string-face)
+	(make-face 'font-lock-function-name-face)
+	(set-face-foreground 'font-lock-function-name-face "red")
+	(setq font-lock-function-name-face 'font-lock-function-name-face)
+	(make-face 'font-lock-type-face)
+	(set-face-foreground 'font-lock-type-face "white")
+	(setq font-lock-type-face 'font-lock-type-face)
+	(make-face 'font-lock-variable-name-face)
+	(set-face-foreground 'font-lock-variable-name-face "pink")
+	(setq font-lock-variable-name-face 'font-lock-variable-name-face)
+	(make-face 'font-lock-builtin-face)
+	(set-face-foreground 'font-lock-builtin-face "cornflower blue")
+	(setq font-lock-builtin-face 'font-lock-builtin-face)
+	(make-face 'font-lock-constant-face)
+	(set-face-foreground 'font-lock-constant-face "yellow")
+	(setq font-lock-constant-face 'font-lock-constant-face))))
+
 
 ;;;
 ;;; perl6-mode
@@ -274,8 +299,6 @@
 (add-to-list 'auto-mode-alist '("\\.cls$" . visual-basic-mode))
 
 
-;;ツールバーを消す
-(tool-bar-mode 0)
 ;;カーソルの点滅を止める
 (blink-cursor-mode 0)
 ;;空カーソルの表示をしない
@@ -311,38 +334,6 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 ;; conf 系のハイライトをするらしい
 (require 'generic-x nil t)
-
-;;
-;;色の設定(コンソールの時)
-;;
-(cond
- ((not window-system)
-  (progn
-    (make-face 'font-lock-keyword-face)
-    (set-face-foreground 'font-lock-keyword-face "cornflower blue")
-    (setq font-lock-keyword-face 'font-lock-keyword-face)
-    (make-face 'font-lock-comment-face)
-    (set-face-foreground 'font-lock-comment-face "lime green")
-    (setq font-lock-comment-face 'font-lock-comment-face)
-    (make-face 'font-lock-string-face)
-    (set-face-foreground 'font-lock-string-face "deep pink")
-    (setq font-lock-string-face 'font-lock-string-face)
-    (make-face 'font-lock-function-name-face)
-    (set-face-foreground 'font-lock-function-name-face "red")
-    (setq font-lock-function-name-face 'font-lock-function-name-face)
-    (make-face 'font-lock-type-face)
-    (set-face-foreground 'font-lock-type-face "white")
-    (setq font-lock-type-face 'font-lock-type-face)
-    (make-face 'font-lock-variable-name-face)
-    (set-face-foreground 'font-lock-variable-name-face "pink")
-    (setq font-lock-variable-name-face 'font-lock-variable-name-face)
-    (make-face 'font-lock-builtin-face)
-    (set-face-foreground 'font-lock-builtin-face "cornflower blue")
-    (setq font-lock-builtin-face 'font-lock-builtin-face)
-    (make-face 'font-lock-constant-face)
-    (set-face-foreground 'font-lock-constant-face "yellow")
-    (setq font-lock-constant-face 'font-lock-constant-face))))
-
 
 
 
