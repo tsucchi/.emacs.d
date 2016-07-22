@@ -209,6 +209,7 @@
 	(make-face 'font-lock-string-face)
 	(set-face-foreground 'font-lock-string-face "LightSalmon")
 	(setq font-lock-string-face 'font-lock-string-face)
+	(set-face-bold-p 'font-lock-string-face t)
 	(make-face 'font-lock-function-name-face)
 	(set-face-foreground 'font-lock-function-name-face "MediumSlateBlue")
 	(setq font-lock-function-name-face 'font-lock-function-name-face)
