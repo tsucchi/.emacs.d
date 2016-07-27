@@ -75,14 +75,10 @@
 (load "perl")
 (load "vb")
 (load "misc")
-
 (load "my-uniquify-conf")
-
 (load "keymap")
-
 (load "my-text-mode")
 (load "my-fundamental-mode")
-
 (load "my-shell-script-mode")
 
 ;;;
