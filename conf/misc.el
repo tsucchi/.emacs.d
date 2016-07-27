@@ -51,6 +51,11 @@
   (cons (cons "\\.*$" (expand-file-name "~/.emacs.d/backup"))
     backup-directory-alist))
 
+;;
+;; grep-edit
+;;
+(require 'grep-edit nil t)
+
 ;;入力エラー時のbeep音を光に
 (setq visible-bell t)
 ;;emacs内では、こうした方が良いらしい
