@@ -23,7 +23,10 @@
 
 (if (equal system-type 'windows-nt)
     (load "my-windows-conf"))
-(load "my-linux-bsd-conf")
+
+(if (or (equal system-type 'berkeley-unix)
+		(equal system-type 'gnu/linux))
+	(load "my-linux-bsd-conf"))
 
 ;; 設定系
 (load "my-misc-conf")
