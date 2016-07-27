@@ -80,15 +80,6 @@
 (load "my-text-mode")
 (load "my-fundamental-mode")
 (load "my-shell-script-mode")
-
-;;;
-;;;trr19 : タイピング練習
-;;;
-;; http://web.yl.is.s.u-tokyo.ac.jp/~ymmt/mydist.shtml
-(autoload 'trr "/usr/local/share/emacs/site-lisp/trr/trr" nil t)
-
-
-
 (load "my-functions")
 
 (load "my-ruby-mode")
