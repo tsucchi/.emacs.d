@@ -16,20 +16,20 @@
 (setq load-path
       (append '("~/.emacs.d/modes") load-path))
 
-(load "package-install")
+(load "my-package-install-conf")
 (load "my-japanese-conf")
 
 (load "my-mac-conf")
 
 (if (equal system-type 'windows-nt)
     (load "my-windows-conf"))
-(load "linux-bsd")
+(load "my-linux-bsd-conf")
 
 ;; 設定系
-(load "hilight")
-(load "misc")
+(load "my-misc-conf")
+(load "my-hilight-conf")
 (load "my-uniquify-conf")
-(load "keymap")
+(load "my-keymap-conf")
 (load "my-functions")
 (load "my-jaspace-conf")
 (load "my-anything-conf")
@@ -37,15 +37,15 @@
 (load "my-yasnippet-conf")
 
 ;; プログラミングの mode 系
-(load "perl6")
-(load "perl")
-(load "vb")
+(load "my-perl6-mode")
+(load "my-perl-mode")
+(load "my-vb-mode")
 (load "my-text-mode")
 (load "my-fundamental-mode")
 (load "my-shell-script-mode")
 (load "my-ruby-mode")
-(load "lisp")
-(load "my-sql-conf")
+(load "my-lisp-mode")
+(load "my-sql-mode")
 (load "my-haskell-mode")
 (load "my-html-mode")
 (load "my-markdown-mode")
