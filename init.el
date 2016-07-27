@@ -57,19 +57,13 @@
 (load "package-install")
 
 (set-language-environment "Japanese")
+(prefer-coding-system 'utf-8-unix)
 
 (if (equal system-type 'windows-nt)
     (load "my-windows-conf"))
 
 
 (load "linux-bsd")
-
-(prefer-coding-system 'utf-8-unix)
-(add-hook 'window-setup-hook
-		  (lambda ()
-			(set-frame-parameter nil 'fullscreen 'maximized)))
-
-
 (load "hilight")
 (load "perl6")
 (load "perl")
@@ -81,12 +75,9 @@
 (load "my-fundamental-mode")
 (load "my-shell-script-mode")
 (load "my-functions")
-
 (load "my-ruby-mode")
-
 (load "lisp")
 (load "my-sql-conf")
-
 (load "my-jaspace-conf")
 
 ;;
@@ -119,42 +110,7 @@
 (global-set-key (kbd "C-x C-b") 'anything)
 
 (load "my-haskell-mode")
-
-;;
-;; speedbar(最近では標準で入ってるみたいです)
-(setq speedbar-supported-extension-expressions
-	  (append '(".t" ".c" ".h")))
-
-;;
-;; color-moccur/moccur-edit(install from emacswiki)
-;; (install-elisp-from-emacswiki "color-moccur.el")
-(when (require 'color-moccur nil t)
-  (setq moccur-split-word t))
-(require 'moccur-edit nil t)
-
-;;
-;; auto-complete
-;; package-install で入る
-(require 'auto-complete nil t)
-(when (require 'auto-complete-config nil t)
-  (global-auto-complete-mode t)
-  (add-to-list 'ac-dictionary-directories "~/.emacs.d/elisp/ac-dict")
-  (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
-  (ac-config-default))
-
-;;
-;; minor-mode-hack
-;;(auto-install-from-emacswiki "minor-mode-hack.el")
-(require 'minor-mode-hack nil t)
-
-
-;;
-;; recentf-ext
-;; (auto-install-from-emacswiki "recentf-ext.el")
-(setq recentf-max-saved-items 1000)
-
-;; wdired.el
-(define-key dired-mode-map "r" 'wdired-change-towdired-mode)
+(load "my-auto-complete-conf")
 
 ;;
 ;; yasnippet
@@ -164,21 +120,13 @@
 
 (load "my-html-mode")
 (load "my-markdown-mode")
-
-
-(autoload 'scss-mode "scss-mode")
-(setq scss-compile-at-save nil) ;; 自動コンパイルをオフにする
-(add-to-list 'auto-mode-alist '("\\.scss\\'" . scss-mode))
-
-
-(require 'yaml-mode nil t)
-(add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
-
-(require 'scala-mode2 nil t)
+(load "my-scss-mode")
+(load "my-yaml-mode")
+(load "my-scala-mode")
 
 ;; ---------------------------- 以下は原則として変更しない ------------------------------------
 ;; emacs23.2 (以降?)では color-theme 使うとフレームサイズが勝手に変更されるのでここで実施
-(add-hook 'window-setup-hook
-          (lambda ()
-            (modify-frame-parameters (selected-frame) initial-frame-alist)))
+;; (add-hook 'window-setup-hook
+;;           (lambda ()
+;;             (modify-frame-parameters (selected-frame) initial-frame-alist)))
 

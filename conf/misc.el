@@ -65,3 +65,35 @@
 (setq default-tab-width 4)
 ;; タブでインデントしない
 (setq indent-tabs-mode nil)
+
+
+;;
+;; speedbar
+(setq speedbar-supported-extension-expressions
+	  (append '(".t" ".c" ".h")))
+
+;;
+;; color-moccur/moccur-edit(install from emacswiki)
+;; (install-elisp-from-emacswiki "color-moccur.el")
+(when (require 'color-moccur nil t)
+  (setq moccur-split-word t))
+(require 'moccur-edit nil t)
+
+;;
+;; minor-mode-hack
+;;(auto-install-from-emacswiki "minor-mode-hack.el")
+(require 'minor-mode-hack nil t)
+
+;;
+;; recentf-ext
+;; (auto-install-from-emacswiki "recentf-ext.el")
+(setq recentf-max-saved-items 1000)
+
+;; wdired.el
+(define-key dired-mode-map "r" 'wdired-change-towdired-mode)
+
+
+;; 最大化して起動
+(add-hook 'window-setup-hook
+		  (lambda ()
+			(set-frame-parameter nil 'fullscreen 'maximized)))
