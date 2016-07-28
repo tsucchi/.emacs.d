@@ -19,7 +19,8 @@
 (load "my-package-install-conf")
 (load "my-japanese-conf")
 
-(load "my-mac-conf")
+(if (equal system-type 'darwin)
+	(load "my-mac-conf"))
 
 (if (equal system-type 'windows-nt)
     (load "my-windows-conf"))
