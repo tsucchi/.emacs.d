@@ -97,6 +97,10 @@
 ;; wdired.el
 (define-key dired-mode-map "r" 'wdired-change-towdired-mode)
 
+;; 括弧のハイライト
+(show-paren-mode t)
+(setq show-paren-style 'parenthesis)
+
 
 ;; 最大化して起動
 (add-hook 'window-setup-hook

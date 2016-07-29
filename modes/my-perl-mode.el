@@ -40,7 +40,7 @@
 			 (setq tab-width 4)
 			 (setq font-lock-background-mode 'dark)
 			 (setq frame-background-mode 'dark)
-			 (setq cperl-indent-subs-specially nil)
+			 (cperl-set-style "PerlStyle")
 			 ;; 配列とハッシュの色設定
 			 (set-face-background 'cperl-array-face nil)
 			 (set-face-bold-p 'cperl-array-face nil)
