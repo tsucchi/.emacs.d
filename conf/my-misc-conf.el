@@ -101,6 +101,9 @@
 (show-paren-mode t)
 (setq show-paren-style 'parenthesis)
 
+;; 現在桁のハイライト
+(require 'column-marker nil t)
+(global-set-key (kbd "C-c m") 'column-marker-1)
 
 ;; 最大化して起動
 (add-hook 'window-setup-hook
