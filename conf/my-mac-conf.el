@@ -8,6 +8,12 @@
 (if (featurep 'exec-path-from-shell)
 	(progn
 	  (exec-path-from-shell-initialize)))
+
+;; サーバプロセスを起動する
+(require 'server nil t)
+(unless (server-running-p)
+  (server-start))
+
 ;;
 ;; http://d.hatena.ne.jp/kazu-yamamoto/20140625/1403674172
 (global-set-key [s-mouse-1] 'browse-url-at-mouse)
