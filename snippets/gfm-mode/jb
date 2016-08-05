@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: jb
+# key: jb
+# --
+---
+layout: post
+category: 
+tags: 
+title: 
+---
+{% include JB/setup %}
