@@ -36,7 +36,8 @@
 (load "my-keymap-conf")
 (load "my-functions")
 (load "my-jaspace-conf")
-(load "my-anything-conf")
+;;(load "my-anything-conf")
+(load "my-helm-conf")
 (load "my-auto-complete-conf")
 (load "my-yasnippet-conf")
 
