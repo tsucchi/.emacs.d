@@ -71,6 +71,8 @@
 ;; タブでインデントしない
 (setq indent-tabs-mode nil)
 
+;;; 現在の関数名をモードラインに表示
+(which-function-mode 1)
 
 ;;
 ;; speedbar
