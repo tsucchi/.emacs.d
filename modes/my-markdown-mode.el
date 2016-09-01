@@ -5,18 +5,8 @@
 (autoload 'gfm-mode "markdown-mode.el" "Major mode for editing Markdown files" t)
 (setq auto-mode-alist (cons '("\\.md" . gfm-mode) auto-mode-alist))
 
-;;先頭行にヘッダを入れる(日記専用)
-(defun md-insert-header ()
-  (interactive)
-  (goto-char 1)
-  (insert "---\n")
-  (insert "layout: post\n")
-  (insert "category: \n")
-  (insert "tags: \n")
-  (insert "title: \n")
-  (insert "---\n")
-  (insert "{% include JB/setup %}\n"))
 (add-hook 'markdown-mode-hook
 		  '(lambda ()
 			 ;;(define-key markdown-mode-map "\C-ce" 'sgml-name-char); 文字実体参照HTMLモードを事前にロードしないとダメでうまくいっていない
-			 (define-key markdown-mode-map "\C-ci" 'md-insert-header)))
+			 ;; インデントがおかしいのを直す http://blog.shibayu36.org/entry/2015/08/04/190956
+			 (electric-indent-local-mode -1)))
