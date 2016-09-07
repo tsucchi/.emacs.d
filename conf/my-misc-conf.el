@@ -64,6 +64,8 @@
 (transient-mark-mode t)
 ;;行番号を表示
 (line-number-mode t)
+;; 桁数が多い場合に ?? になら無いようにする http://rubikitch.com/2016/09/07/line-number-display-limit-width/
+(setq line-number-display-limit-width 10000)
 ;;列番号を表示
 (column-number-mode t)
 ;; デフォルトのタブ長を 4 に
