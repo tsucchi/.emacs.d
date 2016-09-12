@@ -105,6 +105,8 @@
 (show-paren-mode t)
 (setq show-paren-style 'parenthesis)
 
+;; magit
+(require 'magit nil t)
 
 ;; 最大化して起動
 (add-hook 'window-setup-hook
