@@ -64,6 +64,8 @@
 (transient-mark-mode t)
 ;;行番号を表示
 (line-number-mode t)
+;; 桁数が多い場合に ?? になら無いようにする http://rubikitch.com/2016/09/07/line-number-display-limit-width/
+(setq line-number-display-limit-width 10000)
 ;;列番号を表示
 (column-number-mode t)
 ;; デフォルトのタブ長を 4 に
@@ -103,9 +105,14 @@
 (show-paren-mode t)
 (setq show-paren-style 'parenthesis)
 
+
 ;; 現在桁のハイライト
 (require 'column-marker nil t)
 (global-set-key (kbd "C-c m") 'column-marker-1)
+
+;; magit
+(require 'magit nil t)
+
 
 ;; 最大化して起動
 (add-hook 'window-setup-hook
