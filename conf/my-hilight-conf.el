@@ -44,6 +44,7 @@
 	(setq font-lock-keyword-face 'font-lock-keyword-face)
 	(make-face 'font-lock-comment-face)
 	(set-face-foreground 'font-lock-comment-face "lime green")
+	(set-face-background 'font-lock-comment-face nil)
 	(setq font-lock-comment-face 'font-lock-comment-face)
 	(make-face 'font-lock-string-face)
 	(set-face-foreground 'font-lock-string-face "LightSalmon")
