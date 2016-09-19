@@ -39,6 +39,10 @@
 	;;
 	;;色の設定(コンソールの時)
 	;;
+	(custom-set-faces
+	 '(default ((t
+				 (:background "darkslategray" :foreground "chaki")
+				 ))))
 	(make-face 'font-lock-keyword-face)
 	(set-face-foreground 'font-lock-keyword-face "cornflower blue")
 	(setq font-lock-keyword-face 'font-lock-keyword-face)
