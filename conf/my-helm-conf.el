@@ -19,5 +19,4 @@
  '(helm-mini-default-sources '(helm-source-buffers-list
                                helm-source-recentf
                                helm-source-files-in-current-dir
-							   helm-source-file-name-history
-							   helm-source-imenu)))
+							   helm-source-file-name-history)))
