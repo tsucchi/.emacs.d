@@ -6,8 +6,11 @@
 (fset 'package-desc-vers 'package--ac-desc-version)
 (when (require 'package nil t)
   (package-initialize)
-  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-  (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/")))
+  (setq package-archives
+		'(("gnu" . "http://elpa.gnu.org/packages/")
+		  ("melpa" . "http://melpa.org/packages/")
+		  ("org" . "http://orgmode.org/elpa/")
+		  ("marmalade" . "http://marmalade-repo.org/packages/"))))
 
 (require 'auto-install nil t)
 (when (featurep 'auto-install)
