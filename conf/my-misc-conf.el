@@ -113,6 +113,12 @@
 ;; magit
 (require 'magit nil t)
 
+;; バッファー名の問い合わせで大文字小文字の区別をしない
+(setq read-buffer-completion-ignore-case t)
+
+;; ファイル名の問い合わせで大文字小文字の区別をしない
+(setq read-file-name-completion-ignore-case t)
+
 
 ;; 最大化して起動
 (add-hook 'window-setup-hook
