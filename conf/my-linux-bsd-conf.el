@@ -2,6 +2,13 @@
 ;;フレームと、日本語関連の設定(FreeBSD/Linux)
 ;;
 
+;; PATH をシェルから引き継ぐ
+;; https://github.com/purcell/exec-path-from-shell
+(require 'exec-path-from-shell nil t) 
+(if (featurep 'exec-path-from-shell)
+	(progn
+	  (exec-path-from-shell-initialize)))
+
 ;; サーバプロセスを起動する
 (require 'server nil t)
 (unless (server-running-p)
