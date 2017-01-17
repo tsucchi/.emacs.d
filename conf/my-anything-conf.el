@@ -19,4 +19,10 @@
 (define-key anything-map "\C-v" 'anything-next-page)
 (define-key anything-map "\M-v" 'anything-previous-page)
 
+(setq anything-enable-shortcuts 'prefix)
+(define-key anything-map (kbd "@") 'anything-select-with-prefix-shortcut)
+
 (global-set-key (kbd "C-x C-b") 'anything)
+
+
+
