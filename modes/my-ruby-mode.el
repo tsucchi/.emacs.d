@@ -14,3 +14,7 @@
 (setq interpreter-mode-alist
       (append '(("^#!.*ruby" . ruby-mode))
 			  interpreter-mode-alist))
+
+;; ruby 2.0以降ではマジックコメント不要
+(setq ruby-insert-encoding-magic-comment nil)
+
