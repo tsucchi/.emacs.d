@@ -57,5 +57,5 @@
 (load "my-scss-mode")
 (load "my-yaml-mode")
 (load "my-scala-mode")
-
+(load "my-docker-mode")
 
