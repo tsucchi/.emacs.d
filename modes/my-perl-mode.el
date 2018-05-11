@@ -27,6 +27,7 @@
 			 (define-key cperl-mode-map "\C-l" 'my-font-lock-recenter)
 			 (define-key cperl-mode-map "\C-cg" 'goto-line)
 			 (define-key cperl-mode-map "\C-cr" 'jpl-reformat-align-enclosing-block)
+			 (define-key cperl-mode-map "\C-c\C-a" nil)
 			 (setq cperl-indent-level 4
 				   cperl-continued-statement-offset 4
 				   cperl-close-paren-offset -4
