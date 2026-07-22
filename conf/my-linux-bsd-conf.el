@@ -14,22 +14,39 @@
 (unless (server-running-p)
   (server-start))
 (cond
- ;; anthy をロードする(Xが有効な場合のみ)
+ ;; 日本語入力(mozc)とフォント(Xが有効な場合のみ)
  (window-system
   (progn
-	(load "anthy")
-	(setq default-input-method "japanese-anthy")
-	(setq anthy-accept-timeout nil)
-	(global-unset-key "\C-o")
-	(global-set-key "\C-o" 'toggle-input-method)
+	;; 日本語入力: mozc(Emacs 内蔵 / anthy の後継)
+	;; mozc が無い環境では skip して壊さない
+	(when (locate-library "mozc")
+	  (require 'mozc)
+	  (setq default-input-method "japanese-mozc")
+	  (setq mozc-candidate-style 'echo-area) ; 変換候補はエコー領域に表示(確実)
+	  ;; 半角/全角キー と C-o で日本語入力 ON/OFF(旧 anthy と同じ C-o)
+	  (global-set-key (kbd "<zenkaku-hankaku>") 'toggle-input-method)
+	  (global-unset-key "\C-o")
+	  (global-set-key "\C-o" 'toggle-input-method))
 	;;
 	;;フレームの設定
 	;;
-	(setq default-frame-alist
-		  (append (list
-				   ;;'(width . 104) ;;フレームの幅
-				   ;;'(height . 47) ;;フレームの高さ
-				   ;;'(font . "fontset-14")
-				   '(font . "-unknown-VL ゴシック-normal-normal-normal-*-13-*-*-*-*-0-iso10646-1")
-				   )
-				  default-frame-alist)))))
+	;; フォント設定(フォントが無い環境では既定のままにして壊さない)
+	;; 欧文: Cascadia Code(プログラミング向け・0/O 区別が明確)
+	(when (member "Cascadia Code" (font-family-list))
+	  (let ((font "Cascadia Code-18"))
+		(add-to-list 'default-frame-alist (cons 'font font))
+		(set-frame-font font nil t)))
+	;; 日本語: Noto Sans Mono CJK JP(Cascadia は日本語を持たないため)
+	(when (member "Noto Sans Mono CJK JP" (font-family-list))
+	  (dolist (cs '(japanese-jisx0208 kana han katakana-jisx0201))
+		(set-fontset-font t cs (font-spec :family "Noto Sans Mono CJK JP"))))
+	;;
+	;;フレームの設定
+	;;
+	;;(setq default-frame-alist
+	;;	  (append (list
+	;;			   '(width . 104) ;;フレームの幅
+	;;			   '(height . 47) ;;フレームの高さ
+	;;			   )
+	;;			  default-frame-alist))
+	)))

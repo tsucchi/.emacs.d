@@ -2,8 +2,10 @@
 ;; anything.el
 ;;(install-elisp-from-emacswiki "anything.el")
 (require 'anything nil t)
-(require 'anything-config nil t)
+(ignore-errors
+  (require 'anything-config nil t))
 
+(when (featurep 'anything)
 (setq anything-sources '( anything-c-source-buffers
                           anything-c-source-recentf
                           anything-c-source-file-name-history
@@ -22,7 +24,7 @@
 (setq anything-enable-shortcuts 'prefix)
 (define-key anything-map (kbd "@") 'anything-select-with-prefix-shortcut)
 
-(global-set-key (kbd "C-x C-b") 'anything)
+(global-set-key (kbd "C-x C-b") 'anything))
 
 
 

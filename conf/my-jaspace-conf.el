@@ -37,5 +37,8 @@
 
 ;;
 ;; izonmoji-mode : 機種依存文字の表示
+;; 古い make-coding-system に依存しており、新しい Emacs(29 以降)では
+;; ロード時にエラーになるため、失敗しても起動を止めないようにする
 ;;
-(require 'izonmoji-mode nil t)
+(ignore-errors
+  (require 'izonmoji-mode nil t))
