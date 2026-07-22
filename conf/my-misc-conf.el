@@ -98,8 +98,9 @@
 ;; (auto-install-from-emacswiki "recentf-ext.el")
 (setq recentf-max-saved-items 1000)
 
-;; wdired.el
-(define-key dired-mode-map "r" 'wdired-change-towdired-mode)
+;; wdired.el — dired で "r" から wdired(ファイル名の一括編集)を起動
+(with-eval-after-load 'dired
+  (define-key dired-mode-map "r" 'wdired-change-to-wdired-mode))
 
 ;; 括弧のハイライト
 (show-paren-mode t)

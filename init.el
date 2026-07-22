@@ -67,7 +67,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (yasnippet yaml-mode sql-indent package-utils magit helm-ag epl column-marker auto-install auto-complete anything))))
+    (yasnippet yaml-mode sql-indent magit column-marker auto-complete scala-mode2))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
