@@ -82,11 +82,8 @@
 	  (append '(".t" ".c" ".h")))
 
 ;;
-;; color-moccur/moccur-edit(install from emacswiki)
-;; (install-elisp-from-emacswiki "color-moccur.el")
-(when (require 'color-moccur nil t)
-  (setq moccur-split-word t))
-(require 'moccur-edit nil t)
+;; 旧 color-moccur/moccur-edit は廃止(cl 非推奨の発生源)。
+;; 多バッファ/多ファイル検索は consult(consult-line / consult-ripgrep / consult-grep)で代替。
 
 ;;
 ;; minor-mode-hack

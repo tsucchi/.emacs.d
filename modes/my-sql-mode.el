@@ -14,7 +14,7 @@
 
 
 (add-hook 'sql-mode-hook
-		  '(lambda ()
+		  (lambda ()
 			 (define-key sql-mode-map "\C-cc" 'comment-region)
 			 (define-key sql-mode-map "\C-cu" 'changecase-word)
 			 (define-key sql-mode-map "\C-l" 'my-font-lock-recenter)

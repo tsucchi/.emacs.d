@@ -20,6 +20,11 @@
 	;; 日本語入力: mozc(Emacs 内蔵 / anthy の後継)
 	;; mozc が無い環境では skip して壊さない
 	(when (locate-library "mozc")
+	  ;; mozc は内部で cl(Emacs 29 で obsolete)を必要とするため、
+	  ;; 先に cl を読み込んで「Package cl is deprecated」メッセージを抑止する。
+	  ;; (obsolete 警告を外した状態でロード。以降 mozc の require 'cl は no-op)
+	  (let ((byte-compile-warnings '(not obsolete)))
+	    (require 'cl nil t))
 	  (require 'mozc)
 	  (setq default-input-method "japanese-mozc")
 	  (setq mozc-candidate-style 'echo-area) ; 変換候補はエコー領域に表示(確実)

@@ -4,7 +4,7 @@
 (autoload 'ruby-mode "ruby-mode" "Ruby editing mode." t)
 ;;rubyモード固有の設定
 (add-hook 'ruby-mode-hook
-		  '(lambda ()
+		  (lambda ()
 			 (define-key ruby-mode-map "\C-ci" 'ruby-insert-header)
 			 (define-key ruby-mode-map "\C-cu" 'changecase-word)
 			 (define-key ruby-mode-map "\C-l" 'my-font-lock-recenter)))

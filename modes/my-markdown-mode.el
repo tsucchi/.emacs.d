@@ -6,7 +6,7 @@
 (setq auto-mode-alist (cons '("\\.md" . gfm-mode) auto-mode-alist))
 
 (add-hook 'markdown-mode-hook
-		  '(lambda ()
+		  (lambda ()
 			 ;;(define-key markdown-mode-map "\C-ce" 'sgml-name-char); 文字実体参照HTMLモードを事前にロードしないとダメでうまくいっていない
 			 ;; インデントがおかしいのを直す http://blog.shibayu36.org/entry/2015/08/04/190956
 			 (electric-indent-local-mode -1)))

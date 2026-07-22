@@ -18,7 +18,7 @@
   (load "~/.emacs"))
 ;;lisp-interaction-mode固有の設定
 (add-hook 'lisp-interaction-mode-hook
-		  '(lambda ()
+		  (lambda ()
 			 (define-key lisp-interaction-mode-map "\C-ci" 'lisp-insert-header)
 			 (define-key lisp-interaction-mode-map "\C-cu" 'changecase-word)
 			 (define-key lisp-interaction-mode-map "\M-\C-m" 'newline)
@@ -29,7 +29,7 @@
 			 (define-key lisp-interaction-mode-map "\C-cc" 'comment-region)))
 ;;emacs-lisp-modeでも同じ物を使う
 (add-hook 'emacs-lisp-mode-hook
-		  '(lambda ()
+		  (lambda ()
 			 (define-key emacs-lisp-mode-map "\C-ci" 'elisp-insert-header)
 			 (define-key emacs-lisp-mode-map "\C-cu" 'changecase-word)
 			 (define-key emacs-lisp-mode-map "\M-\C-m" 'newline)
