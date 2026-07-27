@@ -55,3 +55,25 @@
 	;;			   )
 	;;			  default-frame-alist))
 	)))
+
+;; WSLg + pgtk: Windows クリップボードとのコピペ文字化け対策。
+;; pgtk のネイティブ選択が WSLg 経由だと CP932 の生バイトを返して化けるため、
+;; wl-clipboard(UTF-8)経由でやり取りする。
+(when (and (featurep 'pgtk)
+		   (zerop (call-process "which" nil nil nil "wl-copy"))
+		   (zerop (call-process "which" nil nil nil "wl-paste")))
+  (setq wl-copy-process nil)
+  (defun wl-copy (text)
+	(setq wl-copy-process (make-process :name "wl-copy"
+										:buffer nil
+										:command '("wl-copy" "-f" "-n")
+										:connection-type 'pipe
+										:noquery t))
+	(process-send-string wl-copy-process text)
+	(process-send-eof wl-copy-process))
+  (defun wl-paste ()
+	(if (and wl-copy-process (process-live-p wl-copy-process))
+		nil ; Emacs 側がクリップボード所有中は内部 kill-ring を使う
+	  (shell-command-to-string "wl-paste -n | tr -d '\r'")))
+  (setq interprogram-cut-function 'wl-copy)
+  (setq interprogram-paste-function 'wl-paste))
