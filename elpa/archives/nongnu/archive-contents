@@ -24,7 +24,7 @@
 		("Bas Alberts" . "bas@anti.computer"))
       (:commit . "e99165ef5274bc4512b8d77ba2ac208c59b5d456"))])
  (aidermacs
-  . [(1 9)
+  . [(1 10)
      ((emacs (26 1)) (transient (0 3 0)) (compat (30 0 2 0))
       (markdown-mode (2 7)))
      "AI pair programming with Aider" tar
@@ -33,7 +33,7 @@
 		 "tools")
       (:maintainer "Mingde Zeng" . "matthewzmd@posteo.net")
       (:authors ("Mingde Zeng" . "matthewzmd@posteo.net"))
-      (:commit . "6accda816d4726f0d4d24ebc49a458f9bb9c6899"))])
+      (:commit . "7d25f9b2eab3d4b7267fb378084f53383d834b47"))])
  (alect-themes
   . [(0 11) ((emacs (24 0)))
      "Configurable light, dark and black themes for Emacs 24 or later"
@@ -208,7 +208,7 @@
       (:url . "https://elpa.nongnu.org/nongnu/cdlatex.html")
       (:commit . "fac070f0164ac9f5859cb4cccba7d29a65c337f3"))])
  (cider
-  . [(2 0 0)
+  . [(2 0 1)
      ((emacs (28)) (clojure-mode (5 19)) (compat (30))
       (parseedn (1 2 1)) (queue (0 2)) (spinner (1 7)) (seq (2 22))
       (sesman (0 3 2)) (transient (0 4 1)))
@@ -222,7 +222,7 @@
 		("Artur Malabarba" . "bruce.connor.am@gmail.com")
 		("Hugo Duncan" . "hugo@hugoduncan.org")
 		("Steve Purcell" . "steve@sanityinc.com"))
-      (:commit . "39c70c0f5f7985704c14e3254ca8a1fbd15d1088"))])
+      (:commit . "c17d11494b35502079caeac2fe7c39173349ce10"))])
  (clojure-mode
   . [(5 23 0) ((emacs (27 1))) "Major mode for Clojure code" tar
      ((:url . "https://github.com/clojure-emacs/clojure-mode")
@@ -1108,13 +1108,13 @@
       (:keywords "j" "languages")
       (:commit . "1365e5a3fe772609685b3787bbd2960331c1a02f"))])
  (jabber
-  . [(0 12 2) ((emacs (29 1)) (fsm (0 2 0)) (keymap-popup (0 2)))
+  . [(0 12 4) ((emacs (29 1)) (fsm (0 2 0)) (keymap-popup (0 2)))
      "XMPP/Jabber client" tar
-     ((:url . "https://codeberg.org/emacs-jabber/emacs-jabber")
+     ((:url . "https://git.thanosapollo.org/emacs-jabber/about/")
       (:keywords "comm")
       (:maintainer "Thanos Apollo" . "public@thanosapollo.org")
       (:authors ("Magnus Henoch" . "mange@freemail.hu"))
-      (:commit . "ab62c3cc2a7df39123ac0d841114a2e3a1c1e8c2"))])
+      (:commit . "c96f7cf2729dffdb1cdc3ab00a67273319ac55a1"))])
  (jade-mode
   . [(1 0 1) nil "Major mode for editing .jade files" tar
      ((:url . "https://github.com/brianc/jade-mode")
@@ -1566,13 +1566,13 @@
       (:authors ("Frédéric Perrin" . "fredericperrinreselfr"))
       (:commit . "176f9fb0c29ac60898e1e938458f26205511cc23"))])
  (projectile
-  . [(3 2 1) ((emacs (28 1)) (compat (30)))
+  . [(3 3 0) ((emacs (28 1)) (compat (30)))
      "Manage and navigate projects in Emacs easily" tar
      ((:url . "https://github.com/bbatsov/projectile")
       (:keywords "project" "convenience")
       (:maintainer "Bozhidar Batsov" . "bozhidar@batsov.dev")
       (:authors ("Bozhidar Batsov" . "bozhidar@batsov.dev"))
-      (:commit . "8ac2834f1f70af977f17944c7968c72ea46bf62c"))])
+      (:commit . "d1cc09ba9beced496b6aca70e6a8a1da07917c16"))])
  (proof-general
   . [(4 5) ((emacs (25 2)))
      "A generic Emacs interface for proof assistants" tar
@@ -1588,7 +1588,7 @@
       (:authors ("David Christiansen" . "david@davidchristiansen.dk"))
       (:commit . "1edda80e2e32b72e77f4f16ae5b83c312c68ee95"))])
  (racket-mode
-  . [(1 0 20260626 0) ((emacs (25 1)) (compat (30 0 2 0)))
+  . [(1 0 20260726 0) ((emacs (25 1)) (compat (30 0 2 0)))
      "Racket editing, REPL, and more" tar
      ((:url . "https://www.racket-mode.com/")
       (:authors
@@ -2117,11 +2117,11 @@
       (:authors ("Andrea Crotti" . "andrea.crotti.0@gmail.com"))
       (:commit . "39e640c037f51602f821721c200ab43b71febc90"))])
  (zenburn-theme
-  . [(2 10 0) nil "A low contrast color theme for Emacs." tar
+  . [(2 11 0) nil "A low contrast color theme for Emacs." tar
      ((:url . "https://github.com/bbatsov/zenburn-emacs")
       (:maintainer "Bozhidar Batsov" . "bozhidar@batsov.com")
       (:authors ("Bozhidar Batsov" . "bozhidar@batsov.com"))
-      (:commit . "8697934a57151de119744ea79fde83120e05b88d"))])
+      (:commit . "ae3c4d2db271c1a486f0dcb4f24a2bb80f24b67d"))])
  (zig-mode
   . [(0 0 8) ((emacs (26 1)) (reformatter (0 6)))
      "A major mode for the Zig programming language" tar
