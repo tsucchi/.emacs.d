@@ -49,10 +49,6 @@
 			 (set-face-background 'cperl-hash-face nil)
 			 (set-face-bold-p 'cperl-hash-face nil)
 			 (set-face-foreground 'cperl-hash-face "beige")
-			 ;;              (require 'perl-completion nil t)
-			 ;;              (if (featurep 'perl-completion)
-			 ;;                  (progn
-			 ;;                    (perl-completion-mode t)))
 			 ))
 
 (add-to-list 'auto-mode-alist '("\\.pl$" . cperl-mode))

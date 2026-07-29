@@ -36,8 +36,6 @@
 (load "my-keymap-conf")
 (load "my-functions")
 (load "my-jaspace-conf")
-;;(load "my-anything-conf") ; anything は廃止(Emacs29非互換)。vertico+consult へ移行
-;;(load "my-helm-conf")
 (load "my-vertico-conf")
 (load "my-auto-complete-conf")
 (load "my-yasnippet-conf")
@@ -45,14 +43,12 @@
 ;; プログラミングの mode 系
 (load "my-perl6-mode")
 (load "my-perl-mode")
-(load "my-vb-mode")
 (load "my-text-mode")
 (load "my-fundamental-mode")
 (load "my-shell-script-mode")
 (load "my-ruby-mode")
 (load "my-lisp-mode")
 (load "my-sql-mode")
-(load "my-haskell-mode")
 (load "my-html-mode")
 (load "my-markdown-mode")
 (load "my-scss-mode")
